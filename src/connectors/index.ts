@@ -20,7 +20,7 @@ export const [coinbaseWallet, coinbaseWalletHooks] = initializeConnector<Coinbas
       actions,
       options: {
         url: networkConfig.rpcUrl,
-        appName: 'Your HQ',
+        appName: 'DAO Dashboard',
       },
     })
 );
