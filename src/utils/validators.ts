@@ -1,0 +1,154 @@
+import { getValidatorValue } from '@q-dev/form-hooks';
+import { ParameterType } from '@q-dev/q-js-sdk';
+import { toBigNumber } from '@q-dev/utils';
+import i18n from 'i18next';
+import { isBoolean } from 'lodash';
+import isDate from 'lodash/isDate';
+import isEmpty from 'lodash/isEmpty';
+import isNumber from 'lodash/isNumber';
+
+import { ZERO_ADDRESS } from 'constants/boundaries';
+import { isAddress } from 'utils/web3';
+
+const HASH_REGEX = /^0x[a-fA-F0-9]{64}$/;
+const VAULT_ID_REGEX = /^[0-9]{1,18}$/;
+export const URL_REGEX = /^https?:\/\/(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
+
+interface ValidationResult {
+  isValid: boolean;
+  message: string;
+}
+type ValidatorValue = string | number | boolean | Date | ParameterType | File | null;
+type Validator<T extends ValidatorValue = ValidatorValue, U = unknown> = (val: T, form?: U) => ValidationResult;
+type ValidatorFn<U, T extends ValidatorValue = ValidatorValue> = (val: U | ((form: unknown) => T)) => Validator<T>;
+
+export const required: Validator = (val) => ({
+  isValid: !isEmpty(val) || isNumber(val) || isDate(val) || isBoolean(val) || val instanceof File,
+  message: i18n.t('VALIDATION_REQUIRED')
+});
+
+export const requiredIf: ValidatorFn<(val: ValidatorValue, form: unknown) => boolean> = predicate => (val, form) => {
+  return {
+    isValid: !predicate(val, form) || required(val).isValid,
+    message: i18n.t('VALIDATION_REQUIRED')
+  };
+};
+
+export const amount: ValidatorFn<string | number> = max => (val, form) => {
+  const value = toBigNumber(String(val));
+  const zero = toBigNumber(0);
+  const validatorValue = toBigNumber(String(getValidatorValue(max, form)));
+
+  if (value.comparedTo(zero) === 0) {
+    return {
+      isValid: false,
+      message: i18n.t('VALIDATION_AMOUNT_COMPARED_ZERO')
+    };
+  }
+
+  if (validatorValue.comparedTo(toBigNumber(0)) === 0) {
+    return {
+      isValid: false,
+      message: i18n.t('VALIDATION_AVAILABLE_AMOUNT_ZERO')
+    };
+  }
+
+  return {
+    isValid: value.comparedTo(validatorValue) <= 0,
+    message: i18n.t('VALIDATION_MAX_AMOUNT', { max })
+  };
+};
+
+export const min: ValidatorFn<string | number> = min => (val, form) => {
+  const value = toBigNumber(String(val));
+  const validatorValue = toBigNumber(String(getValidatorValue(min, form)));
+
+  return {
+    isValid: value.comparedTo(validatorValue) >= 0,
+    message: i18n.t('VALIDATION_MIN_VALUE', { min })
+  };
+};
+
+export const max: ValidatorFn<string | number> = max => (val, form) => {
+  const value = toBigNumber(String(val));
+  const validatorValue = toBigNumber(String(getValidatorValue(max, form)));
+
+  return {
+    isValid: value.comparedTo(validatorValue) <= 0,
+    message: i18n.t('VALIDATION_MAX_VALUE', { max })
+  };
+};
+
+export const url: Validator = val => ({
+  isValid: !val || URL_REGEX.test(String(val)),
+  message: i18n.t('VALIDATION_URL')
+});
+
+export const address: Validator<string> = val => ({
+  isValid: !val || isAddress(val),
+  message: i18n.t('VALIDATION_ADDRESS')
+});
+
+export const nonZeroAddress: Validator<string> = val => ({
+  isValid: !val || (isAddress(val) && val !== ZERO_ADDRESS),
+  message: i18n.t('VALIDATION_ADDRESS')
+});
+
+export const vaultID: Validator = val => ({
+  isValid: !val || VAULT_ID_REGEX.test(String(val)),
+  message: i18n.t('VALIDATION_VAULT_UD')
+});
+
+export const hash: Validator = val => ({
+  isValid: !val || HASH_REGEX.test(String(val)),
+  message: i18n.t('VALIDATION_HASH')
+});
+
+export const currentHash: ValidatorFn<string> = hash => val => ({
+  isValid: !val || val === hash,
+  message: i18n.t('VALIDATION_CURRENT_HASH')
+});
+
+export const percent: Validator = val => ({
+  isValid: !val || (Number(val) >= 0 && Number(val) <= 100),
+  message: i18n.t('VALIDATION_PERCENT')
+});
+
+export const parameterType: ValidatorFn<ParameterType> = type => (val, form) => {
+  const typeValue = getValidatorValue(type, form);
+  if (!val) return { isValid: true, message: '' };
+
+  switch (typeValue) {
+    case ParameterType.ADDRESS:
+      return {
+        isValid: isAddress(String(val)),
+        message: i18n.t('VALIDATION_ADDRESS')
+      };
+
+    case ParameterType.BOOL:
+      return {
+        isValid: ['true', 'false'].includes(String(val).toLowerCase()),
+        message: i18n.t('VALIDATION_BOOLEAN_VALUE')
+      };
+
+    case ParameterType.STRING:
+      return {
+        isValid: String(val).length <= 1024,
+        message: i18n.t('VALIDATION_STRING_VALUE')
+      };
+
+    case ParameterType.UINT:
+      return {
+        isValid: !toBigNumber(String(val)).isNaN(),
+        message: i18n.t('VALIDATION_UINT_VALUE')
+      };
+
+    default:
+      return { isValid: true, message: '' };
+  }
+};
+
+export const futureDate: Validator = val => ({
+  isValid: !val || new Date(val.toString()) > new Date(),
+  message: i18n.t('VALIDATION_FUTURE_DATE')
+});

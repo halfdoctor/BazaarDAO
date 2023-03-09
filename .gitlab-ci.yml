@@ -1,0 +1,27 @@
+include:
+  - project: "q-dev/infrastructure/common-ci"
+    ref: "main"
+    file: "semantic-release-basic.yml"
+
+
+.before_script_template:
+  before_script:
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf https://gitlab.com/
+    - go env -w GOPRIVATE=gitlab.com/${CI_PROJECT_NAMESPACE}
+
+stages:
+  - ".pre"
+  - "test"
+  - ".post"
+
+test:
+  image: node:lts
+  stage: test
+  only:
+    - merge_request
+    - master
+  script:
+    - yarn config set '//gitlab.com/api/v4/packages/npm/:_authToken' $NPM_TOKEN
+    - yarn --frozen-lockfile
+    - yarn lint
+    - yarn build
