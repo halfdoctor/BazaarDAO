@@ -1300,5 +1300,10 @@
   "REMOVE_STAKE_TX": "Remove stake",
   "REMOVE_ALL_STAKES_TX": "Remove all stakes",
   "STAKE_UPDATE_TX": "Stake update",
-  "ENTERING_VALIDATOR_RANK_TX": "Enter in Validator Ranking"
+  "ENTERING_VALIDATOR_RANK_TX": "Enter in Validator Ranking",
+  "FIND_DAO": "Find DAO",
+  "WRONG_DAO_ADDRESS": "DAO with this address does not exist",
+  "INPUT_DAO_ADDRESS": "Search DAO address",
+  "DAOS_TITLE": "DAOs",
+  "DAO_EXPLORE": "Explore"
 }

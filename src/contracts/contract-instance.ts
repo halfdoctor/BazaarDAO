@@ -1,3 +1,4 @@
+import { MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
 import { ContractRegistryInstance } from '@q-dev/q-js-sdk';
 import { ContractType, ContractValue } from 'typings/contracts';
 
@@ -7,7 +8,9 @@ const cache: Record<string, ContractValue> = {};
 
 export const getContractRegistryInstance = () => {
   if (!contractRegistryInstance) {
-    contractRegistryInstance = new ContractRegistryInstance(window.web3, CONTRACT_REGISTRY_ADDRESS);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    contractRegistryInstance = new ContractRegistryInstance(window.web3, CONTRACT_REGISTRY_ADDRESS); // Fix web3 type
   }
   return contractRegistryInstance;
 };
@@ -25,6 +28,16 @@ export function getInstance<T extends ContractType> (
     return cache[instance];
   };
 }
+
+export let masterDaoRegistryInstance: MasterDAORegistryInstance | null = null;
+
+export const getMasterDaoRegistryInstance = (masterDaoFactoryAddress: string) => {
+  if (!masterDaoRegistryInstance) {
+    masterDaoRegistryInstance = new MasterDAORegistryInstance(window.web3, masterDaoFactoryAddress);
+  }
+
+  return masterDaoRegistryInstance;
+};
 
 export const getGeneralUpdateVotingInstance = getInstance('generalUpdateVoting');
 

@@ -3,7 +3,6 @@ export enum RoutePaths {
 
   governance = '/governance',
   governanceTab = '/governance/:tab?',
-  votingPower = '/governance/voting-power',
   qProposals = '/governance/q-proposals',
   expertProposals = '/governance/expert-proposals',
 
@@ -19,5 +18,5 @@ export enum RoutePaths {
   qContractRegistry = '/q-parameters/contract-registry',
   qConstitution = '/q-parameters/constitution',
 
-  qVault = '/q-vault',
+  votingPower = '/voting-power',
 }

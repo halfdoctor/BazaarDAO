@@ -4,6 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 
 import logo from 'assets/img/logo.png';
 
+import useDao from 'hooks/useDao';
+
 import packageJson from '../../../package.json';
 
 import EcosystemLinks from './components/EcosystemLinks';
@@ -20,6 +22,7 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { activeProposalsCount } = useProposals();
+  const { composeDaoLink } = useDao();
 
   const [versionModalOpen, setVersionModalOpen] = useState(false);
 
@@ -29,7 +32,10 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
 
       <div className="sidebar" onClick={onClose}>
         <div className="sidebar-content">
-          <Link to="/" className="sidebar-logo-link">
+          <Link
+            to={composeDaoLink('/')}
+            className="sidebar-logo-link"
+          >
             <img
               className="sidebar-logo"
               alt="Q Logo"
@@ -41,23 +47,23 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
             <div className="sidebar-links">
               <SidebarLink
                 exact={!pathname.includes('dashboard')}
-                to={RoutePaths.dashboard}
+                to={composeDaoLink('/')}
                 title={t('DASHBOARD')}
                 icon="dashboard"
               />
 
               <SidebarLink
                 exact={false}
-                to={RoutePaths.governance}
+                to={composeDaoLink('/governance')}
                 title={t('GOVERNANCE')}
                 icon="vote"
                 count={activeProposalsCount}
               />
               <SidebarLink
                 exact={false}
-                to={RoutePaths.qVault}
-                title={t('Q_VAULT')}
-                icon="wallet"
+                to={composeDaoLink(RoutePaths.votingPower)}
+                title={t('VOTING_POWER')}
+                icon="bank"
               />
             </div>
 
@@ -71,7 +77,7 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
             {packageJson.version}
           </button>
 
-          <Link to="/data-privacy" className="sidebar-footer-link text-md">
+          <Link to="/privacy" className="sidebar-footer-link text-md">
             {t('DATA_PRIVACY')}
           </Link>
 

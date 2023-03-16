@@ -2,7 +2,10 @@ import { memo } from 'react';
 
 import { useWeb3Context } from 'context/Web3ContextProvider';
 
+import logo from 'assets/img/logo.png';
 import Button from 'components/Button';
+
+import useDao from 'hooks/useDao';
 
 import Balance from './components/Balance';
 import ConnectWallet from './components/ConnectWallet';
@@ -13,13 +16,29 @@ import { StyledHeader } from './styles';
 
 function Header ({ onMenuClick }: { onMenuClick: () => void }) {
   const { isConnected } = useWeb3Context();
+  const { isDaoPage } = useDao();
 
   return (
     <StyledHeader>
       <div className="header__content">
         <div className="header__left">
           <div className="header__network">
-            <Network />
+            {isDaoPage
+              ? <Network />
+              : (
+                <div className="header__logo-wrp">
+                  <img
+                    className="header__logo"
+                    alt="Q Logo"
+                    src={logo}
+                  />
+
+                  <p className="header__logo-title text-h2">
+                    {/* TODO: translations */}
+                    DAO Dashboard
+                  </p>
+                </div>
+              )}
           </div>
           <Button
             alwaysEnabled
@@ -35,7 +54,7 @@ function Header ({ onMenuClick }: { onMenuClick: () => void }) {
           {isConnected
             ? (
               <>
-                <Balance />
+                {isDaoPage && <Balance />}
                 <WalletDropdown />
               </>
             )

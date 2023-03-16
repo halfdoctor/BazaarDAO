@@ -20,6 +20,17 @@ export const StyledHeader = styled.header`
     }
   }
 
+  .header__logo-wrp {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .header__logo {
+    width: 40px;
+    transform: scale(1.5);
+  }
+
   .header__network {
     ${media.lessThan('medium')} {
       display: none;

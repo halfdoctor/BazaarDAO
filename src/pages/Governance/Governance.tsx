@@ -9,6 +9,8 @@ import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
+import useDao from 'hooks/useDao';
+
 import Proposals from './components/Proposals';
 import VotingStats from './components/VotingStats';
 
@@ -20,25 +22,26 @@ function Governance () {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const { getActiveProposalsByType } = useProposals();
+  const { composeDaoLink } = useDao();
 
   const tabs = [
     {
       id: 'q-proposals',
       label: t('Q_PROPOSALS'),
       count: getActiveProposalsByType('q').length,
-      link: RoutePaths.qProposals,
+      link: composeDaoLink(RoutePaths.qProposals),
     },
     {
       id: 'expert-roposals',
       label: t('EXPERT_PROPOSALS'),
       count: getActiveProposalsByType('expert').length,
-      link: RoutePaths.expertProposals,
+      link: composeDaoLink(RoutePaths.expertProposals),
     },
   ];
 
   const pathToNewProposalPath: Record<string, string> = {
-    [RoutePaths.qProposals]: RoutePaths.newQProposal,
-    [RoutePaths.expertProposals]: RoutePaths.newExpertProposal,
+    [composeDaoLink(RoutePaths.qProposals)]: composeDaoLink(RoutePaths.newQProposal),
+    [composeDaoLink(RoutePaths.expertProposals)]: composeDaoLink(RoutePaths.newExpertProposal),
   };
 
   const redirectTab = tabs.find(tab => tab.count > 0) || tabs[0];
@@ -47,7 +50,7 @@ function Governance () {
     <PageLayout
       title={t('GOVERNANCE')}
       action={(
-        <Link to={pathToNewProposalPath[pathname] || RoutePaths.newQProposal}>
+        <Link to={pathToNewProposalPath[pathname] || composeDaoLink(RoutePaths.newQProposal)}>
           <Button block>
             <Icon name="add" />
             <span>{t('CREATE_PROPOSAL')}</span>
@@ -59,15 +62,15 @@ function Governance () {
       <Tabs tabs={tabs} />
       <TabSwitch>
         <>
-          <Route exact path={RoutePaths.governance}>
+          <Route exact path={'/:address' + RoutePaths.governance}>
             <Redirect to={redirectTab.link} />
           </Route>
 
-          <TabRoute exact path={RoutePaths.qProposals}>
+          <TabRoute exact path={'/:address' + RoutePaths.qProposals}>
             <Proposals type="q" />
           </TabRoute>
 
-          <TabRoute exact path={RoutePaths.expertProposals}>
+          <TabRoute exact path={'/:address' + RoutePaths.expertProposals}>
             <Proposals type="expert" />
           </TabRoute>
         </>

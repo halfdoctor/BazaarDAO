@@ -9,6 +9,8 @@ import { Proposal as ProposalInterface, ProposalType } from 'typings/proposals';
 
 import Button from 'components/Button';
 
+import useDao from 'hooks/useDao';
+
 import ProposalLayout from './components/ProposalLayout';
 import ProposalSkeleton from './components/Proposals/components/ProposalSkeleton';
 
@@ -25,6 +27,7 @@ function Proposal ({ match }: RouteComponentProps<{
   const { t } = useTranslation();
   const history = useHistory();
   const { pendingTransactions } = useTransaction();
+  const { composeDaoLink } = useDao();
 
   const [proposal, setProposal] = useState<ProposalInterface |null>(null);
   const type = getProposalTypeByContract(match.params.contract);
@@ -54,7 +57,7 @@ function Proposal ({ match }: RouteComponentProps<{
       return;
     }
 
-    history.replace(RoutePaths.governance);
+    history.replace(composeDaoLink(RoutePaths.governance));
   };
 
   const backTextMap: Record<ProposalType, string> = {
