@@ -1,0 +1,20 @@
+[  
+  {
+    "title": "QBlockchain",
+    "description": "Q is a decentralized governance system that aims to democratize access to international private law and ensure fair dispute resolution in the decentralized world.",
+    "image": "https://crew3-production.s3.eu-west-3.amazonaws.com/public/9216fc2e-2dea-40eb-a0b4-9a61fe210eec-QLogoDiscordNew.gif",
+    "address": "0x1215f55b1c4171E5008C9daEd227C30cFc8b9E5f"
+  },
+  {
+    "title": "Cosmos Ecosystem",
+    "description": "The Internet of Blockchains.Cosmos is an ever- expanding ecosystem of interconnected apps and services, built for a decentralized future.",
+    "image": "https://crew3-production.s3.eu-west-3.amazonaws.com/public/2ccbec80-d30a-4cfc-a0f7-ff0144ceaef3-Picsart_23-01-22_00-19-48-611.png",
+    "address": "0x1215f55b1c4171E5008C9daEd227C30cFc8b9E5f"
+  },
+  {
+    "title": "Core DAO",
+    "description": "CoreDAO - the official org developing the Satoshi Plus ecosystem and building web3 infrastructure on Bitcoin’s PoW.",
+    "image": "https://crew3-production.s3.eu-west-3.amazonaws.com/public/281f553f-67a4-4cae-bf1b-1b6850ad7a21-CoreDAOLogo.jpg",
+    "address": "0xE7F30172474878A8148B182D25BD7c1c65E142e9"
+  }
+]

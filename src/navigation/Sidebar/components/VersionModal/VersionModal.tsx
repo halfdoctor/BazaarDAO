@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ConnectionInfo, Web3Adapter } from '@q-dev/q-js-sdk';
+import { ConnectionInfo, Web3Adapter } from '@q-dev/gdk-sdk';
 import { Modal } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
 

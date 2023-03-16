@@ -9,6 +9,8 @@ import TransactionLoader from 'components/TransactionLoader';
 import Header from 'navigation/Header';
 import Sidebar from 'navigation/Sidebar';
 
+import useDao from 'hooks/useDao';
+
 import { AppContainer } from './styles';
 
 interface Props {
@@ -18,6 +20,7 @@ interface Props {
 function Layout ({ children }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isConnected, isRightNetwork } = useWeb3Context();
+  const { isDaoPage } = useDao();
 
   return (
     <AlertProvider
@@ -39,14 +42,17 @@ function Layout ({ children }: Props) {
         gap: '12px',
       }}
     >
-      { isConnected && !isRightNetwork
+      {isConnected && !isRightNetwork
         ? <NetworkWarning />
         : (
-          <AppContainer>
-            <Sidebar
-              open={sidebarOpen}
-              onClose={() => setSidebarOpen(false)}
-            />
+          <AppContainer $wide={!isDaoPage}>
+            {isDaoPage && (
+              <Sidebar
+                open={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+              />
+            )}
+
             <div className="app__content">
               <Header onMenuClick={() => setSidebarOpen(true)} />
               <main className="app__main">

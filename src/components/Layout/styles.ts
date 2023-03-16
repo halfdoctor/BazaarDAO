@@ -1,9 +1,9 @@
 import { media } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
-export const AppContainer = styled.div`
+export const AppContainer = styled.div<{ $wide: boolean }>`
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: ${({ $wide }) => ($wide ? '1fr' : 'auto minmax(0, 1fr)')};
 
   .app__main {
     position: relative;

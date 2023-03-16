@@ -11,6 +11,8 @@ import { fromWei } from 'web3-utils';
 
 import Button from 'components/Button';
 
+import useDao from 'hooks/useDao';
+
 import { BalanceDropdown, QLogo } from './styles';
 
 import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
@@ -22,8 +24,9 @@ function Balance () {
   const { t } = useTranslation();
   const { baseVotingWeightInfo } = useBaseVotingWeightInfo();
   const totalVotingWeight = fromWei(baseVotingWeightInfo.ownWeight);
-  const { vaultBalance, walletBalance, loadAllBalances } = useQVault();
+  const { walletBalance, loadAllBalances } = useQVault();
   const { isDarkTheme } = useTheme();
+  const { composeDaoLink } = useDao();
 
   useInterval(loadAllBalances, 5000);
 
@@ -64,16 +67,9 @@ function Balance () {
           <p className="text-xl color-primary font-semibold">{formatNumberCompact(walletBalance, 2)}</p>
         </div>
 
-        <Link to={RoutePaths.qVault}>
+        <Link to={composeDaoLink(RoutePaths.votingPower)}>
           <div className="balance balance-action">
-            <p className="text-md color-secondary">{t('Q_VAULT_BALANCE')} </p>
-            <p className="text-lg color-primary font-semibold">{formatNumberCompact(vaultBalance, 2)}</p>
-          </div>
-        </Link>
-
-        <Link to={RoutePaths.governance}>
-          <div className="balance balance-action">
-            <p className="text-md color-secondary">{t('VOTING_WEIGHT')}</p>
+            <p className="text-md color-secondary">{t('VOTING_POWER')}</p>
             <p className="text-lg color-primary font-semibold">{formatNumberCompact(totalVotingWeight, 2)}</p>
           </div>
         </Link>

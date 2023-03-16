@@ -4,23 +4,26 @@ import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
+import useDao from 'hooks/useDao';
+
 import { NewExpertProposal, NewQProposal } from './components/NewProposal';
 
 import { RoutePaths } from 'constants/routes';
 
 function NewProposal () {
   const { t } = useTranslation();
+  const { composeDaoLink } = useDao();
 
   const tabs = [
     {
       id: 'q-proposal',
       label: t('Q_PROPOSAL'),
-      link: RoutePaths.newQProposal
+      link: composeDaoLink(RoutePaths.newQProposal)
     },
     {
       id: 'expert-roposal',
       label: t('EXPERT_PROPOSAL'),
-      link: RoutePaths.newExpertProposal
+      link: composeDaoLink(RoutePaths.newExpertProposal)
     },
   ];
 
@@ -29,11 +32,11 @@ function NewProposal () {
       <Tabs tabs={tabs} />
       <TabSwitch>
         <>
-          <TabRoute exact path={RoutePaths.newQProposal}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.newQProposal)}>
             <NewQProposal />
           </TabRoute>
 
-          <TabRoute exact path={RoutePaths.newExpertProposal}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.newExpertProposal)}>
             <NewExpertProposal />
           </TabRoute>
         </>

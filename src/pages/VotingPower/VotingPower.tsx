@@ -17,7 +17,7 @@ const StyledWrapper = styled.div`
     gap: 16px;
   }
 
-  .q-vault-main {
+  .voting-power__main {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
@@ -29,14 +29,14 @@ const StyledWrapper = styled.div`
   }
 `;
 
-function QVault () {
+function VotingPower () {
   const { t } = useTranslation();
 
   return (
-    <PageLayout title={t('Q_VAULT')}>
+    <PageLayout title={t('VOTING_POWER')}>
       <StyledWrapper>
         <BalanceOverview />
-        <div className="q-vault-main">
+        <div className="voting-power__main">
           <TransferForm />
           <WithdrawForm />
         </div>
@@ -45,4 +45,4 @@ function QVault () {
   );
 }
 
-export default QVault;
+export default VotingPower;

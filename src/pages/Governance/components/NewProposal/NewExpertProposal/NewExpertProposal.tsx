@@ -7,6 +7,8 @@ import { ExpertProposalForm } from 'typings/forms';
 
 import MultiStepForm from 'components/MultiStepForm';
 
+import useDao from 'hooks/useDao';
+
 import ConfirmationStep from './components/ConfirmationStep';
 import ManageExpertStep from './components/ManageExpertStep';
 import ParameterVoteStep from './components/ParameterVoteStep';
@@ -34,6 +36,7 @@ function NewExpertProposal () {
   const { submitTransaction } = useTransaction();
   const { createNewProposal } = useProposals();
   const history = useHistory();
+  const { composeDaoLink } = useDao();
 
   const form = useMultiStepForm({
     initialValues: DEFAULT_VALUES,
@@ -41,7 +44,7 @@ function NewExpertProposal () {
       submitTransaction({
         successMessage: t('CREATE_PROPOSAL_TX'),
         submitFn: () => createNewProposal(form),
-        onSuccess: () => history.push(RoutePaths.expertProposals)
+        onSuccess: () => history.push(composeDaoLink(RoutePaths.expertProposals))
       });
     },
   });

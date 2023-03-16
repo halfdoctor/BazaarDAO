@@ -11,6 +11,8 @@ import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
+import useDao from 'hooks/useDao';
+
 import ExplorerProvider from './providers/ExplorerProvider';
 
 import { RoutePaths } from 'constants/routes';
@@ -23,32 +25,33 @@ const QEPRSParameters = lazy(() => import('./components/QParameters/QEPRSParamet
 
 function ManageParameters () {
   const { t } = useTranslation();
+  const { composeDaoLink } = useDao();
 
   const tabs = [
     {
       id: 'contract-registry',
       label: t('CONTRACT_REGISTRY'),
-      link: RoutePaths.qContractRegistry
+      link: composeDaoLink(RoutePaths.qContractRegistry)
     },
     {
       id: 'constitution',
       label: t('CONSTITUTION'),
-      link: RoutePaths.qConstitution
+      link: composeDaoLink(RoutePaths.qConstitution)
     },
     {
       id: 'fees-and-incentives',
       label: t('FEES_INCENTIVES_EXPERT'),
-      link: RoutePaths.qFeesAndIncentivesExpertPanel
+      link: composeDaoLink(RoutePaths.qFeesAndIncentivesExpertPanel)
     },
     {
       id: 'defi-risk',
       label: t('DEFI_RISK_EXPERT'),
-      link: RoutePaths.qDefiRiskExpertPanelParameters
+      link: composeDaoLink(RoutePaths.qDefiRiskExpertPanelParameters)
     },
     {
       id: 'root-node-selection',
       label: t('ROOT_NODE_SELECTION_EXPERT'),
-      link: RoutePaths.qRootNodeSelectionExpertPanelParameters
+      link: composeDaoLink(RoutePaths.qRootNodeSelectionExpertPanelParameters)
     },
   ];
 
@@ -74,11 +77,11 @@ function ManageParameters () {
 
       <TabSwitch>
         <>
-          <Route exact path={RoutePaths.qParameters}>
-            <Redirect to={RoutePaths.qContractRegistry} />
+          <Route exact path={composeDaoLink(RoutePaths.qParameters)}>
+            <Redirect to={composeDaoLink(RoutePaths.qContractRegistry)} />
           </Route>
 
-          <TabRoute exact path={RoutePaths.qContractRegistry}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.qContractRegistry)}>
             <LazyLoading>
               <ExplorerProvider>
                 <QContractRegistryParameters />
@@ -86,25 +89,25 @@ function ManageParameters () {
             </LazyLoading>
           </TabRoute>
 
-          <TabRoute exact path={RoutePaths.qConstitution}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.qConstitution)}>
             <LazyLoading>
               <QConstitutionParameters />
             </LazyLoading>
           </TabRoute>
 
-          <TabRoute exact path={RoutePaths.qFeesAndIncentivesExpertPanel}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.qFeesAndIncentivesExpertPanel)}>
             <LazyLoading>
               <QFIParameters />
             </LazyLoading>
           </TabRoute>
 
-          <TabRoute exact path={RoutePaths.qDefiRiskExpertPanelParameters}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.qDefiRiskExpertPanelParameters)}>
             <LazyLoading>
               <QEPDRParameters />
             </LazyLoading>
           </TabRoute>
 
-          <TabRoute exact path={RoutePaths.qRootNodeSelectionExpertPanelParameters}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.qRootNodeSelectionExpertPanelParameters)}>
             <LazyLoading>
               <QEPRSParameters />
             </LazyLoading>

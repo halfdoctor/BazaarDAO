@@ -1,11 +1,8 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 
 import { formatAsset } from '@q-dev/utils';
 import { fromWei } from 'web3-utils';
-
-import Button from 'components/Button';
 
 import useVoteDelegation from 'hooks/useVoteDelegation';
 import useVoterStatus from 'hooks/useVoterStatus';
@@ -16,7 +13,6 @@ import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
 import { useQVault } from 'store/q-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
-import { RoutePaths } from 'constants/routes';
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
 
 function VotingStats () {
@@ -65,15 +61,6 @@ function VotingStats () {
     <StatsContainer className="block">
       <div className="block__header">
         <h2 className="text-h2">{t('VOTING_STATS')}</h2>
-        <Link to={RoutePaths.votingPower}>
-          <Button
-            block
-            alwaysEnabled
-            look="secondary"
-          >
-            {t('VOTING_POWER')}
-          </Button>
-        </Link>
       </div>
 
       <div className="stats-list">

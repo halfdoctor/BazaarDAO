@@ -8,6 +8,8 @@ import { QProposalForm } from 'typings/forms';
 
 import MultiStepForm from 'components/MultiStepForm';
 
+import useDao from 'hooks/useDao';
+
 import ConfirmationStep from './components/ConfirmationStep';
 import ConstitutionStep from './components/ConstitutionStep';
 import LinkStep from './components/LinkStep';
@@ -37,6 +39,7 @@ function NewQProposal () {
   const { submitTransaction } = useTransaction();
   const { createNewProposal } = useProposals();
   const history = useHistory();
+  const { composeDaoLink } = useDao();
 
   const form = useMultiStepForm({
     initialValues: DEFAULT_VALUES,
@@ -44,7 +47,7 @@ function NewQProposal () {
       submitTransaction({
         successMessage: t('CREATE_PROPOSAL_TX'),
         submitFn: () => createNewProposal(form),
-        onSuccess: () => history.push(RoutePaths.qProposals)
+        onSuccess: () => history.push(composeDaoLink(RoutePaths.qProposals))
       });
     },
   });

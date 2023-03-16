@@ -8,6 +8,8 @@ import { Proposal } from 'typings/proposals';
 
 import useProposalDetails from 'pages/Governance/hooks/useProposalDetails';
 
+import useDao from 'hooks/useDao';
+
 import ProposalCardSkeleton from '../ProposalCardSkeleton';
 import VotingPeriods from '../VotingPeriods';
 
@@ -17,6 +19,7 @@ import { getProposal } from 'contracts/helpers/voting';
 
 function ProposalCard ({ proposal }: { proposal: ProposalEvent }) {
   const { t } = useTranslation();
+  const { composeDaoLink } = useDao();
 
   const [proposalInfo, setProposalInfo] = useState<Proposal | null>(null);
   const { title, status, state } = useProposalDetails(proposalInfo);
@@ -44,7 +47,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalEvent }) {
       <ProposalCardLink
         className="block"
         to={{
-          pathname: `/governance/proposal/${proposal.contract}/${proposal.id}`,
+          pathname: composeDaoLink(`/governance/proposal/${proposal.contract}/${proposal.id}`),
           state: { from: 'list' },
         }}
       >
