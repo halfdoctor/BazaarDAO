@@ -1,12 +1,14 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { calculateInterestRate } from '@q-dev/utils';
+import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
+import { calculateInterestRate, toBigNumber } from '@q-dev/utils';
 import { fromWei, toWei } from 'web3-utils';
 
 import {
   setDelegationInfo,
   setDelegationStakeInfo,
+  setMaxWithdrawalBalance,
   setQVaultMinimumTimeLock,
   setQVBalance,
   setVaultBalance,
@@ -18,7 +20,7 @@ import {
 import { getState, getUserAddress, useAppSelector } from 'store';
 import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
 
-import { getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
+import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
 import { countTotalStakeReward, getQHolderRewardPool } from 'contracts/helpers/q-vault-helper';
 
 import { dateToUnix } from 'utils/date';
@@ -27,13 +29,16 @@ import { captureError } from 'utils/errors';
 export function useQVault () {
   const dispatch = useDispatch();
   const { getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
-
   const vaultBalance = useAppSelector(({ qVault }) => qVault.vaultBalance);
   const walletBalance = useAppSelector(({ qVault }) => qVault.walletBalance);
 
   const votingWeight = useAppSelector(({ qVault }) => qVault.votingWeight);
   const votingLockingEnd = useAppSelector(({ qVault }) => qVault.votingLockingEnd);
   const isVotingWeightUnlocked = useAppSelector(({ qVault }) => Number(qVault.votingLockingEnd) < dateToUnix());
+  const lockedTokens = useAppSelector(({ qVault }) =>
+    toBigNumber(qVault.vaultBalance).minus(qVault.maxWithdrawalBalance).toString()
+  );
+  const withdrawalBalance = useAppSelector(({ qVault }) => qVault.maxWithdrawalBalance);
 
   const delegationInfo = useAppSelector(({ qVault }) => qVault.delegationInfo);
   const delegationStakeInfo = useAppSelector(({ qVault }) => qVault.delegationStakeInfo);
@@ -44,7 +49,12 @@ export function useQVault () {
 
   async function loadWalletBalance () {
     try {
-      const balance = await window.web3.eth.getBalance(getUserAddress());
+      const { votingToken } = getState().dao;
+      const balance = votingToken
+        ? votingToken === ETHEREUM_ADDRESS
+          ? await window.web3.eth.getBalance(getUserAddress())
+          : await getErc20Contract(votingToken).methods.balanceOf(getUserAddress()).call()
+        : '0';
       dispatch(setWalletBalance(fromWei(balance)));
     } catch (error) {
       captureError(error);
@@ -53,9 +63,28 @@ export function useQVault () {
 
   async function loadVaultBalance (address?: string) {
     try {
-      const contract = await getQVaultInstance();
-      const balance = await contract.balanceOf(address ?? getUserAddress());
+      if (!daoInstance) return;
+      const { votingToken } = getState().dao;
+      const daoVaultInstance = await daoInstance.getVaultInstance();
+      const balance = await daoVaultInstance.instance.methods
+        .userTokenBalance(address ?? getUserAddress(), votingToken)
+        .call();
       dispatch(setVaultBalance(fromWei(balance)));
+    } catch (error) {
+      captureError(error);
+    }
+  }
+
+  async function loadWithdrawalAmount (address?: string) {
+    try {
+      if (!daoInstance) return;
+      const { votingToken } = getState().dao;
+      const daoVaultInstance = await daoInstance.getVaultInstance();
+
+      const balance = await daoVaultInstance.instance.methods
+        .getWithdrawalAmountAndEndTime(address ?? getUserAddress(), votingToken).call();
+      dispatch(setMaxWithdrawalBalance(fromWei(balance[0])));
+      dispatch(setQVaultMinimumTimeLock(balance[1]));
     } catch (error) {
       captureError(error);
     }
@@ -66,6 +95,7 @@ export function useQVault () {
       await Promise.all([
         loadWalletBalance(),
         loadVaultBalance(),
+        loadWithdrawalAmount(),
         getBaseVotingWeightInfo(),
       ]);
     } catch (error) {
@@ -86,11 +116,11 @@ export function useQVault () {
   }
 
   async function depositToVault ({ address, amount }: { address: string; amount: string }) {
-    const contract = await getQVaultInstance();
-    const receipt = await contract.deposit({
-      value: toWei(amount),
-      from: address,
-    });
+    if (!daoInstance) return;
+    const { tokenInfo } = getState().dao;
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    const receipt = await daoVaultInstance.deposit(tokenInfo.address, toWei(amount),
+      { from: address, ...(tokenInfo.isNative ? { value: toWei(amount) } : {}) });
 
     receipt.promiEvent
       .once('receipt', () => {
@@ -121,9 +151,10 @@ export function useQVault () {
     address: string;
     amount: string;
   }) {
-    const contract = await getQVaultInstance();
-    const receipt = await contract.withdraw(toWei(amount), { from: address });
-
+    if (!daoInstance) return;
+    const { votingToken } = getState().dao;
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    const receipt = await daoVaultInstance.withdraw(votingToken, toWei(amount), { from: address });
     receipt.promiEvent
       .once('receipt', () => {
         loadWalletBalance();
@@ -278,16 +309,6 @@ export function useQVault () {
     return receipt;
   }
 
-  async function loadMinimumQVaultTimeLock (address: string) {
-    try {
-      const contract = await getQVaultInstance();
-      const data = await contract.getMinimumBalance(address, dateToUnix());
-      dispatch(setQVaultMinimumTimeLock(fromWei(data)));
-    } catch (error) {
-      captureError(error);
-    }
-  }
-
   return {
     vaultBalance,
     walletBalance,
@@ -299,6 +320,8 @@ export function useQVault () {
     qVaultMinimumTimeLock,
     delegationStakeInfo,
     delegationStakeInfoLoading,
+    lockedTokens,
+    withdrawalBalance,
 
     loadWalletBalance: useCallback(loadWalletBalance, []),
     loadVaultBalance: useCallback(loadVaultBalance, []),
@@ -316,6 +339,6 @@ export function useQVault () {
     loadQVBalanceDetails: useCallback(loadQVBalanceDetails, []),
     announceNewVotingAgent: useCallback(announceNewVotingAgent, []),
     setNewVotingAgent: useCallback(setNewVotingAgent, []),
-    loadMinimumQVaultTimeLock: useCallback(loadMinimumQVaultTimeLock, []),
+    loadWithdrawalAmount: useCallback(loadWithdrawalAmount, []),
   };
 }

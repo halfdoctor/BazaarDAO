@@ -5,12 +5,10 @@ import useNetworkConfig from './useNetworkConfig';
 import { getMasterDaoRegistryInstance } from 'contracts/contract-instance';
 
 function useDao () {
-  // TODO: Use store
-  const daoAddress = '0x0000000000000000000000000000000000000000';
-  const isDaoLoading = false;
-
   const { pathname } = useLocation();
-  const isDaoPage = /\/0x[a-fA-F0-9]{40}\/.*/.test(pathname);
+  const isDaoLoading = false;
+  const daoAddress = pathname.split('/')[1] || '';
+  const isDaoPage = /\/0x[a-fA-F0-9]{40}\.*/.test(pathname);
   const { masterDaoRegistryAddress } = useNetworkConfig();
   const masterDaoRegistryInstance = getMasterDaoRegistryInstance(masterDaoRegistryAddress);
 

@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { configureStore } from '@reduxjs/toolkit';
 
+import dao from './dao/reducer';
 import experts from './experts/reducer';
 import parameters from './parameters/reducer';
 import proposals from './proposals/reducer';
@@ -17,6 +18,7 @@ export const store = configureStore({
     transaction,
     experts,
     parameters,
+    dao
   },
 });
 

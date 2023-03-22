@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import PageLayout from 'components/PageLayout';
 
 import BalanceOverview from './components/BalanceOverview';
-import TransferForm from './components/TransferForm';
+import DepositForm from './components/DepositForm';
 import WithdrawForm from './components/WithdrawForm';
 
 const StyledWrapper = styled.div`
@@ -37,7 +37,7 @@ function VotingPower () {
       <StyledWrapper>
         <BalanceOverview />
         <div className="voting-power__main">
-          <TransferForm />
+          <DepositForm />
           <WithdrawForm />
         </div>
       </StyledWrapper>

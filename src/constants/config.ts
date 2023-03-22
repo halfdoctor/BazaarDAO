@@ -44,7 +44,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.q.org',
     constitutionUrl: 'https://constitution.q.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0x5F28B7dA86DBD28A49e8C99d521a7C20D3281A2F',
+    masterDaoRegistryAddress: '0xdF6DFDD014CEFd642d67369C386dB15A6af3bAB7',
   },
   testnet: {
     chainId: 35443,
@@ -59,7 +59,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qtestnet.org',
     gasBuffer: 2,
-    masterDaoRegistryAddress: '0x5F28B7dA86DBD28A49e8C99d521a7C20D3281A2F',
+    masterDaoRegistryAddress: '0xdF6DFDD014CEFd642d67369C386dB15A6af3bAB7',
   },
   devnet: {
     chainId: 35442,
@@ -74,7 +74,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'http://34.248.83.162:8999',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0x5F28B7dA86DBD28A49e8C99d521a7C20D3281A2F',
+    masterDaoRegistryAddress: '0xdF6DFDD014CEFd642d67369C386dB15A6af3bAB7',
   },
 };
 

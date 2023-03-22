@@ -1,9 +1,13 @@
 import { MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
+import ERC20 from '@q-dev/gdk-sdk/lib/abi/ERC20Upgradeable.json';
+import { DAOInstance } from '@q-dev/gdk-sdk/lib/contracts/DAOInstance';
 import { ContractRegistryInstance } from '@q-dev/q-js-sdk';
 import { ContractType, ContractValue } from 'typings/contracts';
+import { AbiItem } from 'web3-utils';
 
 export const CONTRACT_REGISTRY_ADDRESS = '0xc3E589056Ece16BCB88c6f9318e9a7343b663522';
 export let contractRegistryInstance: ContractRegistryInstance | null = null;
+export let daoInstance: DAOInstance | null = null;
 const cache: Record<string, ContractValue> = {};
 
 export const getContractRegistryInstance = () => {
@@ -13,6 +17,15 @@ export const getContractRegistryInstance = () => {
     contractRegistryInstance = new ContractRegistryInstance(window.web3, CONTRACT_REGISTRY_ADDRESS); // Fix web3 type
   }
   return contractRegistryInstance;
+};
+
+export const getDaoInstance = (address: string) => {
+  daoInstance = new DAOInstance(window.web3, address);
+  return daoInstance;
+};
+
+export const getErc20Contract = (address: string) => {
+  return new window.web3.eth.Contract(ERC20 as AbiItem[], address);
 };
 
 export function getInstance<T extends ContractType> (

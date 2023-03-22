@@ -3,10 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { media } from '@q-dev/q-ui-kit';
 import { useAnimateNumber, useInterval } from '@q-dev/react-hooks';
+import { unixToDate } from '@q-dev/utils';
 import styled from 'styled-components';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useQVault } from 'store/q-vault/hooks';
-import { useUser } from 'store/user/hooks';
+
+import { formatDateDMY } from 'utils/date';
 
 const StyledWrapper = styled.div`
   display: grid;
@@ -16,9 +19,9 @@ const StyledWrapper = styled.div`
     gap: 16px;
   }
 
-  .balance-values {
+  .balance-overview__params {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
 
     ${media.lessThan('medium')} {
@@ -26,51 +29,72 @@ const StyledWrapper = styled.div`
       gap: 16px;
     }
   }
+
+  .balance-overview__params-value-wrapper {
+    display: flex;
+    gap: 4px;
+  }
+
 `;
 
 function BalanceOverview () {
   const { t } = useTranslation();
   const {
     vaultBalance,
+    lockedTokens,
     walletBalance,
     qVaultMinimumTimeLock,
     loadWalletBalance,
     loadVaultBalance,
-    loadMinimumQVaultTimeLock
+    loadWithdrawalAmount
   } = useQVault();
-  const user = useUser();
-
-  const userQVBalanceRef = useAnimateNumber(vaultBalance);
-  const userAccountBalanceRef = useAnimateNumber(walletBalance);
-  const qVaultLockedAmountRef = useAnimateNumber(qVaultMinimumTimeLock);
+  const { tokenInfo } = useDaoStore();
+  const userQVBalanceRef = useAnimateNumber(vaultBalance, '');
+  const userLockedTokensRef = useAnimateNumber(lockedTokens, '');
+  const userAccountBalanceRef = useAnimateNumber(walletBalance, '');
 
   useEffect(() => {
     loadWalletBalance();
     loadVaultBalance();
-    loadMinimumQVaultTimeLock(user.address);
   }, []);
 
   useInterval(() => {
-    loadMinimumQVaultTimeLock(user.address);
+    loadWithdrawalAmount();
   }, 5000);
 
   return (
     <StyledWrapper className="block">
       <h2 className="text-h2">{t('OVERVIEW')}</h2>
-      <div className="balance-values">
+      <div className="balance-overview__params">
         <div>
-          <p className="text-md color-secondary">{t('Q_VAULT_BALANCE')}</p>
-          <p ref={userQVBalanceRef} className="text-xl font-semibold">0 Q</p>
+          <p className="text-md color-secondary">{t('VOTING_POWER')}</p>
+          <div className="balance-overview__params-value-wrapper">
+            <p ref={userQVBalanceRef} className="text-xl font-semibold">0</p>
+            <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+          </div>
         </div>
-
         <div>
-          <p className="text-md color-secondary">{t('Q_ADDRESS_BALANCE')}</p>
-          <p ref={userAccountBalanceRef} className="text-xl font-semibold">0 Q</p>
+          <p className="text-md color-secondary">{t('TOKEN_ADDRESS_BALANCE', { token: tokenInfo.symbol })}</p>
+          <div className="balance-overview__params-value-wrapper">
+            <p ref={userAccountBalanceRef} className="text-xl font-semibold">0</p>
+            <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+          </div>
         </div>
-
         <div>
-          <p className="text-md color-secondary">{t('TIME_LOCKED_AMOUNT')}</p>
-          <p ref={qVaultLockedAmountRef} className="text-xl font-semibold">0 Q</p>
+          <p className="text-md color-secondary">{t('LOCKED_TOKENS', { symbol: tokenInfo.symbol })}</p>
+          <div className="balance-overview__params-value-wrapper">
+            <p ref={userLockedTokensRef} className="text-xl font-semibold">0</p>
+            <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+          </div>
+        </div>
+        <div>
+          <p className="text-md color-secondary">{t('LOCKING_END_TIME')}</p>
+          {qVaultMinimumTimeLock !== '0'
+            ? (
+              <p className="text-xl font-semibold">{formatDateDMY(unixToDate(qVaultMinimumTimeLock))}</p>
+            )
+            : '-'
+          }
         </div>
       </div>
     </StyledWrapper>

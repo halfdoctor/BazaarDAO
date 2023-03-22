@@ -18,6 +18,7 @@ export const BalanceDropdown = styled(Dropdown)`
   .balance {
     display: flex;
     align-items: center;
+    gap: 5px;
     justify-content: space-between;
   }
 

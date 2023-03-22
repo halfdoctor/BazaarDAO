@@ -1,6 +1,7 @@
-import { lazy, useEffect } from 'react';
-import { Route, RouteComponentProps, Switch } from 'react-router-dom';
+import { lazy, useEffect, useMemo } from 'react';
+import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom';
 
+import { useInterval } from '@q-dev/react-hooks';
 import * as Sentry from '@sentry/react';
 import { ProposalContractType } from 'typings/contracts';
 
@@ -8,6 +9,7 @@ import LazyLoading from 'components/Base/LazyLoading';
 import ErrorBoundary from 'components/Custom/ErrorBoundary';
 
 import { getState } from 'store';
+import { useDaoStore } from 'store/dao/hooks';
 
 import { captureError } from 'utils/errors';
 
@@ -34,6 +36,16 @@ function addSentryContext () {
 }
 
 function Routes () {
+  const { pathname } = useLocation();
+  const { loadAllDaoInfo } = useDaoStore();
+  const daoAddress = useMemo(() => pathname.split('/')[1] || '', [pathname]);
+
+  useEffect(() => {
+    loadAllDaoInfo();
+  }, [daoAddress]);
+
+  useInterval(loadAllDaoInfo, 5000);
+
   useEffect(() => {
     addSentryContext();
   }, []);
@@ -54,7 +66,7 @@ function Routes () {
             <DataPrivacy />
           </Route>
 
-          <Route exact path="/:address/">
+          <Route exact path="/:address">
             <Dashboard />
           </Route>
 
