@@ -1304,5 +1304,7 @@
   "INPUT_DAO_ADDRESS": "Search DAO address",
   "DAOS_TITLE": "DAOs",
   "DAO_EXPLORE": "Explore",
-  "APPROVE_SPENDING_TOKENS": "Approve spending tokens"
+  "APPROVE_SPENDING_TOKENS": "Approve spending tokens",
+  "DAO_TOKEN_SUPPLY": "DAO Token Supply",
+  "TOTAL_EXPERT_PANELS": "Total Expert Panels"
 }

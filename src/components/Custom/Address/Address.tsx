@@ -16,6 +16,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   iconed?: boolean;
   semibold?: boolean;
   children?: ReactNode;
+  iconSize?: number;
 }
 
 function Address ({
@@ -25,6 +26,7 @@ function Address ({
   iconed = false,
   semibold = false,
   children = null,
+  iconSize = 20,
   ...rest
 }: Props) {
   const addressContent = (
@@ -36,7 +38,7 @@ function Address ({
       {iconed && (
         <AddressIcon
           address={address}
-          size={20}
+          size={iconSize}
           style={{ marginRight: '8px' }}
         />
       )}
