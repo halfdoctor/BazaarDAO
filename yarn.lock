@@ -1493,10 +1493,10 @@
   dependencies:
     lodash "^4.17.21"
 
-"@q-dev/gdk-sdk@^0.6.1":
-  version "0.6.1"
-  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.6.1.tgz#39235b2cdb423b6651f57d6187d09e10b36774c0"
-  integrity sha1-OSNbLNtCO2ZR9X1hh9CeELNndMA=
+"@q-dev/gdk-sdk@^0.6.2":
+  version "0.6.2"
+  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.6.2.tgz#12fa952fa6223e5e9f63265a60eeb3fc8db01e9c"
+  integrity sha1-EvqVL6YiPl6fYyZaYO6z/I2wHpw=
   dependencies:
     "@truffle/hdwallet-provider" "^2.1.7"
     axios "^1.3.4"

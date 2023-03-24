@@ -29,7 +29,7 @@ function Proposal ({ match }: RouteComponentProps<{
   const { pendingTransactions } = useTransaction();
   const { composeDaoLink } = useDao();
 
-  const [proposal, setProposal] = useState<ProposalInterface |null>(null);
+  const [proposal, setProposal] = useState<ProposalInterface | null>(null);
   const type = getProposalTypeByContract(match.params.contract);
 
   useInterval(loadProposal, 60_000);

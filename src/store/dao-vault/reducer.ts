@@ -94,7 +94,7 @@ const qVaultSlice = createSlice({
       state.delegationStakeInfoLoading = false;
     },
 
-    setQVaultMinimumTimeLock (state, { payload }: PayloadAction<string>) {
+    setDaoVaultMinimumTimeLock (state, { payload }: PayloadAction<string>) {
       state.qVaultMinimumTimeLock = payload;
     },
 
@@ -115,7 +115,7 @@ export const {
   setVotingLockingEnd,
   setQVBalance,
   setDelegationStakeInfo,
-  setQVaultMinimumTimeLock,
+  setDaoVaultMinimumTimeLock,
   setDelegationInfo,
   setMaxWithdrawalBalance
 } = qVaultSlice.actions;

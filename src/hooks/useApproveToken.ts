@@ -15,7 +15,7 @@ function useApproveToken () {
 
   const checkIsApprovalNeeded = (spendTokenAmount: string | number) => {
     return !tokenInfo.isNative && (toBigNumber(tokenInfo.allowance).isLessThanOrEqualTo(0) ||
-        toBigNumber(String(spendTokenAmount)).isLessThanOrEqualTo(tokenInfo.allowance));
+        toBigNumber(spendTokenAmount).isLessThanOrEqualTo(tokenInfo.allowance));
   };
 
   const approveSpendToken = () => {

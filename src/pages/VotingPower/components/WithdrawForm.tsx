@@ -39,7 +39,6 @@ function WithdrawForm () {
   const {
     withdrawFromVault,
     loadLockInfo,
-    loadDelegationStakeInfo,
     withdrawalBalance
   } = useDaoVault();
   const user = useUser();
@@ -47,7 +46,6 @@ function WithdrawForm () {
 
   useEffect(() => {
     loadLockInfo(user.address);
-    loadDelegationStakeInfo();
   }, []);
 
   const form = useForm({

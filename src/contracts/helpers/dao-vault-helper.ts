@@ -1,4 +1,3 @@
-import { StakeDelegationInfo } from '@q-dev/q-js-sdk';
 import { toBigNumber } from '@q-dev/utils';
 import { fromWei, toWei } from 'web3-utils';
 
@@ -15,12 +14,6 @@ export async function getDAOHolderRewardPool () {
   const address = await contractRegistryInstance?.instance.methods.getAddress('tokeneconomics.qHolderRewardPool').call();
   const balance = await window.web3.eth.getBalance(address || '');
   return fromWei(balance);
-}
-
-export function countTotalStakeReward (delegationsList: StakeDelegationInfo[]) {
-  return delegationsList
-    .map((member) => Number(fromWei(member.claimableReward)))
-    .reduce((acc, curr) => acc + curr, 0);
 }
 
 export async function getDAOVaultDepositAmount (balance: string, token: TokenInfo) {

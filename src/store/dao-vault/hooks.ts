@@ -6,10 +6,9 @@ import { calculateInterestRate, toBigNumber } from '@q-dev/utils';
 import { fromWei, toWei } from 'web3-utils';
 
 import {
+  setDaoVaultMinimumTimeLock,
   setDelegationInfo,
-  setDelegationStakeInfo,
   setMaxWithdrawalBalance,
-  setQVaultMinimumTimeLock,
   setQVBalance,
   setVaultBalance,
   setVotingLockingEnd,
@@ -21,7 +20,7 @@ import { getState, getUserAddress, useAppSelector } from 'store';
 import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
 
 import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
-import { countTotalStakeReward, getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
+import { getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
 
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
@@ -82,9 +81,9 @@ export function useDaoVault () {
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
       const balance = await daoVaultInstance.instance.methods
-        .getWithdrawalAmountAndEndTime(address || getUserAddress(), votingToken).call();
+        .getTimeLockInfo(address || getUserAddress(), votingToken).call();
       dispatch(setMaxWithdrawalBalance(fromWei(balance[0])));
-      dispatch(setQVaultMinimumTimeLock(balance[1]));
+      dispatch(setDaoVaultMinimumTimeLock(balance[1]));
     } catch (error) {
       captureError(error);
     }
@@ -174,7 +173,6 @@ export function useDaoVault () {
 
     receipt.promiEvent
       .once('receipt', () => {
-        loadDelegationStakeInfo();
         loadWalletBalance();
         loadDelegationInfo(userAddress);
       });
@@ -218,24 +216,6 @@ export function useDaoVault () {
     return receipt;
   }
 
-  async function loadDelegationStakeInfo () {
-    try {
-      const userAddress = getUserAddress();
-      const contract = await getQVaultInstance();
-      const delegationsList = await contract.getDelegationsList(userAddress);
-      const totalDelegatedStake = await contract.getTotalDelegatedStake(userAddress);
-      const delegatableAmount = await contract.getDelegatableAmount(userAddress);
-
-      dispatch(setDelegationStakeInfo({
-        totalDelegatedStake: fromWei(totalDelegatedStake),
-        delegatableAmount: fromWei(delegatableAmount),
-        totalStakeReward: countTotalStakeReward(delegationsList),
-      }));
-    } catch (error) {
-      captureError(error);
-    }
-  }
-
   async function claimStakeDelegatorReward () {
     const userAddress = getUserAddress();
     const contract = await getQVaultInstance();
@@ -243,7 +223,6 @@ export function useDaoVault () {
 
     receipt.promiEvent
       .once('receipt', () => {
-        loadDelegationStakeInfo();
         loadWalletBalance();
       });
 
@@ -334,7 +313,6 @@ export function useDaoVault () {
     lockAmount: useCallback(lockAmount, []),
     unlockAmount: useCallback(unlockAmount, []),
     loadDelegationInfo: useCallback(loadDelegationInfo, []),
-    loadDelegationStakeInfo: useCallback(loadDelegationStakeInfo, []),
     claimStakeDelegatorReward: useCallback(claimStakeDelegatorReward, []),
     loadQVBalanceDetails: useCallback(loadQVBalanceDetails, []),
     announceNewVotingAgent: useCallback(announceNewVotingAgent, []),
