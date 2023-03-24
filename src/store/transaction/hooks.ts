@@ -9,7 +9,7 @@ import uniqueId from 'lodash/uniqueId';
 import { setTransactions, Transaction, TransactionEditableParams } from './reducer';
 
 import { getState, useAppSelector } from 'store';
-import { useQVault } from 'store/q-vault/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 
 import { captureError } from 'utils/errors';
 

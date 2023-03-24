@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useQVault } from 'store/dao-vault/hooks';
 import { useExperts } from 'store/experts/hooks';
-import { useQVault } from 'store/q-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 function useVoterStatus () {

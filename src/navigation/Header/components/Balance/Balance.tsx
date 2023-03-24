@@ -14,7 +14,7 @@ import useDao from 'hooks/useDao';
 import { BalanceDropdown } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/q-vault/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 
 import { RoutePaths } from 'constants/routes';
 

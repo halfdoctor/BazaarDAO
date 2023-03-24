@@ -21,7 +21,7 @@ import { getState, getUserAddress, useAppSelector } from 'store';
 import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
 
 import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
-import { countTotalStakeReward, getQHolderRewardPool } from 'contracts/helpers/q-vault-helper';
+import { countTotalStakeReward, getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
 
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
@@ -63,11 +63,11 @@ export function useQVault () {
 
   async function loadVaultBalance (address?: string) {
     try {
-      if (!daoInstance) return;
       const { votingToken } = getState().dao;
+      if (!daoInstance || !votingToken) return;
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const balance = await daoVaultInstance.instance.methods
-        .userTokenBalance(address ?? getUserAddress(), votingToken)
+        .userTokenBalance(address || getUserAddress(), votingToken)
         .call();
       dispatch(setVaultBalance(fromWei(balance)));
     } catch (error) {
@@ -77,12 +77,12 @@ export function useQVault () {
 
   async function loadWithdrawalAmount (address?: string) {
     try {
-      if (!daoInstance) return;
       const { votingToken } = getState().dao;
+      if (!daoInstance || !votingToken) return;
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
       const balance = await daoVaultInstance.instance.methods
-        .getWithdrawalAmountAndEndTime(address ?? getUserAddress(), votingToken).call();
+        .getWithdrawalAmountAndEndTime(address || getUserAddress(), votingToken).call();
       dispatch(setMaxWithdrawalBalance(fromWei(balance[0])));
       dispatch(setQVaultMinimumTimeLock(balance[1]));
     } catch (error) {
@@ -92,7 +92,7 @@ export function useQVault () {
 
   async function loadAllBalances () {
     try {
-      await Promise.all([
+      await Promise.allSettled([
         loadWalletBalance(),
         loadVaultBalance(),
         loadWithdrawalAmount(),
@@ -255,7 +255,7 @@ export function useQVault () {
       const userAddress = getUserAddress();
       const contract = await getQVaultInstance();
       const balanceDetailsData = await contract.getBalanceDetails(userAddress);
-      const qHolderRewardPool = await getQHolderRewardPool();
+      const qHolderRewardPool = await getDAOHolderRewardPool();
 
       const { vaultBalance } = getState().qVault;
       const interestRatePercentage = calculateInterestRate(Number(balanceDetailsData.interestRate));

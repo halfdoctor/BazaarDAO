@@ -1,4 +1,7 @@
-import { useLocation } from 'react-router';
+
+import { useLocation } from 'react-router-dom';
+
+import { isAddress } from 'web3-utils';
 
 import useNetworkConfig from './useNetworkConfig';
 
@@ -7,21 +10,21 @@ import { getMasterDaoRegistryInstance } from 'contracts/contract-instance';
 function useDao () {
   const { pathname } = useLocation();
   const isDaoLoading = false;
-  const daoAddress = pathname.split('/')[1] || '';
-  const isDaoPage = /\/0x[a-fA-F0-9]{40}\.*/.test(pathname);
+  const pathnameDaoAddress = pathname.split('/')[1] || '';
+  const isDaoPage = isAddress(pathnameDaoAddress);
   const { masterDaoRegistryAddress } = useNetworkConfig();
-  const masterDaoRegistryInstance = getMasterDaoRegistryInstance(masterDaoRegistryAddress);
 
   function composeDaoLink (path: string) {
-    return `/${daoAddress}${path}`;
+    return `/${pathnameDaoAddress}${path}`;
   }
 
   const searchDaoAddress = async (address: string) => {
-    return await masterDaoRegistryInstance.instance.methods.containsPool('DAO_REGISTRY', address.toLowerCase()).call();
+    const masterDaoRegistryInstance = getMasterDaoRegistryInstance(masterDaoRegistryAddress);
+    return masterDaoRegistryInstance.instance.methods.containsPool('DAO_REGISTRY', address.toLowerCase()).call();
   };
 
   return {
-    daoAddress,
+    pathnameDaoAddress,
     isDaoLoading,
     isDaoPage,
     composeDaoLink,

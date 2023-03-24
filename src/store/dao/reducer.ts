@@ -3,19 +3,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface TokenInfo {
   name: string;
   symbol: string;
-  address: string;
   allowance: string;
   decimals: number;
   isNative: boolean;
+  address: string;
 };
 
-interface ExpertsState {
+interface DAOState {
   daoAddress: string;
   votingToken: string;
   tokenInfo:TokenInfo;
 };
 
-const initialState: ExpertsState = {
+const initialState: DAOState = {
   daoAddress: '',
   votingToken: '',
   tokenInfo: {

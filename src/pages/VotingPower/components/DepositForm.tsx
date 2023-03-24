@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
@@ -9,12 +9,14 @@ import styled from 'styled-components';
 import Button from 'components/Button';
 import Input from 'components/Input';
 
+import useApproveToken from 'hooks/useApproveToken';
+
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/q-vault/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 import { useUser } from 'store/user/hooks';
 
-import { getQVaultDepositAmount } from 'contracts/helpers/q-vault-helper';
+import { getDAOVaultDepositAmount } from 'contracts/helpers/dao-vault-helper';
 
 import { amount, required } from 'utils/validators';
 
@@ -40,6 +42,7 @@ function DepositForm () {
   const { submitTransaction } = useTransaction();
   const user = useUser();
   const { tokenInfo } = useDaoStore();
+  const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
 
   const [maxAmount, setMaxAmount] = useState('0');
   const [canDeposit, setCanDeposit] = useState(false);
@@ -48,17 +51,18 @@ function DepositForm () {
     initialValues: { amount: '' },
     validators: { amount: [required, amount(maxAmount)] },
     onSubmit: ({ amount }) => {
-      form.validate();
-      submitTransaction({
-        successMessage: t('TRANSFER_INTO_VAULT_TX'),
-        submitFn: () => depositToVault({ address: user.address, amount }),
-        onSuccess: () => form.reset(),
-      });
+      isDepositApprovalNeeded
+        ? approveSpendToken()
+        : submitTransaction({
+          successMessage: t('DEPOSIT_INTO_VAULT_TX'),
+          submitFn: () => depositToVault({ address: user.address, amount }),
+          onSuccess: () => form.reset(),
+        });
     }
   });
 
   const updateMaxAmount = async () => {
-    const depositAmount = await getQVaultDepositAmount(walletBalance, tokenInfo);
+    const depositAmount = await getDAOVaultDepositAmount(walletBalance, tokenInfo);
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
@@ -66,6 +70,10 @@ function DepositForm () {
   useEffect(() => {
     updateMaxAmount();
   }, [walletBalance]);
+
+  const isDepositApprovalNeeded = useMemo(() => {
+    return checkIsApprovalNeeded(form.values.amount);
+  }, [form.values.amount]);
 
   return (
     <StyledForm
@@ -90,13 +98,11 @@ function DepositForm () {
         />
 
         <Button
-          isCheckAllowance
           className="transfer-form-action"
-          spendTokenAmount={Number(form.values.amount)}
           disabled={!form.isValid || !canDeposit}
           onClick={form.submit}
         >
-          {t('DEPOSIT')}
+          {isDepositApprovalNeeded ? t('APPROVE') : t('DEPOSIT')}
         </Button>
       </div>
     </StyledForm>

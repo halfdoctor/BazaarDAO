@@ -13,7 +13,7 @@ import useNetworkConfig from 'hooks/useNetworkConfig';
 import { setBaseVotingWeightInfo, setConstitutionHash, setConstitutionUpdateDate, setMinimalActiveBlock, setProposals } from './reducer';
 
 import { getUserAddress, useAppSelector } from 'store';
-import { useQVault } from 'store/q-vault/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 
 import { getConstitutionVotingInstance, getInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
 import { getMinimalActiveBlockHeight } from 'contracts/helpers/block-number';

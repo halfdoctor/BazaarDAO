@@ -33,7 +33,7 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div className="sidebar" onClick={onClose}>
         <div className="sidebar-content">
           <Link
-            to={composeDaoLink('/')}
+            to="/"
             className="sidebar-logo-link"
           >
             <img

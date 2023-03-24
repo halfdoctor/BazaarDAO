@@ -9,8 +9,8 @@ import useVoterStatus from 'hooks/useVoterStatus';
 
 import { StatsContainer } from './styles';
 
+import { useQVault } from 'store/dao-vault/hooks';
 import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
-import { useQVault } from 'store/q-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';

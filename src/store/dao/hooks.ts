@@ -12,6 +12,16 @@ import { daoInstance, getDaoInstance, getErc20Contract } from 'contracts/contrac
 
 import { MAX_APPROVE_AMOUNT } from 'constants/boundaries';
 import { captureError } from 'utils/errors';
+import { isAddress } from 'utils/web3';
+
+const Q_TOKEN_INFO: TokenInfo = {
+  name: 'Q',
+  symbol: 'Q',
+  decimals: 18,
+  isNative: true,
+  allowance: '',
+  address: ETHEREUM_ADDRESS
+};
 
 export function useDaoStore () {
   const dispatch = useDispatch();
@@ -19,16 +29,16 @@ export function useDaoStore () {
   const votingToken = useAppSelector(({ dao }) => dao.votingToken);
   const tokenInfo = useAppSelector(({ dao }) => dao.tokenInfo);
 
-  function setNewDaoAddress (address: string) {
+  function setNewDaoAddress (address?: string) {
     try {
-      const isAddress = /0x[a-fA-F0-9]{40}/.test(address);
-      dispatch(setDaoAddress(isAddress ? address : ''));
+      const daoAddress = address || window.location.pathname.split('/')[1] || '';
+      dispatch(setDaoAddress(isAddress(daoAddress) ? daoAddress : ''));
     } catch (error) {
       captureError(error);
     }
   }
 
-  async function findDaoVotingToken () {
+  async function loadDaoVotingToken () {
     try {
       const { daoAddress } = getState().dao;
       if (!daoAddress) return;
@@ -40,12 +50,11 @@ export function useDaoStore () {
     }
   }
 
-  async function loadAllDaoInfo () {
+  async function loadAllDaoInfo (daoAddress?: string) {
     try {
-      const daoAddress = window.location.pathname.split('/')[1] || '';
+      setNewDaoAddress(daoAddress);
       await Promise.all([
-        setNewDaoAddress(daoAddress),
-        findDaoVotingToken(),
+        loadDaoVotingToken(),
         getTokenInfo()
       ]);
     } catch (error) {
@@ -58,22 +67,17 @@ export function useDaoStore () {
       const { votingToken } = getState().dao;
       if (!votingToken) return;
       const isNativeToken = votingToken === ETHEREUM_ADDRESS;
-      const erc20Contract = !isNativeToken && getErc20Contract(votingToken);
-      const tokenInfo = erc20Contract
-        ? await getErc20Info(erc20Contract)
-        : {
-          name: 'Q',
-          symbol: 'Q',
-          decimals: 18,
-          isNative: true
-        } as TokenInfo;
+      const tokenInfo = isNativeToken
+        ? Q_TOKEN_INFO
+        : await getErc20Info(votingToken);
       dispatch(setTokenInfo({ ...tokenInfo, address: votingToken }));
     } catch (error) {
       captureError(error);
     }
   }
 
-  async function getErc20Info (tokenContract: Contract) {
+  async function getErc20Info (tokenAddress: string) {
+    const tokenContract = getErc20Contract(tokenAddress);
     const [decimals, name, symbol, allowance] = await Promise.all([
       tokenContract.methods.symbol().call(),
       tokenContract.methods.decimals().call(),
@@ -86,7 +90,7 @@ export function useDaoStore () {
   async function getAllowance (tokenContract: Contract) {
     if (!daoInstance) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
-    return await tokenContract.methods.allowance(getUserAddress(), daoVaultInstance.address).call();
+    return tokenContract.methods.allowance(getUserAddress(), daoVaultInstance.address).call();
   }
 
   async function approveToken () {
@@ -94,7 +98,7 @@ export function useDaoStore () {
     if (!votingToken || !daoInstance) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
     const tokenContract = getErc20Contract(votingToken);
-    return await tokenContract.methods.approve(daoVaultInstance.address, MAX_APPROVE_AMOUNT).send({
+    return tokenContract.methods.approve(daoVaultInstance.address, MAX_APPROVE_AMOUNT).send({
       from: getUserAddress()
     });
   }
@@ -105,7 +109,7 @@ export function useDaoStore () {
     tokenInfo,
 
     setDaoAddress: useCallback(setNewDaoAddress, []),
-    findDaoVotingToken: useCallback(findDaoVotingToken, []),
+    loadDaoVotingToken: useCallback(loadDaoVotingToken, []),
     loadAllDaoInfo: useCallback(loadAllDaoInfo, []),
     approveToken: useCallback(approveToken, []),
   };

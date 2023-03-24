@@ -7,7 +7,7 @@ import { unixToDate } from '@q-dev/utils';
 import styled from 'styled-components';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/q-vault/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY } from 'utils/date';
 
@@ -89,11 +89,11 @@ function BalanceOverview () {
         </div>
         <div>
           <p className="text-md color-secondary">{t('LOCKING_END_TIME')}</p>
-          {qVaultMinimumTimeLock !== '0'
-            ? (
+          {qVaultMinimumTimeLock === '0'
+            ? '–'
+            : (
               <p className="text-xl font-semibold">{formatDateDMY(unixToDate(qVaultMinimumTimeLock))}</p>
             )
-            : '-'
           }
         </div>
       </div>

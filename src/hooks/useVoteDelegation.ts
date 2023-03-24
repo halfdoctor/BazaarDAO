@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { trimString } from '@q-dev/utils';
 
-import { useQVault } from 'store/q-vault/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { ZERO_ADDRESS } from 'constants/boundaries';

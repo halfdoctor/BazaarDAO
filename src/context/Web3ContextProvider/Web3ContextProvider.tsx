@@ -10,8 +10,8 @@ import Web3 from 'web3';
 import { Wrap } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
+import { useQVault } from 'store/dao-vault/hooks';
 import { useProposals } from 'store/proposals/hooks';
-import { useQVault } from 'store/q-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { getContractRegistryInstance } from 'contracts/contract-instance';
@@ -69,9 +69,9 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const isRightNetwork = useMemo(() => Boolean(chainId && chainIdToNetworkMap[chainId]), [chainId]);
 
   const loadAdditionalInfo = async () => {
-    await loadAllDaoInfo();
-    getAllProposals();
-    loadAllBalances();
+    await Promise.allSettled(
+      [loadAllDaoInfo(), loadAllBalances(), getAllProposals()]
+    );
   };
 
   const cleanConnectorStorage = useCallback(() => {
@@ -160,7 +160,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
         }
         setChainId(isHttpProvider ? selectedChainId : Number(chainId));
       }
-      await getContractRegistryInstance();
+      getContractRegistryInstance();
       await loadAdditionalInfo();
       setLoadAppType(LOAD_TYPES.loaded);
 
