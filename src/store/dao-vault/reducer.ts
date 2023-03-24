@@ -16,6 +16,7 @@ interface DelegationStakeInfo {
 interface QVaultState {
   walletBalance: string;
   vaultBalance: string;
+  maxWithdrawalBalance: string;
 
   votingWeight: string;
   votingLockingEnd: string;
@@ -36,6 +37,7 @@ const initialState: QVaultState = {
   votingWeight: '0',
   votingLockingEnd: '0',
   deposit: 0,
+  maxWithdrawalBalance: '0',
 
   delegationStakeInfo: {
     totalDelegatedStake: '0',
@@ -92,8 +94,12 @@ const qVaultSlice = createSlice({
       state.delegationStakeInfoLoading = false;
     },
 
-    setQVaultMinimumTimeLock (state, { payload }: PayloadAction<string>) {
+    setDaoVaultMinimumTimeLock (state, { payload }: PayloadAction<string>) {
       state.qVaultMinimumTimeLock = payload;
+    },
+
+    setMaxWithdrawalBalance (state, { payload }: PayloadAction<string>) {
+      state.maxWithdrawalBalance = payload;
     },
 
     setDelegationInfo (state, { payload }: PayloadAction<VotingDelegationInfo>) {
@@ -109,7 +115,8 @@ export const {
   setVotingLockingEnd,
   setQVBalance,
   setDelegationStakeInfo,
-  setQVaultMinimumTimeLock,
-  setDelegationInfo
+  setDaoVaultMinimumTimeLock,
+  setDelegationInfo,
+  setMaxWithdrawalBalance
 } = qVaultSlice.actions;
 export default qVaultSlice.reducer;

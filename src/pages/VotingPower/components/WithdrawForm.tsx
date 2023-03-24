@@ -1,15 +1,16 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { media } from '@q-dev/q-ui-kit';
-import { formatAsset, toBigNumber } from '@q-dev/utils';
+import { formatAsset } from '@q-dev/utils';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
 import Input from 'components/Input';
 
-import { useQVault } from 'store/q-vault/hooks';
+import { useDaoStore } from 'store/dao/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 import { useUser } from 'store/user/hooks';
 
@@ -36,45 +37,23 @@ function WithdrawForm () {
   const { submitTransaction } = useTransaction();
 
   const {
-    vaultBalance,
-    qVaultMinimumTimeLock,
     withdrawFromVault,
-    votingWeight,
-    isVotingWeightUnlocked,
-    delegationStakeInfo,
     loadLockInfo,
-    loadDelegationStakeInfo
-  } = useQVault();
+    withdrawalBalance
+  } = useDaoVault();
   const user = useUser();
+  const { tokenInfo } = useDaoStore();
 
   useEffect(() => {
     loadLockInfo(user.address);
-    loadDelegationStakeInfo();
   }, []);
-
-  const maxAmount = useMemo(() => {
-    return toBigNumber(vaultBalance)
-      .minus(qVaultMinimumTimeLock)
-      .minus(
-        isVotingWeightUnlocked || toBigNumber(delegationStakeInfo.totalDelegatedStake).isGreaterThan(votingWeight)
-          ? delegationStakeInfo.totalDelegatedStake
-          : votingWeight
-      )
-      .toString();
-  }, [
-    vaultBalance,
-    qVaultMinimumTimeLock,
-    votingWeight,
-    isVotingWeightUnlocked,
-    delegationStakeInfo
-  ]);
 
   const form = useForm({
     initialValues: { amount: '' },
-    validators: { amount: [required, amount(maxAmount)] },
+    validators: { amount: [required, amount(withdrawalBalance)] },
     onSubmit: ({ amount }) => {
       submitTransaction({
-        successMessage: t('WITHDRAW_FROM_Q_VAULT_TX'),
+        successMessage: t('WITHDRAW_FROM_VAULT_TX'),
         submitFn: async () => withdrawFromVault({ amount, address: user.address }),
         onSuccess: () => form.reset(),
       });
@@ -85,26 +64,26 @@ function WithdrawForm () {
     <StyledForm
       noValidate
       className="block"
-      onSubmit={form.submit}
     >
       <h2 className="text-h2">{t('WITHDRAW')}</h2>
-      <p className="text-md color-secondary">{t('FROM_Q_VAULT_TO_Q_WALLET')}</p>
+      <p className="text-md color-secondary">{t('FROM_VAULT_TO_WALLET')}</p>
 
       <div className="withdraw-form-main">
         <Input
           {...form.fields.amount}
           type="number"
           label={t('AMOUNT')}
-          prefix="Q"
-          max={String(maxAmount)}
+          prefix={tokenInfo.symbol}
+          max={String(withdrawalBalance)}
           placeholder="0.0"
-          hint={t('AVAILABLE_TO_WITHDRAW', { amount: formatAsset(maxAmount, 'Q') })}
+          hint={t('AVAILABLE_TO_WITHDRAW', { amount: formatAsset(withdrawalBalance, tokenInfo.symbol) })}
         />
 
         <Button
           type="submit"
           className="withdraw-form-action"
           disabled={!form.isValid}
+          onClick={form.submit}
         >
           {t('WITHDRAW')}
         </Button>

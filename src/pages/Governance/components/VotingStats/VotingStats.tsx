@@ -9,15 +9,15 @@ import useVoterStatus from 'hooks/useVoterStatus';
 
 import { StatsContainer } from './styles';
 
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
-import { useQVault } from 'store/q-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
 
 function VotingStats () {
   const { t, i18n } = useTranslation();
-  const { loadDelegationInfo } = useQVault();
+  const { loadDelegationInfo } = useDaoVault();
   const { baseVotingWeightInfo, getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
 
   const user = useUser();

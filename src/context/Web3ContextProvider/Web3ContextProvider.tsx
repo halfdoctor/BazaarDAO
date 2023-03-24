@@ -9,8 +9,9 @@ import Web3 from 'web3';
 
 import { Wrap } from './styles';
 
+import { useDaoStore } from 'store/dao/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useProposals } from 'store/proposals/hooks';
-import { useQVault } from 'store/q-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { getContractRegistryInstance } from 'contracts/contract-instance';
@@ -46,8 +47,9 @@ export const Web3Context = createContext({} as Web3Data);
 
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const { setAddress, setChainId, address } = useUser();
-  const { loadAllBalances } = useQVault();
+  const { loadAllBalances } = useDaoVault();
   const { getAllProposals } = useProposals();
+  const { loadAllDaoInfo } = useDaoStore();
 
   const networkConfig = networkConfigsMap[ORIGIN_NETWORK_NAME];
   const { connector, chainId, isActive } = useWeb3React();
@@ -67,8 +69,9 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const isRightNetwork = useMemo(() => Boolean(chainId && chainIdToNetworkMap[chainId]), [chainId]);
 
   const loadAdditionalInfo = async () => {
-    getAllProposals();
-    loadAllBalances();
+    await Promise.allSettled(
+      [loadAllDaoInfo(), loadAllBalances(), getAllProposals()]
+    );
   };
 
   const cleanConnectorStorage = useCallback(() => {
@@ -157,7 +160,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
         }
         setChainId(isHttpProvider ? selectedChainId : Number(chainId));
       }
-      await getContractRegistryInstance();
+      getContractRegistryInstance();
       await loadAdditionalInfo();
       setLoadAppType(LOAD_TYPES.loaded);
 
