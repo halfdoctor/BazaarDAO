@@ -14,13 +14,13 @@ import useDao from 'hooks/useDao';
 import { BalanceDropdown } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { RoutePaths } from 'constants/routes';
 
 function Balance () {
   const { t } = useTranslation();
-  const { walletBalance, loadAllBalances, vaultBalance } = useQVault();
+  const { walletBalance, loadAllBalances, vaultBalance } = useDaoVault();
   const { tokenInfo } = useDaoStore();
   const { composeDaoLink } = useDao();
 

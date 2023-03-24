@@ -13,7 +13,7 @@ import useNetworkConfig from 'hooks/useNetworkConfig';
 import { setBaseVotingWeightInfo, setConstitutionHash, setConstitutionUpdateDate, setMinimalActiveBlock, setProposals } from './reducer';
 
 import { getUserAddress, useAppSelector } from 'store';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { getConstitutionVotingInstance, getInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
 import { getMinimalActiveBlockHeight } from 'contracts/helpers/block-number';
@@ -99,7 +99,7 @@ export function useBaseVotingWeightInfo () {
 export function useProposals () {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { loadDelegationInfo, loadLockInfo } = useQVault();
+  const { loadDelegationInfo, loadLockInfo } = useDaoVault();
   const { getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
 
   const minimalActiveBlock = useAppSelector(({ proposals }) => proposals.minimalActiveBlock);

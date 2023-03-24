@@ -10,12 +10,12 @@ import { getMasterDaoRegistryInstance } from 'contracts/contract-instance';
 function useDao () {
   const { pathname } = useLocation();
   const isDaoLoading = false;
-  const pathnameDaoAddress = pathname.split('/')[1] || '';
-  const isDaoPage = isAddress(pathnameDaoAddress);
+  const pathDaoAddress = pathname.split('/')[1] || '';
+  const isDaoPage = isAddress(pathDaoAddress);
   const { masterDaoRegistryAddress } = useNetworkConfig();
 
   function composeDaoLink (path: string) {
-    return `/${pathnameDaoAddress}${path}`;
+    return `/${pathDaoAddress}${path}`;
   }
 
   const searchDaoAddress = async (address: string) => {
@@ -24,7 +24,7 @@ function useDao () {
   };
 
   return {
-    pathnameDaoAddress,
+    pathDaoAddress,
     isDaoLoading,
     isDaoPage,
     composeDaoLink,

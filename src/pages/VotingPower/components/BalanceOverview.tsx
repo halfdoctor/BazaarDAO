@@ -7,7 +7,7 @@ import { unixToDate } from '@q-dev/utils';
 import styled from 'styled-components';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY } from 'utils/date';
 
@@ -47,7 +47,7 @@ function BalanceOverview () {
     loadWalletBalance,
     loadVaultBalance,
     loadWithdrawalAmount
-  } = useQVault();
+  } = useDaoVault();
   const { tokenInfo } = useDaoStore();
   const userQVBalanceRef = useAnimateNumber(vaultBalance, '');
   const userLockedTokensRef = useAnimateNumber(lockedTokens, '');

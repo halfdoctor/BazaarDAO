@@ -39,13 +39,13 @@ function addSentryContext () {
 
 function Routes () {
   const { loadAllDaoInfo } = useDaoStore();
-  const { pathnameDaoAddress } = useDao();
+  const { pathDaoAddress } = useDao();
 
   useEffect(() => {
-    loadAllDaoInfo(pathnameDaoAddress);
-  }, [pathnameDaoAddress]);
+    loadAllDaoInfo(pathDaoAddress);
+  }, [pathDaoAddress]);
 
-  useInterval(() => loadAllDaoInfo(pathnameDaoAddress), 5000);
+  useInterval(() => loadAllDaoInfo(pathDaoAddress), 5000);
 
   useEffect(() => {
     addSentryContext();

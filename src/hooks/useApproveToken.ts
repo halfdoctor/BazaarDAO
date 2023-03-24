@@ -11,7 +11,7 @@ function useApproveToken () {
   const { submitTransaction } = useTransaction();
   const { t } = useTranslation();
   const { tokenInfo, approveToken, loadAllDaoInfo } = useDaoStore();
-  const { pathnameDaoAddress } = useDao();
+  const { pathDaoAddress } = useDao();
 
   const checkIsApprovalNeeded = (spendTokenAmount: string | number) => {
     return !tokenInfo.isNative && (toBigNumber(tokenInfo.allowance).isLessThanOrEqualTo(0) ||
@@ -22,7 +22,7 @@ function useApproveToken () {
     submitTransaction({
       successMessage: t('APPROVE_SPENDING_TOKENS'),
       submitFn: () => approveToken(),
-      onSuccess: () => loadAllDaoInfo(pathnameDaoAddress)
+      onSuccess: () => loadAllDaoInfo(pathDaoAddress)
     });
   };
 

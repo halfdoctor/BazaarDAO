@@ -1,14 +1,14 @@
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useExperts } from 'store/experts/hooks';
 import { useUser } from 'store/user/hooks';
 
 function useVoterStatus () {
   const { t, i18n } = useTranslation();
 
-  const { vaultBalance, loadVaultBalance } = useQVault();
+  const { vaultBalance, loadVaultBalance } = useDaoVault();
   const {
     isEpdrMember,
     isEpqfiMember,

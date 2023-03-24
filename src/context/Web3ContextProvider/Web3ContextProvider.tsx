@@ -10,7 +10,7 @@ import Web3 from 'web3';
 import { Wrap } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useProposals } from 'store/proposals/hooks';
 import { useUser } from 'store/user/hooks';
 
@@ -47,7 +47,7 @@ export const Web3Context = createContext({} as Web3Data);
 
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const { setAddress, setChainId, address } = useUser();
-  const { loadAllBalances } = useQVault();
+  const { loadAllBalances } = useDaoVault();
   const { getAllProposals } = useProposals();
   const { loadAllDaoInfo } = useDaoStore();
 

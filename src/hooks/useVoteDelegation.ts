@@ -2,14 +2,14 @@ import { useTranslation } from 'react-i18next';
 
 import { trimString } from '@q-dev/utils';
 
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { ZERO_ADDRESS } from 'constants/boundaries';
 
 function useVoteDelegation () {
   const { t } = useTranslation();
-  const { delegationInfo } = useQVault();
+  const { delegationInfo } = useDaoVault();
   const { address } = useUser();
 
   const agent = delegationInfo.votingAgent;

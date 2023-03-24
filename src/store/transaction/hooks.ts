@@ -9,14 +9,14 @@ import uniqueId from 'lodash/uniqueId';
 import { setTransactions, Transaction, TransactionEditableParams } from './reducer';
 
 import { getState, useAppSelector } from 'store';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { captureError } from 'utils/errors';
 
 export function useTransaction () {
   const dispatch = useDispatch();
   const alert = useAlert();
-  const { loadAllBalances } = useQVault();
+  const { loadAllBalances } = useDaoVault();
 
   const pendingTransactions = useAppSelector(({ transaction }) => {
     return transaction.transactions.filter((item: Transaction) =>

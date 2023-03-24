@@ -12,7 +12,7 @@ import Input from 'components/Input';
 import useApproveToken from 'hooks/useApproveToken';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 import { useUser } from 'store/user/hooks';
 
@@ -38,7 +38,7 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault } = useQVault();
+  const { walletBalance, depositToVault } = useDaoVault();
   const { submitTransaction } = useTransaction();
   const user = useUser();
   const { tokenInfo } = useDaoStore();

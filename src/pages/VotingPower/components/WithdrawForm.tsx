@@ -10,7 +10,7 @@ import Button from 'components/Button';
 import Input from 'components/Input';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useQVault } from 'store/dao-vault/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 import { useUser } from 'store/user/hooks';
 
@@ -41,7 +41,7 @@ function WithdrawForm () {
     loadLockInfo,
     loadDelegationStakeInfo,
     withdrawalBalance
-  } = useQVault();
+  } = useDaoVault();
   const user = useUser();
   const { tokenInfo } = useDaoStore();
 

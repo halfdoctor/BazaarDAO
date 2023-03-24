@@ -26,7 +26,7 @@ import { countTotalStakeReward, getDAOHolderRewardPool } from 'contracts/helpers
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
 
-export function useQVault () {
+export function useDaoVault () {
   const dispatch = useDispatch();
   const { getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
   const vaultBalance = useAppSelector(({ qVault }) => qVault.vaultBalance);
