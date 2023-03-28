@@ -1,8 +1,12 @@
 
+import { useEffect, useState } from 'react';
+
 import { Spinner } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
+
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 const StyledWrapper = styled.div`
   .expert-panel-block__header {
@@ -32,18 +36,25 @@ interface Props {
 }
 
 function ExpertPanelBlock ({ title }: Props) {
-  const loading = false;
+  const { getPanelMembers } = useExpertPanels();
+  const [loading, setLoading] = useState(true);
+  const [members, setMembers] = useState<string[]>([]);
 
-  const items = [
-    '0x1234567890123456789012345678901234567890',
-    '0x1234567890123456789012345678901234567891',
-    '0x1234567890123456789012345678901234567892',
-  ];
+  useEffect(() => {
+    loadPanelMembers();
+  }, [title]);
+
+  async function loadPanelMembers () {
+    setLoading(true);
+    const members = await getPanelMembers(title);
+    setMembers(members);
+    setLoading(false);
+  }
 
   return (
     <StyledWrapper className="block">
       <div className="expert-panel-block__header block__header">
-        <h3 className="text-h3">{title}</h3>
+        <h3 className="text-h3">{title} Panel</h3>
       </div>
 
       <div className="block__content">
@@ -53,21 +64,23 @@ function ExpertPanelBlock ({ title }: Props) {
               <Spinner size={96} thickness={4} />
             </div>
           )
-          : (
-            <div className="expert-panel-block__list">
-              {items.map((item) => (
-                <div key={item} className="expert-panel-block__list-item">
-                  <ExplorerAddress
-                    semibold
-                    iconed
-                    className="text-md"
-                    address={item}
-                    iconSize={16}
-                  />
-                </div>
-              ))}
-            </div>
-          )
+          : members.length > 0
+            ? (
+              <div className="expert-panel-block__list">
+                {members.map((address) => (
+                  <div key={address} className="expert-panel-block__list-item">
+                    <ExplorerAddress
+                      semibold
+                      iconed
+                      className="text-md"
+                      address={address}
+                      iconSize={16}
+                    />
+                  </div>
+                ))}
+              </div>
+            )
+            : <p className="text-sm">No members</p>
         }
       </div>
     </StyledWrapper>

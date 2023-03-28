@@ -16,7 +16,6 @@ export function useExpertPanels () {
   async function loadExpertPanels () {
     try {
       const { daoAddress } = getState().dao;
-      if (!daoAddress) return;
       const daoInstance = getDaoInstance(daoAddress);
       const expertPanels = await daoInstance.DAORegistryInstance.instance.methods.getPanels().call();
       dispatch(setPanels(expertPanels));
@@ -25,8 +24,23 @@ export function useExpertPanels () {
     }
   }
 
+  async function getPanelMembers (panelName: string) {
+    try {
+      const { daoAddress } = getState().dao;
+      const daoInstance = getDaoInstance(daoAddress);
+
+      const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
+      const members = await memberStorageInstance.instance.methods.getMembers().call();
+      return members;
+    } catch (error) {
+      captureError(error);
+      return [];
+    }
+  }
+
   return {
     panels,
-    loadExpertPanels: useCallback(loadExpertPanels, [])
+    loadExpertPanels: useCallback(loadExpertPanels, []),
+    getPanelMembers: useCallback(getPanelMembers, [])
   };
 }

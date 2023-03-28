@@ -24,18 +24,6 @@ function TotalExpertPanels () {
   const { t } = useTranslation();
   const { panels } = useExpertPanels();
   const { activeProposalsCount } = useProposals();
-  // const {
-  //   validators,
-  //   inactiveValidatorsCount,
-  //   inactiveValidatorsCountLoading,
-  //   loadInactiveValidatorsCount,
-  // } = useValidators();
-
-  // const validatorsRef = useAnimateNumber(validators.length, ' ', val => formatNumber(val, 0));
-
-  // useEffect(() => {
-  //   loadInactiveValidatorsCount(indexerUrl);
-  // }, []);
 
   return (
     <StyledWrapper className="block">

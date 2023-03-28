@@ -13,6 +13,8 @@ import DaoTokenSupply from './components/DaoTokenSupply';
 import ExpertPanelBlock from './components/ExpertPanelBlock';
 import TotalExpertPanels from './components/TotalExpertPanels';
 
+import { useExpertPanels } from 'store/expert-panels/hooks';
+
 import { RoutePaths } from 'constants/routes';
 
 export const StyledWrapper = styled.div`
@@ -49,13 +51,7 @@ export const StyledWrapper = styled.div`
 function Dashboard () {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-
-  const expertPanels = [
-    'DAO Token Supply Panel',
-    'Constitution Panel',
-    'Guardian Panel',
-    'NFT Panel',
-  ];
+  const { panels } = useExpertPanels();
 
   return (
     <PageLayout
@@ -77,7 +73,7 @@ function Dashboard () {
         </div>
 
         <div className="dashboard__panels">
-          {expertPanels.map((panel, index) => (
+          {panels.map((panel, index) => (
             <ExpertPanelBlock key={index} title={panel} />
           ))}
         </div>
