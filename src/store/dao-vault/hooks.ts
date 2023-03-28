@@ -24,6 +24,7 @@ import { getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
 
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
+import { fromDecimals } from 'utils/numbers';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
@@ -48,13 +49,15 @@ export function useDaoVault () {
 
   async function loadWalletBalance () {
     try {
-      const { votingToken } = getState().dao;
-      const balance = votingToken
-        ? votingToken === ETHEREUM_ADDRESS
+      const { tokenInfo } = getState().dao;
+      console.log(tokenInfo);
+      const balance = tokenInfo.address
+        ? tokenInfo.address === ETHEREUM_ADDRESS
           ? await window.web3.eth.getBalance(getUserAddress())
-          : await getErc20Contract(votingToken).methods.balanceOf(getUserAddress()).call()
+          : await getErc20Contract(tokenInfo.address).methods.balanceOf(getUserAddress()).call()
         : '0';
-      dispatch(setWalletBalance(fromWei(balance)));
+
+      dispatch(setWalletBalance(fromDecimals(balance, tokenInfo.decimals)));
     } catch (error) {
       captureError(error);
     }

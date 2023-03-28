@@ -69,9 +69,11 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const isRightNetwork = useMemo(() => Boolean(chainId && chainIdToNetworkMap[chainId]), [chainId]);
 
   const loadAdditionalInfo = async () => {
-    await Promise.allSettled(
-      [loadAllDaoInfo(), loadAllBalances(), getAllProposals()]
-    );
+    await loadAllDaoInfo();
+    await Promise.allSettled([
+      loadAllBalances(),
+      getAllProposals()
+    ]);
   };
 
   const cleanConnectorStorage = useCallback(() => {

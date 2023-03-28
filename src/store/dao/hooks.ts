@@ -20,7 +20,8 @@ const Q_TOKEN_INFO: TokenInfo = {
   decimals: 18,
   isNative: true,
   allowance: '',
-  address: ETHEREUM_ADDRESS
+  address: ETHEREUM_ADDRESS,
+  totalSupply: '1000000000'
 };
 
 export function useDaoStore () {
@@ -53,10 +54,8 @@ export function useDaoStore () {
   async function loadAllDaoInfo (daoAddress?: string) {
     try {
       setNewDaoAddress(daoAddress);
-      await Promise.all([
-        loadDaoVotingToken(),
-        getTokenInfo()
-      ]);
+      await loadDaoVotingToken();
+      await getTokenInfo();
     } catch (error) {
       captureError(error);
     }
@@ -78,13 +77,14 @@ export function useDaoStore () {
 
   async function getErc20Info (tokenAddress: string) {
     const tokenContract = getErc20Contract(tokenAddress);
-    const [decimals, name, symbol, allowance] = await Promise.all([
-      tokenContract.methods.symbol().call(),
+    const [decimals, name, symbol, totalSupply, allowance] = await Promise.all([
       tokenContract.methods.decimals().call(),
       tokenContract.methods.name().call(),
+      tokenContract.methods.symbol().call(),
+      tokenContract.methods.totalSupply().call(),
       getAllowance(tokenContract),
     ]);
-    return { decimals, name, symbol, isNative: false, allowance } as TokenInfo;
+    return { decimals, name, symbol, totalSupply, isNative: false, allowance } as TokenInfo;
   }
 
   async function getAllowance (tokenContract: Contract) {

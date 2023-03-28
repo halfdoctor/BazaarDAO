@@ -7,6 +7,8 @@ import ExplorerAddress from 'components/Custom/ExplorerAddress';
 
 import { useDaoStore } from 'store/dao/hooks';
 
+import { fromDecimals } from 'utils/numbers';
+
 const StyledWrapper = styled.div`
   padding: 24px 16px 16px 24px;
   display: flex;
@@ -33,7 +35,7 @@ function DaoTokenSupply () {
       <div>
         <h2 className="text-lg">{t('DAO_TOKEN_SUPPLY')}</h2>
         <p className="dao-token-supply__val text-xl font-semibold">
-          {formatAsset(1_000_000_000, tokenInfo.symbol)}
+          {formatAsset(fromDecimals(tokenInfo.totalSupply, tokenInfo.decimals), tokenInfo.symbol)}
         </p>
         <div className="dao-token-supply__inactive text-sm">
           <span className="font-light">{t('CONTRACT')}</span>
