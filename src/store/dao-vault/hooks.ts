@@ -50,7 +50,6 @@ export function useDaoVault () {
   async function loadWalletBalance () {
     try {
       const { tokenInfo } = getState().dao;
-      console.log(tokenInfo);
       const balance = tokenInfo.address
         ? tokenInfo.address === ETHEREUM_ADDRESS
           ? await window.web3.eth.getBalance(getUserAddress())

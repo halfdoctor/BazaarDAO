@@ -11,6 +11,7 @@ import { Wrap } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 import { useProposals } from 'store/proposals/hooks';
 import { useUser } from 'store/user/hooks';
 
@@ -50,6 +51,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const { loadAllBalances } = useDaoVault();
   const { getAllProposals } = useProposals();
   const { loadAllDaoInfo } = useDaoStore();
+  const { loadExpertPanels } = useExpertPanels();
 
   const networkConfig = networkConfigsMap[ORIGIN_NETWORK_NAME];
   const { connector, chainId, isActive } = useWeb3React();
@@ -72,6 +74,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
     await loadAllDaoInfo();
     await Promise.allSettled([
       loadAllBalances(),
+      loadExpertPanels(),
       getAllProposals()
     ]);
   };

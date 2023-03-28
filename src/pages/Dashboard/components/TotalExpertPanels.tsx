@@ -2,6 +2,9 @@ import { useTranslation } from 'react-i18next';
 
 import styled from 'styled-components';
 
+import { useExpertPanels } from 'store/expert-panels/hooks';
+import { useProposals } from 'store/proposals/hooks';
+
 const StyledWrapper = styled.div`
   padding: 24px 16px 16px 24px;
   display: flex;
@@ -12,14 +15,15 @@ const StyledWrapper = styled.div`
     margin-top: 4px;
   }
 
-  .total-expert-panels__inactive {
+  .total-expert-panels__proposals {
     margin-top: 16px;
   }
 `;
 
 function TotalExpertPanels () {
   const { t } = useTranslation();
-  // const { indexerUrl } = useNetworkConfig();
+  const { panels } = useExpertPanels();
+  const { activeProposalsCount } = useProposals();
   // const {
   //   validators,
   //   inactiveValidatorsCount,
@@ -37,9 +41,10 @@ function TotalExpertPanels () {
     <StyledWrapper className="block">
       <div>
         <h2 className="text-lg">{t('TOTAL_EXPERT_PANELS')}</h2>
-        <p className="total-expert-panels__val text-xl font-semibold">5</p>
-        <p className="total-expert-panels__inactive text-sm font-light">
-          Active proposals: 4
+        <p className="total-expert-panels__val text-xl font-semibold">{panels.length}</p>
+        <p className="total-expert-panels__proposals text-sm">
+          <span className="font-light">Active proposals: </span>
+          <span>{activeProposalsCount}</span>
         </p>
       </div>
     </StyledWrapper>
