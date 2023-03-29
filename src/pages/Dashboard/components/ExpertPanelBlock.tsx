@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { DAO_MAIN_PANEL_NAME } from '@q-dev/gdk-sdk';
 import { Spinner } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
@@ -32,21 +33,21 @@ const StyledWrapper = styled.div`
 `;
 
 interface Props {
-  title: string;
+  name: string;
 }
 
-function ExpertPanelBlock ({ title }: Props) {
+function ExpertPanelBlock ({ name }: Props) {
   const { getPanelMembers } = useExpertPanels();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<string[]>([]);
 
   useEffect(() => {
     loadPanelMembers();
-  }, [title]);
+  }, [name]);
 
   async function loadPanelMembers () {
     setLoading(true);
-    const members = await getPanelMembers(title);
+    const members = await getPanelMembers(name);
     setMembers(members);
     setLoading(false);
   }
@@ -54,7 +55,12 @@ function ExpertPanelBlock ({ title }: Props) {
   return (
     <StyledWrapper className="block">
       <div className="expert-panel-block__header block__header">
-        <h3 className="text-h3">{title} Panel</h3>
+        <h3 className="text-h3">
+          {name === DAO_MAIN_PANEL_NAME
+            ? 'DAO Constitution Panel'
+            : `${name} Panel`
+          }
+        </h3>
       </div>
 
       <div className="block__content">

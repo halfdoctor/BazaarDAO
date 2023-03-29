@@ -9,7 +9,7 @@ import CopyToClipboard from 'components/CopyToClipboard';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
 
-import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
+import { useConstitution } from 'store/constitution/hooks';
 
 import { formatDateDMY } from 'utils/date';
 
@@ -60,17 +60,21 @@ function ConstitutionBlock () {
   const { t, i18n } = useTranslation();
   const {
     constitutionHash,
-    getConstitutionHash,
-    getConstitutionUpdateDate,
-    constitutionUpdateDate
-  } = useBaseVotingWeightInfo();
+    constitutionLastUpdate,
+    loadConstitutionHash,
+    loadConstitutionLastUpdate
+  } = useConstitution();
   const { constitutionUrl } = useNetworkConfig();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+  async function loadConstitutionValues () {
+    await loadConstitutionHash();
+    await loadConstitutionLastUpdate();
+  }
+
   useEffect(() => {
-    getConstitutionHash();
-    getConstitutionUpdateDate();
+    loadConstitutionValues();
   }, []);
 
   return (
@@ -115,7 +119,7 @@ function ConstitutionBlock () {
       </div>
 
       <p className="constitution__date text-sm font-light">
-        {t('LAST_UPDATE', { date: constitutionUpdateDate ? formatDateDMY(constitutionUpdateDate, i18n.language) : '-' })}
+        {t('LAST_UPDATE', { date: constitutionLastUpdate ? formatDateDMY(constitutionLastUpdate, i18n.language) : '-' })}
       </p>
     </StyledWrapper>
   );

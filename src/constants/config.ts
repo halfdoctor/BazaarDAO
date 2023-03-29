@@ -65,14 +65,14 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     chainId: 35442,
     name: 'Q Devnet',
     networkName: 'devnet',
-    dAppUrl: 'http://63.34.190.209:8000',
-    rpcUrl: 'http://63.34.190.209:8545',
-    indexerUrl: 'http://54.73.188.73:4000',
-    explorerUrl: 'http://54.73.188.73:8080',
-    gnosisSafeUrl: 'http://63.34.190.209:8020',
-    qBridgeUrl: 'http://63.34.190.209:8080',
+    dAppUrl: 'https://hq.qdevnet.org',
+    rpcUrl: 'https://rpc.qdevnet.org',
+    indexerUrl: 'https://indexer.qdevnet.org',
+    explorerUrl: 'https://explorer.qdevnet.org',
+    gnosisSafeUrl: 'https://multisig.qdevnet.org',
+    qBridgeUrl: 'https://bridge.qdevnet.org',
     docsUrl: 'https://docs.qtestnet.org',
-    constitutionUrl: 'http://34.248.83.162:8999',
+    constitutionUrl: 'https://constitution.qdevnet.org',
     gasBuffer: 1.5,
     masterDaoRegistryAddress: '0x8Bc77D0E99d3f04F678529Cbf7F20056018277D5',
   },
@@ -104,9 +104,8 @@ export const connectorParametersMap = Object.values(networkConfigsMap)
 const originToNetworkMap: { [key: string]: NetworkName } = {
   'https://hq.q.org': 'mainnet',
   'https://hq.qtestnet.org': 'testnet',
-  // TODO: Replace with devnet when it's migrated to the HTTPS protocol
-  'http://63.34.190.209:8000': 'testnet',
-  'http://localhost:3000': 'testnet',
+  'https://hq.qdevnet.org': 'devnet',
+  'http://localhost:3000': 'devnet',
 };
 
 export const ORIGIN_NETWORK_NAME: NetworkName = originToNetworkMap[window.location.origin] || 'testnet';

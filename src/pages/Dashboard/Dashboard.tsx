@@ -74,7 +74,7 @@ function Dashboard () {
 
         <div className="dashboard__panels">
           {panels.map((panel, index) => (
-            <ExpertPanelBlock key={index} title={panel} />
+            <ExpertPanelBlock key={index} name={panel} />
           ))}
         </div>
       </StyledWrapper>
