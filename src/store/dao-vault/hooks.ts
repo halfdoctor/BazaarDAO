@@ -24,7 +24,7 @@ import { getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
 
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
-import { fromDecimals } from 'utils/numbers';
+import { fromWeiWithDecimals } from 'utils/numbers';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
@@ -56,7 +56,7 @@ export function useDaoVault () {
           : await getErc20Contract(tokenInfo.address).methods.balanceOf(getUserAddress()).call()
         : '0';
 
-      dispatch(setWalletBalance(fromDecimals(balance, tokenInfo.decimals)));
+      dispatch(setWalletBalance(fromWeiWithDecimals(balance, tokenInfo.decimals)));
     } catch (error) {
       captureError(error);
     }

@@ -45,7 +45,7 @@ export function useConstitution () {
 
       const constitution = response.data
         .find(({ hash }: { hash: string }) => currentHash === `0x${hash}`);
-      dispatch(setLastUpdate(constitution.time * 1000));
+      dispatch(setLastUpdate((constitution?.time || 0) * 1000));
     } catch (error) {
       captureError(error);
     }

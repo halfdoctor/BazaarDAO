@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from 'react';
 
-import { DAO_MAIN_PANEL_NAME } from '@q-dev/gdk-sdk';
 import { Spinner } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
@@ -55,12 +54,7 @@ function ExpertPanelBlock ({ name }: Props) {
   return (
     <StyledWrapper className="block">
       <div className="expert-panel-block__header block__header">
-        <h3 className="text-h3">
-          {name === DAO_MAIN_PANEL_NAME
-            ? 'DAO Constitution Panel'
-            : `${name} Panel`
-          }
-        </h3>
+        <h3 className="text-h3">{name} Panel Members</h3>
       </div>
 
       <div className="block__content">
