@@ -41,16 +41,16 @@ function BalanceOverview () {
   const { t } = useTranslation();
   const {
     vaultBalance,
-    lockedTokens,
+    lockedBalance,
     walletBalance,
-    qVaultMinimumTimeLock,
+    vaultTimeLock,
     loadWalletBalance,
     loadVaultBalance,
     loadWithdrawalAmount
   } = useDaoVault();
   const { tokenInfo } = useDaoStore();
   const userQVBalanceRef = useAnimateNumber(vaultBalance, '');
-  const userLockedTokensRef = useAnimateNumber(lockedTokens, '');
+  const userLockedBalanceRef = useAnimateNumber(lockedBalance, '');
   const userAccountBalanceRef = useAnimateNumber(walletBalance, '');
 
   useEffect(() => {
@@ -83,16 +83,16 @@ function BalanceOverview () {
         <div>
           <p className="text-md color-secondary">{t('LOCKED_TOKENS', { symbol: tokenInfo.symbol })}</p>
           <div className="balance-overview__params-value-wrapper">
-            <p ref={userLockedTokensRef} className="text-xl font-semibold">0</p>
+            <p ref={userLockedBalanceRef} className="text-xl font-semibold">0</p>
             <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
           </div>
         </div>
         <div>
           <p className="text-md color-secondary">{t('LOCKING_END_TIME')}</p>
-          {qVaultMinimumTimeLock === '0'
+          {vaultTimeLock === '0'
             ? '–'
             : (
-              <p className="text-xl font-semibold">{formatDateDMY(unixToDate(qVaultMinimumTimeLock))}</p>
+              <p className="text-xl font-semibold">{formatDateDMY(unixToDate(vaultTimeLock))}</p>
             )
           }
         </div>

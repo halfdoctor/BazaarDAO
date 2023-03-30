@@ -7,7 +7,7 @@ export const StatsContainer = styled.div`
   .stats-list {
     margin-top: 24px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
 
     ${media.lessThan('medium')} {
       grid-template-columns: 1fr;

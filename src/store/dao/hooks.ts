@@ -78,7 +78,7 @@ export function useDaoStore () {
 
   async function getErc20Info (tokenAddress: string) {
     const tokenContract = getErc20Contract(tokenAddress);
-    const [decimals, name, symbol, allowance] = await Promise.all([
+    const [symbol, decimals, name, allowance] = await Promise.all([
       tokenContract.methods.symbol().call(),
       tokenContract.methods.decimals().call(),
       tokenContract.methods.name().call(),

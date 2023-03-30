@@ -1,23 +1,25 @@
+// Clean
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
-import { calculateInterestRate, toBigNumber } from '@q-dev/utils';
+import { calculateInterestRate } from '@q-dev/utils';
+import { TomeLockInfoStruct } from 'typings/dao';
 import { fromWei, toWei } from 'web3-utils';
 
 import {
-  setDaoVaultMinimumTimeLock,
   setDelegationInfo,
-  setMaxWithdrawalBalance,
+  setLockedBalance,
   setQVBalance,
   setVaultBalance,
+  setVaultTimeLock,
   setVotingLockingEnd,
   setVotingWeight,
-  setWalletBalance
+  setWalletBalance,
+  setWithdrawalBalance
 } from './reducer';
 
 import { getState, getUserAddress, useAppSelector } from 'store';
-import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
 
 import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
 import { getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
@@ -27,24 +29,18 @@ import { captureError } from 'utils/errors';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
-  const { getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
   const vaultBalance = useAppSelector(({ qVault }) => qVault.vaultBalance);
   const walletBalance = useAppSelector(({ qVault }) => qVault.walletBalance);
-
   const votingWeight = useAppSelector(({ qVault }) => qVault.votingWeight);
   const votingLockingEnd = useAppSelector(({ qVault }) => qVault.votingLockingEnd);
   const isVotingWeightUnlocked = useAppSelector(({ qVault }) => Number(qVault.votingLockingEnd) < dateToUnix());
-  const lockedTokens = useAppSelector(({ qVault }) =>
-    toBigNumber(qVault.vaultBalance).minus(qVault.maxWithdrawalBalance).toString()
-  );
-  const withdrawalBalance = useAppSelector(({ qVault }) => qVault.maxWithdrawalBalance);
-
+  const lockedBalance = useAppSelector(({ qVault }) => qVault.lockedBalance);
+  const withdrawalBalance = useAppSelector(({ qVault }) => qVault.withdrawalBalance);
   const delegationInfo = useAppSelector(({ qVault }) => qVault.delegationInfo);
   const delegationStakeInfo = useAppSelector(({ qVault }) => qVault.delegationStakeInfo);
   const delegationStakeInfoLoading = useAppSelector(({ qVault }) => qVault.delegationStakeInfoLoading);
   const qvBalance = useAppSelector(({ qVault }) => qVault.qvBalance);
-
-  const qVaultMinimumTimeLock = useAppSelector(({ qVault }) => qVault.qVaultMinimumTimeLock);
+  const vaultTimeLock = useAppSelector(({ qVault }) => qVault.vaultTimeLock);
 
   async function loadWalletBalance () {
     try {
@@ -80,10 +76,11 @@ export function useDaoVault () {
       if (!daoInstance || !votingToken) return;
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
-      const balance = await daoVaultInstance.instance.methods
-        .getTimeLockInfo(address || getUserAddress(), votingToken).call();
-      dispatch(setMaxWithdrawalBalance(fromWei(balance[0])));
-      dispatch(setDaoVaultMinimumTimeLock(balance[1]));
+      const balance = await daoVaultInstance
+        .getTimeLockInfo(address || getUserAddress(), votingToken) as TomeLockInfoStruct;
+      dispatch(setWithdrawalBalance(fromWei(balance.withdrawalAmount)));
+      dispatch(setLockedBalance(balance.lockedAmount));
+      dispatch(setVaultTimeLock(balance.unlockTime));
     } catch (error) {
       captureError(error);
     }
@@ -95,7 +92,6 @@ export function useDaoVault () {
         loadWalletBalance(),
         loadVaultBalance(),
         loadWithdrawalAmount(),
-        getBaseVotingWeightInfo(),
       ]);
     } catch (error) {
       captureError(error);
@@ -296,10 +292,10 @@ export function useDaoVault () {
     isVotingWeightUnlocked,
     delegationInfo,
     qvBalance,
-    qVaultMinimumTimeLock,
+    vaultTimeLock,
     delegationStakeInfo,
     delegationStakeInfoLoading,
-    lockedTokens,
+    lockedBalance,
     withdrawalBalance,
 
     loadWalletBalance: useCallback(loadWalletBalance, []),

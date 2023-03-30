@@ -18,9 +18,6 @@ import {
   getQProposals,
 } from './constitution';
 import {
-  createAddExpertProposal,
-  createParameterVoteProposal,
-  createRemoveExpertProposal,
   getExpertProposal,
   getExpertProposals,
 } from './expert';
@@ -142,12 +139,6 @@ export function createProposal (form: CreateProposalForm, address: string) {
       return createEmergencyProposal(form, address);
     case 'general':
       return createGeneralProposal(form, address);
-    case 'add-expert':
-      return createAddExpertProposal(form, address);
-    case 'remove-expert':
-      return createRemoveExpertProposal(form, address);
-    case 'parameter-vote':
-      return createParameterVoteProposal(form, address);
   }
 }
 

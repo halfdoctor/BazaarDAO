@@ -16,7 +16,8 @@ interface DelegationStakeInfo {
 interface QVaultState {
   walletBalance: string;
   vaultBalance: string;
-  maxWithdrawalBalance: string;
+  withdrawalBalance: string;
+  lockedBalance: string;
 
   votingWeight: string;
   votingLockingEnd: string;
@@ -28,7 +29,7 @@ interface QVaultState {
   delegationStakeInfo: DelegationStakeInfo;
   delegationStakeInfoLoading: boolean;
 
-  qVaultMinimumTimeLock: string;
+  vaultTimeLock: string;
 }
 
 const initialState: QVaultState = {
@@ -37,7 +38,8 @@ const initialState: QVaultState = {
   votingWeight: '0',
   votingLockingEnd: '0',
   deposit: 0,
-  maxWithdrawalBalance: '0',
+  withdrawalBalance: '0',
+  lockedBalance: '0',
 
   delegationStakeInfo: {
     totalDelegatedStake: '0',
@@ -62,7 +64,7 @@ const initialState: QVaultState = {
     qHolderRewardPool: '0',
   },
 
-  qVaultMinimumTimeLock: '0',
+  vaultTimeLock: '0',
 };
 
 const qVaultSlice = createSlice({
@@ -94,12 +96,16 @@ const qVaultSlice = createSlice({
       state.delegationStakeInfoLoading = false;
     },
 
-    setDaoVaultMinimumTimeLock (state, { payload }: PayloadAction<string>) {
-      state.qVaultMinimumTimeLock = payload;
+    setVaultTimeLock (state, { payload }: PayloadAction<string>) {
+      state.vaultTimeLock = payload;
     },
 
-    setMaxWithdrawalBalance (state, { payload }: PayloadAction<string>) {
-      state.maxWithdrawalBalance = payload;
+    setWithdrawalBalance (state, { payload }: PayloadAction<string>) {
+      state.withdrawalBalance = payload;
+    },
+
+    setLockedBalance (state, { payload }: PayloadAction<string>) {
+      state.lockedBalance = payload;
     },
 
     setDelegationInfo (state, { payload }: PayloadAction<VotingDelegationInfo>) {
@@ -115,8 +121,9 @@ export const {
   setVotingLockingEnd,
   setQVBalance,
   setDelegationStakeInfo,
-  setDaoVaultMinimumTimeLock,
+  setVaultTimeLock,
   setDelegationInfo,
-  setMaxWithdrawalBalance
+  setWithdrawalBalance,
+  setLockedBalance
 } = qVaultSlice.actions;
 export default qVaultSlice.reducer;

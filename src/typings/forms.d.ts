@@ -14,8 +14,14 @@ interface FormDelegation {
 
 type ExpertType = 'fees-incentives' | 'defi' | 'root-node';
 
+type GeneralSituationType = 'raise-topic' | 'create-voting' | 'remove-voting';
+type MembershipSituationType = 'add-member' | 'remove-member';
+
 interface QProposalForm {
-  type: 'constitution' | 'emergency' | 'general';
+  type: string;
+  generalSituationType: GeneralSituationType;
+  membershipSituationType: MembershipSituationType;
+  candidateAddress: string;
   hash: string;
   classification: Classification;
   externalLink: string;

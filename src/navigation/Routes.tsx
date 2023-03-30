@@ -1,9 +1,8 @@
 import { lazy, useEffect } from 'react';
-import { Route, RouteComponentProps, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import { useInterval } from '@q-dev/react-hooks';
 import * as Sentry from '@sentry/react';
-import { ProposalContractType } from 'typings/contracts';
 
 import LazyLoading from 'components/Base/LazyLoading';
 import ErrorBoundary from 'components/Custom/ErrorBoundary';
@@ -83,13 +82,9 @@ function Routes () {
             <Governance />
           </Route>
 
-          <Route
-            exact
-            path="/:address/governance/proposal/:contract?/:id?"
-            component={(props: RouteComponentProps<{ id: string; contract: ProposalContractType }>) => (
-              <Proposal {...props} />
-            )}
-          />
+          <Route exact path="/:address/governance/proposal/:panel?/:id?">
+            <Proposal />
+          </Route>
 
           <Route exact path="/:address/voting-power">
             <VotingPower />

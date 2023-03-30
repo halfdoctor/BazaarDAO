@@ -4,3 +4,9 @@ export interface DaoCardType {
   image: string;
   address: string;
 }
+
+export interface TomeLockInfoStruct {
+  lockedAmount: string;
+  unlockTime: string;
+  withdrawalAmount: string;
+}

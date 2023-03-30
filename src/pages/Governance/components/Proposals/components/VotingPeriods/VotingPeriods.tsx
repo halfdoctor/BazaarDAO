@@ -1,30 +1,32 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Tooltip } from '@q-dev/q-ui-kit';
-import { Proposal } from 'typings/proposals';
+import { toBigNumber } from '@q-dev/utils';
+import { DaoProposal } from 'typings/proposals';
 
 import { VotingContainer } from './styles';
 
-import { CONTRACTS_NAMES } from 'constants/contracts';
+import { useDaoProposals } from 'store/dao-proposals/hooks';
+
 import { formatDate, formatDateRelative } from 'utils/date';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  proposal: Proposal;
+  proposal: DaoProposal;
 }
 
 function VotingPeriods ({ proposal, ...rest }: Props) {
   const { t, i18n } = useTranslation();
+  const { getProposalVetoInfo } = useDaoProposals();
+  const [hasNoVeto, setHasNoVeto] = useState(false);
 
-  const hasNoVeto = [
-    CONTRACTS_NAMES.emergencyUpdateVoting,
-  ].includes(proposal.contract);
+  const loadVetoInfo = useCallback(async () => {
+    const vetoInfo = await getProposalVetoInfo(proposal.target);
+    setHasNoVeto(Boolean(vetoInfo?.isVetoGroupExists));
+  }, []);
 
-  const votingEndTime = new Date(proposal.votingEndTime * 1000).getTime();
-  const vetoEndTime = proposal.status === ProposalStatus.REJECTED
-    ? 0
-    : new Date(proposal.vetoEndTime * 1000).getTime();
+  const votingEndTime = new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber()).getTime();
+  const vetoEndTime = new Date(toBigNumber(proposal.params.vetoEndTime).multipliedBy(1000).toNumber()).getTime();
 
   const votingText = votingEndTime > Date.now()
     ? t('VOTING_ENDS')
@@ -32,6 +34,10 @@ function VotingPeriods ({ proposal, ...rest }: Props) {
   const vetoText = vetoEndTime > Date.now()
     ? t('VETO_ENDS')
     : t('VETO_ENDED');
+
+  useEffect(() => {
+    loadVetoInfo();
+  }, []);
 
   return (
     <VotingContainer {...rest}>

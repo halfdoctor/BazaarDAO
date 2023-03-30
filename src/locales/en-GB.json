@@ -491,9 +491,10 @@
   "BASIC_PART": "Basic part",
   "DETAILED_PART": "Detailed part",
   "FUNDAMENTAL_PART": "Fundamental part",
-  "CONSTITUTION_UPDATE": "Constitution Update",
+  "CONSTITUTION_UPDATE": "Constitution Vote",
   "GENERAL_Q_UPDATE": "General Q Update",
   "EMERGENCY_UPDATE": "Emergency Update",
+  "MEMBERSHIP_VOTE": "Membership Vote",
   "CLASSIFICATION": "Classification",
   "CHANGE_CONSTITUTION_PARAMETER": "Change Constitution Parameter",
   "YES": "Yes",
@@ -1304,5 +1305,12 @@
   "INPUT_DAO_ADDRESS": "Search DAO address",
   "DAOS_TITLE": "DAOs",
   "DAO_EXPLORE": "Explore",
-  "APPROVE_SPENDING_TOKENS": "Approve spending tokens"
+  "APPROVE_SPENDING_TOKENS": "Approve spending tokens",
+  "GENERAL_SITUATION": "General Situation",
+  "RAISE_SOME_TOPIC": "Raise some topic",
+  "CREATE_VOTING_SITUATION": "Create voting situation (coming soon)",
+  "REMOVE_VOTING_SITUATION": "Remove voting situation (coming soon)",
+  "ADD_NEW_MEMBER": "Add new member",
+  "REMOVE_MEMBER": "Remove member",
+  "COMING_SOON": "Coming Soon"
 }

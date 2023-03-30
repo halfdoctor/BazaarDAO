@@ -3,12 +3,6 @@ import { Classification, ProposalStatus } from '@q-dev/q-js-sdk';
 import { ProposalContractType } from './contracts';
 import { FormParameter } from './forms';
 
-export type ProposalFilterStatus = '' | 'active' | 'ended';
-
-export interface ProposalFilter {
-  status: ProposalFilterStatus;
-}
-
 export type FormProposalType = 'q' | 'expert';
 export type ProposalType = FormProposalType;
 
@@ -44,4 +38,42 @@ export interface Proposal {
   replaceDest: string;
   amountToSlash: string | number;
   proposer: string;
+}
+
+export interface DaoProposalVotingInfo {
+  votingStatus: ProposalStatus;
+  votingStatus: string;
+  requiredQuorum: string;
+  currentQuorum: string;
+  requiredMajority: string;
+  currentMajority: string;
+  currentVetoQuorum: string;
+  requiredVetoQuorum: string;
+}
+
+export interface DaoProposalVotingParams {
+  proposalExecutionPeriod: string;
+  requiredMajority: string;
+  requiredQuorum: string;
+  requiredVetoQuorum: string;
+  vetoEndTime: string;
+  votingEndTime: string;
+  votingStartTime: string;
+  votingType: string;
+}
+
+export interface DaoProposalVotingCounters {
+  vetoesCount: string;
+  votedAgainst: string;
+  votedFor: string;
+}
+export interface DaoProposal {
+  id: string;
+  remark: string;
+  callData: string;
+  target: string;
+  relatedExpertPanel: string;
+  params: DaoProposalVotingParams;
+  counters: DaoProposalVotingCounters;
+  executed:boolean;
 }

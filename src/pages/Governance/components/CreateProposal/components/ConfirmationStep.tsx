@@ -1,30 +1,22 @@
-
 import { useTranslation } from 'react-i18next';
 
 import { Classification } from '@q-dev/q-js-sdk';
-import { QProposalForm } from 'typings/forms';
 
 import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterViewer from 'components/ParameterViewer';
 
-import { useNewQProposalForm } from '../NewQProposal';
+import { useCreateProposalForm } from '../CreateProposal';
 
 function ConfirmationStep () {
   const { t } = useTranslation();
-  const { values, goBack, confirm, updateStep } = useNewQProposalForm();
+  const { values, goBack, confirm, updateStep } = useCreateProposalForm();
   const isConstitutionType = values.type === 'constitution';
 
   const classificationMap: Record<Classification, string> = {
     [Classification.BASIC]: t('BASIC_PART'),
     [Classification.DETAILED]: t('DETAILED_PART'),
     [Classification.FUNDAMENTAL]: t('FUNDAMENTAL_PART')
-  };
-
-  const proposalTypeMap: Record<QProposalForm['type'], string> = {
-    constitution: t('CONSTITUTION_UPDATE'),
-    general: t('GENERAL_Q_UPDATE'),
-    emergency: t('EMERGENCY_UPDATE')
   };
 
   return (
@@ -38,7 +30,7 @@ function ConfirmationStep () {
         onAction={() => updateStep(0)}
       >
         <p className="text-lg">
-          {proposalTypeMap[values.type]}
+          Type
         </p>
       </FormBlock>
 

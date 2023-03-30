@@ -4,45 +4,31 @@ import { useTranslation } from 'react-i18next';
 import { formatAsset } from '@q-dev/utils';
 import { fromWei } from 'web3-utils';
 
-import useVoteDelegation from 'hooks/useVoteDelegation';
-import useVoterStatus from 'hooks/useVoterStatus';
-
 import { StatsContainer } from './styles';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
-import { useUser } from 'store/user/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
 
 function VotingStats () {
   const { t, i18n } = useTranslation();
-  const { loadDelegationInfo } = useDaoVault();
-  const { baseVotingWeightInfo, getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
-
-  const user = useUser();
-  const voterStatus = useVoterStatus();
-
-  const { ownWeight, lockedUntil } = baseVotingWeightInfo;
-  const delegationStatus = useVoteDelegation();
-
-  useEffect(() => {
-    getBaseVotingWeightInfo();
-    loadDelegationInfo(user.address);
-  }, []);
+  const { vaultBalance, vaultTimeLock, loadWithdrawalAmount } = useDaoVault();
+  const { tokenInfo } = useDaoStore();
+  const voterStatus = 'Need get from contract';
 
   const statsList = [
     {
       title: t('TOTAL_VOTING_WEIGHT'),
-      value: formatAsset(fromWei(ownWeight || '0'), 'Q'),
+      value: formatAsset(fromWei(vaultBalance || '0'), tokenInfo.symbol),
     },
     {
       title: t('VOTING_LOCKING_END'),
-      value: lockedUntil && lockedUntil !== '0'
+      value: vaultTimeLock && vaultTimeLock !== '0'
         ? (
           <>
-            <span>{formatDateDMY(unixToDate(lockedUntil), i18n.language)}</span>
-            <span className="text-md">{formatTimeGMT(unixToDate(lockedUntil), i18n.language)}</span>
+            <span>{formatDateDMY(unixToDate(vaultTimeLock), i18n.language)}</span>
+            <span className="text-md">{formatTimeGMT(unixToDate(vaultTimeLock), i18n.language)}</span>
           </>
         )
         : '–'
@@ -50,12 +36,12 @@ function VotingStats () {
     {
       title: t('VOTING_STATUS'),
       value: <span className="text-lg font-semibold">{voterStatus}</span>
-    },
-    {
-      title: t('VOTE_DELEGATION'),
-      value: <span className="text-lg font-semibold">{delegationStatus}</span>
     }
   ];
+
+  useEffect(() => {
+    loadWithdrawalAmount();
+  }, []);
 
   return (
     <StatsContainer className="block">

@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { RouteComponentProps, useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 
 import { Icon } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
-import { ProposalContractType } from 'typings/contracts';
-import { Proposal as ProposalInterface, ProposalType } from 'typings/proposals';
+import { DaoProposal, DaoProposalVotingInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
@@ -14,41 +12,47 @@ import useDao from 'hooks/useDao';
 import ProposalLayout from './components/ProposalLayout';
 import ProposalSkeleton from './components/Proposals/components/ProposalSkeleton';
 
-import { useTransaction } from 'store/transaction/hooks';
-
-import { getProposal, getProposalTypeByContract } from 'contracts/helpers/voting';
+import { useDaoProposals } from 'store/dao-proposals/hooks';
 
 import { RoutePaths } from 'constants/routes';
+import { captureError } from 'utils/errors';
 
-function Proposal ({ match }: RouteComponentProps<{
+interface ProposalParams {
   id: string;
-  contract: ProposalContractType;
-}>) {
-  const { t } = useTranslation();
+  panel: string;
+}
+
+function Proposal () {
   const history = useHistory();
-  const { pendingTransactions } = useTransaction();
   const { composeDaoLink } = useDao();
+  const { getPanelsName, panelsName, getProposal, getProposalInfo } = useDaoProposals();
+  const [proposal, setProposal] = useState<DaoProposal | null>(null);
+  const [panelName, setPanelName] = useState('');
+  const [proposalInfo, setProposalInfo] = useState<DaoProposalVotingInfo | null>(null);
+  const { id, panel } = useParams<ProposalParams>();
 
-  const [proposal, setProposal] = useState<ProposalInterface | null>(null);
-  const type = getProposalTypeByContract(match.params.contract);
+  const loadProposal = async () => {
+    try {
+      await getPanelsName();
+      const pathPanelId = panel.split('panels-')[1];
+      const panelName = panelsName.find((_, index) => index === Number(pathPanelId)) || '';
 
-  useInterval(loadProposal, 60_000);
-  useEffect(() => {
-    if (!pendingTransactions.length) {
-      setProposal(null);
-      loadProposal();
+      if (!panelName) return;
+      setPanelName(panelName);
+      const newProposal = await getProposal(panelName, id) as DaoProposal;
+
+      if (!newProposal || !newProposal.id) {
+        history.replace('/not-found');
+        return;
+      }
+
+      setProposal({ ...newProposal });
+      const newProposalInfo = await getProposalInfo(newProposal.id, panelName);
+      if (newProposalInfo) { setProposalInfo({ ...newProposalInfo }); }
+    } catch (error) {
+      captureError(error);
     }
-  }, [pendingTransactions.length]);
-
-  async function loadProposal () {
-    const proposal = await getProposal(match.params.contract, match.params.id);
-    if (!proposal) {
-      history.replace('/not-found');
-      return;
-    }
-
-    setProposal(proposal);
-  }
+  };
 
   const handleBackClick = () => {
     const location = history.location as { state?: { from: string } };
@@ -56,14 +60,14 @@ function Proposal ({ match }: RouteComponentProps<{
       history.goBack();
       return;
     }
-
     history.replace(composeDaoLink(RoutePaths.governance));
   };
 
-  const backTextMap: Record<ProposalType, string> = {
-    q: t('Q_PROPOSALS'),
-    expert: t('EXPERT_PROPOSALS'),
-  };
+  useEffect(() => {
+    loadProposal();
+  }, []);
+
+  useInterval(loadProposal, 60_000);
 
   return (
     <div className="proposal">
@@ -74,11 +78,11 @@ function Proposal ({ match }: RouteComponentProps<{
         onClick={handleBackClick}
       >
         <Icon name="arrow-left" />
-        <span>{backTextMap[type]}</span>
+        <span>{panelName}</span>
       </Button>
 
-      {proposal
-        ? <ProposalLayout type={type} proposal={proposal} />
+      {proposal && proposalInfo
+        ? <ProposalLayout proposal={proposal} proposalInfo={proposalInfo} />
         : <ProposalSkeleton />
       }
     </div>

@@ -56,6 +56,8 @@ export async function getParameterValueByKey (
 
   try {
     const contract = await getContract(contractType);
+
+    console.log(await contract.getParameter(parameterTypeMap[parameterType], key));
     return contract.getParameter(parameterTypeMap[parameterType], key);
   } catch (error) {
     captureError(error);

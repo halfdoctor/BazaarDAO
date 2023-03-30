@@ -1,3 +1,4 @@
+// Delete
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
@@ -6,7 +7,7 @@ import { ProposalStatus, SubmitTransactionResponse } from '@q-dev/q-js-sdk';
 import axios from 'axios';
 import { ContractType, ProposalEvent } from 'typings/contracts';
 import { CreateProposalForm } from 'typings/forms';
-import { FormProposalType, Proposal, ProposalType, VotingType } from 'typings/proposals';
+import { Proposal, ProposalType, VotingType } from 'typings/proposals';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
 
@@ -21,20 +22,6 @@ import { createProposal, getProposalEvents } from 'contracts/helpers/voting';
 
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
-
-function getProposalTypeFromFormType (type: CreateProposalForm['type']): FormProposalType {
-  switch (type) {
-    case 'constitution':
-    case 'general':
-    case 'emergency':
-      return 'q';
-
-    case 'add-expert':
-    case 'remove-expert':
-    case 'parameter-vote':
-      return 'expert';
-  }
-}
 
 function isProposalActive (item: ProposalEvent, minBlock: number) {
   return item.status === 'active' && item.blockNumber >= minBlock;
@@ -144,18 +131,7 @@ export function useProposals () {
 
   async function createNewProposal (form: CreateProposalForm) {
     const userAddress = getUserAddress();
-    const receipt = await createProposal(form, userAddress);
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        getBaseVotingWeightInfo();
-        loadDelegationInfo(userAddress);
-
-        const proposalType = getProposalTypeFromFormType(form.type);
-        getProposals(proposalType);
-      });
-
-    return receipt;
+    await createProposal(form, userAddress);
   }
 
   async function voteForProposal ({ proposal, type, isVotedFor }: {

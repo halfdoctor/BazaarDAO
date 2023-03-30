@@ -1,35 +1,41 @@
 
+import { useMemo } from 'react';
+
+import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
-import { Proposal, ProposalType } from 'typings/proposals';
+import { DaoProposal, DaoProposalVotingInfo } from 'typings/proposals';
 
 import PageLayout from 'components/PageLayout';
-import useProposalDetails from 'pages/Governance/hooks/useProposalDetails';
 
-import ProposalActions from './components/ProposalActions';
-import ProposalDetails from './components/ProposalDetails';
-import ProposalParameters from './components/ProposalParameters';
 import ProposalTurnout from './components/ProposalTurnout';
 import ProposalVeto from './components/ProposalVeto';
 import ProposalVoting from './components/ProposalVoting';
 import { ProposalLayoutContainer } from './styles';
 
-function ProposalLayout ({ proposal, type }: { proposal: Proposal; type: ProposalType }) {
-  const { title, status, state } = useProposalDetails(proposal);
+import { useDaoProposals } from 'store/dao-proposals/hooks';
+
+function ProposalLayout ({ proposal, proposalInfo }: {
+  proposal: DaoProposal; proposalInfo: DaoProposalVotingInfo;
+}) {
+  const { statusMap, getStatusState } = useDaoProposals();
+  const status = useMemo(() => {
+    return statusMap[proposalInfo?.votingStatus || ProposalStatus.NONE];
+  }, [proposalInfo]);
 
   return (
     <PageLayout
-      title={`#${proposal.id} ${title}`}
-      titleExtra={<Tag state={state}>{status}</Tag>}
-      action={<ProposalActions proposal={proposal} title={title} />}
+      title={`#${proposal.id} ${proposal.remark}`}
+      titleExtra={<Tag state={getStatusState(proposalInfo.votingStatus)}>{status}</Tag>}
+    // action={<ProposalActions proposal={proposal} title={title} />}
     >
       <ProposalLayoutContainer>
-        <ProposalDetails proposal={proposal} type={type} />
+        {/* <ProposalDetails proposal={proposal} type={type} />
         {proposal.parameters?.length > 0 && (
           <ProposalParameters proposal={proposal} />
-        )}
+        )} */}
 
         <div className="proposal-layout__voting">
-          <ProposalTurnout proposal={proposal} />
+          <ProposalTurnout proposal={proposal} proposalInfo={proposalInfo} />
           <ProposalVoting proposal={proposal} />
           <ProposalVeto proposal={proposal} />
         </div>

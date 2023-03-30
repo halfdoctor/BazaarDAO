@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import PageLayout from 'components/PageLayout';
@@ -6,41 +7,48 @@ import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
 import useDao from 'hooks/useDao';
 
-import { NewExpertProposal, NewQProposal } from './components/NewProposal';
+import NewProposalTab from './components/NewProposalTab';
 
-import { RoutePaths } from 'constants/routes';
+import { useDaoProposals } from 'store/dao-proposals/hooks';
 
 function NewProposal () {
   const { t } = useTranslation();
+  const { getPanelsName, panelsName } = useDaoProposals();
   const { composeDaoLink } = useDao();
 
-  const tabs = [
-    {
-      id: 'q-proposal',
-      label: t('Q_PROPOSAL'),
-      link: composeDaoLink(RoutePaths.newQProposal)
-    },
-    {
-      id: 'expert-roposal',
-      label: t('EXPERT_PROPOSAL'),
-      link: composeDaoLink(RoutePaths.newExpertProposal)
-    },
-  ];
+  const tabs = useMemo(() => {
+    return panelsName.map((name, index) => ({
+      id: index,
+      label: name,
+      link: composeDaoLink(`/governance/panels-${index}/new`),
+    }));
+  }, [panelsName]);
+
+  useEffect(() => { getPanelsName(); }, []);
 
   return (
     <PageLayout title={t('NEW_PROPOSAL')}>
-      <Tabs tabs={tabs} />
-      <TabSwitch>
-        <>
-          <TabRoute exact path={composeDaoLink(RoutePaths.newQProposal)}>
-            <NewQProposal />
-          </TabRoute>
-
-          <TabRoute exact path={composeDaoLink(RoutePaths.newExpertProposal)}>
-            <NewExpertProposal />
-          </TabRoute>
-        </>
-      </TabSwitch>
+      {tabs.length
+        ? (
+          <>
+            <Tabs tabs={tabs} />
+            <TabSwitch>
+              <>
+                {tabs.map(({ id, label, link }) => (
+                  <TabRoute
+                    key={id}
+                    exact
+                    path={link}
+                  >
+                    <NewProposalTab panelName={label} />
+                  </TabRoute>
+                ))}
+              </>
+            </TabSwitch>
+          </>)
+        : <>
+          loader
+        </>}
     </PageLayout>
   );
 }

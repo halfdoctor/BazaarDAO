@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, Route, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -14,37 +15,30 @@ import useDao from 'hooks/useDao';
 import Proposals from './components/Proposals';
 import VotingStats from './components/VotingStats';
 
-import { useProposals } from 'store/proposals/hooks';
+import { useDaoProposals } from 'store/dao-proposals/hooks';
 
 import { RoutePaths } from 'constants/routes';
 
 function Governance () {
   const { pathname } = useLocation();
   const { t } = useTranslation();
-  const { getActiveProposalsByType } = useProposals();
+  const { getPanelsName, panelsName } = useDaoProposals();
   const { composeDaoLink } = useDao();
 
-  const tabs = [
-    {
-      id: 'q-proposals',
-      label: t('Q_PROPOSALS'),
-      count: getActiveProposalsByType('q').length,
-      link: composeDaoLink(RoutePaths.qProposals),
-    },
-    {
-      id: 'expert-roposals',
-      label: t('EXPERT_PROPOSALS'),
-      count: getActiveProposalsByType('expert').length,
-      link: composeDaoLink(RoutePaths.expertProposals),
-    },
-  ];
+  const tabs = useMemo(() => {
+    return panelsName.map((name, index) => ({
+      id: index,
+      label: name,
+      link: composeDaoLink(`/governance/panels-${index}`),
+    }));
+  }, [panelsName]);
 
-  const pathToNewProposalPath: Record<string, string> = {
-    [composeDaoLink(RoutePaths.qProposals)]: composeDaoLink(RoutePaths.newQProposal),
-    [composeDaoLink(RoutePaths.expertProposals)]: composeDaoLink(RoutePaths.newExpertProposal),
-  };
+  const pathToNewProposalPath = tabs.reduce((acc: Record<string, string>, item) => {
+    acc[item.link] = `${item.link}/new`;
+    return acc;
+  }, {});
 
-  const redirectTab = tabs.find(tab => tab.count > 0) || tabs[0];
+  useEffect(() => { getPanelsName(); }, []);
 
   return (
     <PageLayout
@@ -59,22 +53,30 @@ function Governance () {
       )}
     >
       <VotingStats />
-      <Tabs tabs={tabs} />
-      <TabSwitch>
-        <>
-          <Route exact path={'/:address' + RoutePaths.governance}>
-            <Redirect to={redirectTab.link} />
-          </Route>
-
-          <TabRoute exact path={'/:address' + RoutePaths.qProposals}>
-            <Proposals type="q" />
-          </TabRoute>
-
-          <TabRoute exact path={'/:address' + RoutePaths.expertProposals}>
-            <Proposals type="expert" />
-          </TabRoute>
-        </>
-      </TabSwitch>
+      {tabs.length
+        ? (
+          <>
+            <Tabs tabs={tabs} />
+            <TabSwitch>
+              <>
+                <Route exact path={'/:address' + RoutePaths.governance}>
+                  <Redirect to={tabs[0].link} />
+                </Route>
+                {tabs.map(({ id, label, link }) => (
+                  <TabRoute
+                    key={id}
+                    exact
+                    path={link}
+                  >
+                    <Proposals panelName={label} />
+                  </TabRoute>
+                ))}
+              </>
+            </TabSwitch>
+          </>)
+        : <>
+          loader
+        </>}
     </PageLayout>
   );
 }
