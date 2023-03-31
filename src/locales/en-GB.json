@@ -1306,5 +1306,8 @@
   "DAO_EXPLORE": "Explore",
   "APPROVE_SPENDING_TOKENS": "Approve spending tokens",
   "DAO_TOKEN_SUPPLY": "DAO Token Supply",
-  "TOTAL_EXPERT_PANELS": "Total Expert Panels"
+  "TOTAL_EXPERT_PANELS": "Total Expert Panels",
+  "EXPERT_PANEL_MEMBERS": "{{panel}} Members",
+  "NO_MEMBERS": "No members",
+  "ACTIVE_PROPOSALS_COUNT": "Active proposals:"
 }

@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Spinner } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
@@ -36,7 +37,9 @@ interface Props {
 }
 
 function ExpertPanelBlock ({ name }: Props) {
+  const { t } = useTranslation();
   const { getPanelMembers } = useExpertPanels();
+
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<string[]>([]);
 
@@ -54,7 +57,9 @@ function ExpertPanelBlock ({ name }: Props) {
   return (
     <StyledWrapper className="block">
       <div className="expert-panel-block__header block__header">
-        <h3 className="text-h3">{name} Panel Members</h3>
+        <h3 className="text-h3">
+          {t('EXPERT_PANEL_MEMBERS', { panel: name })}
+        </h3>
       </div>
 
       <div className="block__content">
@@ -80,7 +85,7 @@ function ExpertPanelBlock ({ name }: Props) {
                 ))}
               </div>
             )
-            : <p className="text-sm">No members</p>
+            : <p className="text-sm">{t('NO_MEMBERS')}</p>
         }
       </div>
     </StyledWrapper>

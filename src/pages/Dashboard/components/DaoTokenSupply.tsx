@@ -58,7 +58,7 @@ const StyledWrapper = styled.div`
     margin-top: 4px;
   }
 
-  .dao-token-supply__inactive {
+  .dao-token-supply__contract {
     margin-top: 16px;
     display: flex;
     gap: 4px;
@@ -128,7 +128,7 @@ function DaoTokenSupply () {
       <p className="dao-token-supply__val text-xl font-semibold">
         {formatAsset(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals), tokenInfo.symbol)}
       </p>
-      <div className="dao-token-supply__inactive text-sm">
+      <div className="dao-token-supply__contract text-sm">
         <span className="font-light">{t('CONTRACT')}</span>
         <ExplorerAddress short address={tokenInfo.address} />
       </div>

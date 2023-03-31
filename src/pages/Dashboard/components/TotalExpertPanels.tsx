@@ -17,6 +17,8 @@ const StyledWrapper = styled.div`
 
   .total-expert-panels__proposals {
     margin-top: 16px;
+    display: flex;
+    gap: 4px;
   }
 `;
 
@@ -29,9 +31,11 @@ function TotalExpertPanels () {
     <StyledWrapper className="block">
       <div>
         <h2 className="text-lg">{t('TOTAL_EXPERT_PANELS')}</h2>
-        <p className="total-expert-panels__val text-xl font-semibold">{panels.length}</p>
+        <p className="total-expert-panels__val text-xl font-semibold">
+          {panels.length}
+        </p>
         <p className="total-expert-panels__proposals text-sm">
-          <span className="font-light">Active proposals: </span>
+          <span className="font-light">{t('ACTIVE_PROPOSALS_COUNT')}</span>
           <span>{activeProposalsCount}</span>
         </p>
       </div>
