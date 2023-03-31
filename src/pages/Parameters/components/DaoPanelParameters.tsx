@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import ParametersBlock from '../ParametersBlock';
+import ParametersBlock from './ParametersBlock';
 
 import { useParameters } from 'store/parameters/hooks';
 
 import { getConstitutionInstance } from 'contracts/contract-instance';
 
-function QConstitutionParameters () {
+interface Props {
+  panel: string;
+}
+
+function DaoPanelParameters ({ panel }: Props) {
   const { t } = useTranslation();
   const {
     constitutionParameters,
@@ -31,7 +35,6 @@ function QConstitutionParameters () {
     <ParametersBlock
       title={t('Q_CONSTITUTION_PARAMETERS')}
       subtitle={`(${constitutionParametersAddress})`}
-      docsId="#q-constitution-parameters"
       parameters={constitutionParameters}
       loading={constitutionParametersLoading}
       errorMsg={constitutionParametersError}
@@ -39,4 +42,4 @@ function QConstitutionParameters () {
   );
 }
 
-export default QConstitutionParameters;
+export default DaoPanelParameters;

@@ -10,7 +10,7 @@ import ExplorerAddress from 'components/Custom/ExplorerAddress';
 import { useDaoStore } from 'store/dao/hooks';
 
 import { captureError } from 'utils/errors';
-import { fromWeiWithDecimals } from 'utils/numbers';
+import { fromWeiWithDecimals } from 'utils/web3';
 
 const StyledWrapper = styled.div`
   padding: 16px 16px 16px 24px;

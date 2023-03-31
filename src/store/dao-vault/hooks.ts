@@ -24,7 +24,7 @@ import { getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
 
 import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
-import { fromWeiWithDecimals } from 'utils/numbers';
+import { fromWeiWithDecimals } from 'utils/web3';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
