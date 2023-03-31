@@ -1,42 +1,29 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Icon, Progress } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
 import { singlePrecision } from 'helpers/convert';
-import { DaoProposal, DaoProposalVotingInfo } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
+import { fromWei } from 'web3-utils';
 
 import { StyledProposalTurnout } from './styles';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
-
-function ProposalTurnout ({ proposal, proposalInfo }: { proposal: DaoProposal; proposalInfo: DaoProposalVotingInfo }) {
+function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
 
-  const { getProposalVetoInfo } = useDaoProposals();
-  const [hasNoVeto, setHasNoVeto] = useState(false);
-  const [rootNodesNumber, setRootNodesNumber] = useState('');
-
-  const loadVetoInfo = useCallback(async () => {
-    const vetoInfo = await getProposalVetoInfo(proposal.target);
-    setRootNodesNumber(vetoInfo?.vetoMembersCount || '');
-    setHasNoVeto(Boolean(vetoInfo?.isVetoGroupExists));
-  }, []);
-
-  useEffect(() => {
-    loadVetoInfo();
-  }, []);
-
   const leftQuorum = useMemo(() => {
-    return proposalInfo
-      ? toBigNumber(proposalInfo?.requiredQuorum)
-        .minus(proposalInfo?.currentQuorum)
+    return Math.max(
+      toBigNumber(proposal.requiredQuorum)
+        .minus(proposal.currentQuorum)
         .integerValue(BigNumber.ROUND_CEIL)
-        .toString()
-      : 0;
-  }, [proposalInfo]);
-  const totalVotes = toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toString();
+        .toNumber(), 0);
+  }, [proposal]);
+
+  const totalVotes = useMemo(() => {
+    return toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toString();
+  }, [proposal]);
 
   return (
     <StyledProposalTurnout className="block">
@@ -45,10 +32,10 @@ function ProposalTurnout ({ proposal, proposalInfo }: { proposal: DaoProposal; p
       <div className="block__content">
         <div className="proposal-turnout__quorum">
           <p className="text-md">
-            {t('QUORUM', { quorum: formatPercent(singlePrecision(proposalInfo.currentQuorum)) })}
+            {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum)) })}
           </p>
           <p className="text-md">
-            {leftQuorum || Number(proposalInfo.currentQuorum) === 0
+            {leftQuorum
               ? t('LEFT_QUORUM', { quorum: formatPercent(singlePrecision(leftQuorum)) })
               : <Icon name="double-check" />
             }
@@ -57,23 +44,23 @@ function ProposalTurnout ({ proposal, proposalInfo }: { proposal: DaoProposal; p
 
         <Progress
           className="proposal-turnout__progress"
-          value={Number(proposalInfo.currentQuorum)}
-          max={Number(proposalInfo.requiredQuorum)}
+          value={Number(proposal.currentQuorum)}
+          max={Number(proposal.requiredQuorum)}
         />
 
         <div className="proposal-turnout__votes">
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('VOTED')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(totalVotes)}
+              {formatNumber(fromWei(totalVotes))}
             </p>
           </div>
 
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('DID_NOT_VOTE')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {hasNoVeto
-                ? formatNumber(toBigNumber(rootNodesNumber).minus(totalVotes))
+              {!proposal.isVetoGroupExists
+                ? formatNumber(toBigNumber(proposal.vetoMembersCount).minus(totalVotes))
                 : '–'
               }
             </p>

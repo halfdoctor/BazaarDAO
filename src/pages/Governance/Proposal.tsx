@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router';
 
 import { Icon } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
-import { DaoProposal, DaoProposalVotingInfo } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
@@ -24,11 +25,10 @@ interface ProposalParams {
 
 function Proposal () {
   const history = useHistory();
+  const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { getPanelsName, panelsName, getProposal, getProposalInfo } = useDaoProposals();
-  const [proposal, setProposal] = useState<DaoProposal | null>(null);
-  const [panelName, setPanelName] = useState('');
-  const [proposalInfo, setProposalInfo] = useState<DaoProposalVotingInfo | null>(null);
+  const { getPanelsName, panelsName, getProposalBaseInfo } = useDaoProposals();
+  const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
   const { id, panel } = useParams<ProposalParams>();
 
   const loadProposal = async () => {
@@ -36,19 +36,12 @@ function Proposal () {
       await getPanelsName();
       const pathPanelId = panel.split('panels-')[1];
       const panelName = panelsName.find((_, index) => index === Number(pathPanelId)) || '';
-
-      if (!panelName) return;
-      setPanelName(panelName);
-      const newProposal = await getProposal(panelName, id) as DaoProposal;
-
-      if (!newProposal || !newProposal.id) {
+      const proposalBaseInfo = panelName && id ? await getProposalBaseInfo(panelName, id) : null;
+      if (!proposalBaseInfo) {
         history.replace('/not-found');
         return;
       }
-
-      setProposal({ ...newProposal });
-      const newProposalInfo = await getProposalInfo(newProposal.id, panelName);
-      if (newProposalInfo) { setProposalInfo({ ...newProposalInfo }); }
+      setProposal(proposalBaseInfo);
     } catch (error) {
       captureError(error);
     }
@@ -60,7 +53,9 @@ function Proposal () {
       history.goBack();
       return;
     }
-    history.replace(composeDaoLink(RoutePaths.governance));
+    history.replace(panel
+      ? composeDaoLink(`${RoutePaths.governance}/${panel}`)
+      : composeDaoLink(RoutePaths.governance));
   };
 
   useEffect(() => {
@@ -78,11 +73,11 @@ function Proposal () {
         onClick={handleBackClick}
       >
         <Icon name="arrow-left" />
-        <span>{panelName}</span>
+        <span>{proposal?.relatedExpertPanel || t('GOVERNANCE')}</span>
       </Button>
 
-      {proposal && proposalInfo
-        ? <ProposalLayout proposal={proposal} proposalInfo={proposalInfo} />
+      {proposal
+        ? <ProposalLayout proposal={proposal} />
         : <ProposalSkeleton />
       }
     </div>

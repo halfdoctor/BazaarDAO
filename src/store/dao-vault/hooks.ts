@@ -1,20 +1,14 @@
-// Clean
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
-import { calculateInterestRate } from '@q-dev/utils';
 import { TomeLockInfoStruct } from 'typings/dao';
 import { fromWei, toWei } from 'web3-utils';
 
 import {
-  setDelegationInfo,
   setLockedBalance,
-  setQVBalance,
   setVaultBalance,
   setVaultTimeLock,
-  setVotingLockingEnd,
-  setVotingWeight,
   setWalletBalance,
   setWithdrawalBalance
 } from './reducer';
@@ -22,24 +16,15 @@ import {
 import { getState, getUserAddress, useAppSelector } from 'store';
 
 import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
-import { getDAOHolderRewardPool } from 'contracts/helpers/dao-vault-helper';
 
-import { dateToUnix } from 'utils/date';
 import { captureError } from 'utils/errors';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
   const vaultBalance = useAppSelector(({ qVault }) => qVault.vaultBalance);
   const walletBalance = useAppSelector(({ qVault }) => qVault.walletBalance);
-  const votingWeight = useAppSelector(({ qVault }) => qVault.votingWeight);
-  const votingLockingEnd = useAppSelector(({ qVault }) => qVault.votingLockingEnd);
-  const isVotingWeightUnlocked = useAppSelector(({ qVault }) => Number(qVault.votingLockingEnd) < dateToUnix());
   const lockedBalance = useAppSelector(({ qVault }) => qVault.lockedBalance);
   const withdrawalBalance = useAppSelector(({ qVault }) => qVault.withdrawalBalance);
-  const delegationInfo = useAppSelector(({ qVault }) => qVault.delegationInfo);
-  const delegationStakeInfo = useAppSelector(({ qVault }) => qVault.delegationStakeInfo);
-  const delegationStakeInfoLoading = useAppSelector(({ qVault }) => qVault.delegationStakeInfoLoading);
-  const qvBalance = useAppSelector(({ qVault }) => qVault.qvBalance);
   const vaultTimeLock = useAppSelector(({ qVault }) => qVault.vaultTimeLock);
 
   async function loadWalletBalance () {
@@ -93,18 +78,6 @@ export function useDaoVault () {
         loadVaultBalance(),
         loadWithdrawalAmount(),
       ]);
-    } catch (error) {
-      captureError(error);
-    }
-  }
-
-  async function loadLockInfo (address: string) {
-    try {
-      const contract = await getQVaultInstance();
-      const lockInfo = await contract.getLockInfo(address);
-
-      dispatch(setVotingWeight(fromWei(lockInfo.lockedAmount)));
-      dispatch(setVotingLockingEnd(lockInfo.lockedUntil));
     } catch (error) {
       captureError(error);
     }
@@ -170,7 +143,6 @@ export function useDaoVault () {
     receipt.promiEvent
       .once('receipt', () => {
         loadWalletBalance();
-        loadDelegationInfo(userAddress);
       });
 
     return receipt;
@@ -187,8 +159,6 @@ export function useDaoVault () {
       .once('receipt', () => {
         loadWalletBalance();
         loadVaultBalance();
-        loadLockInfo(address);
-        loadDelegationInfo(address);
       });
 
     return receipt;
@@ -205,8 +175,6 @@ export function useDaoVault () {
       .once('receipt', () => {
         loadWalletBalance();
         loadVaultBalance();
-        loadLockInfo(address);
-        loadDelegationInfo(address);
       });
 
     return receipt;
@@ -225,45 +193,12 @@ export function useDaoVault () {
     return receipt;
   }
 
-  async function loadQVBalanceDetails () {
-    try {
-      const userAddress = getUserAddress();
-      const contract = await getQVaultInstance();
-      const balanceDetailsData = await contract.getBalanceDetails(userAddress);
-      const qHolderRewardPool = await getDAOHolderRewardPool();
-
-      const { vaultBalance } = getState().qVault;
-      const interestRatePercentage = calculateInterestRate(Number(balanceDetailsData.interestRate));
-
-      dispatch(setQVBalance({
-        ...balanceDetailsData,
-        interestRatePercentage,
-        qHolderRewardPool,
-        yearlyExpectedEarnings: Number(vaultBalance) * interestRatePercentage / 100
-      }));
-    } catch (error) {
-      captureError(error);
-    }
-  }
-
-  async function loadDelegationInfo (address: string) {
-    try {
-      const contract = await getVotingWeightProxyInstance();
-      const info = await contract.getDelegationInfo(address);
-      dispatch(setDelegationInfo({ ...info }));
-    } catch (error) {
-      captureError(error);
-    }
-  }
-
   async function announceNewVotingAgent (address: string) {
-    const userAddress = getUserAddress();
     const contract = await getVotingWeightProxyInstance();
     const receipt = await contract.announceNewVotingAgent(address);
 
     receipt.promiEvent
       .once('receipt', () => {
-        loadDelegationInfo(userAddress);
         loadWalletBalance();
       });
 
@@ -271,13 +206,11 @@ export function useDaoVault () {
   }
 
   async function setNewVotingAgent () {
-    const userAddress = getUserAddress();
     const contract = await getVotingWeightProxyInstance();
     const receipt = await contract.setNewVotingAgent();
 
     receipt.promiEvent
       .once('receipt', () => {
-        loadDelegationInfo(userAddress);
         loadWalletBalance();
       });
 
@@ -287,32 +220,22 @@ export function useDaoVault () {
   return {
     vaultBalance,
     walletBalance,
-    votingWeight,
-    votingLockingEnd,
-    isVotingWeightUnlocked,
-    delegationInfo,
-    qvBalance,
     vaultTimeLock,
-    delegationStakeInfo,
-    delegationStakeInfoLoading,
     lockedBalance,
     withdrawalBalance,
-
     loadWalletBalance: useCallback(loadWalletBalance, []),
     loadVaultBalance: useCallback(loadVaultBalance, []),
     loadAllBalances: useCallback(loadAllBalances, []),
-    loadLockInfo: useCallback(loadLockInfo, []),
     depositToVault: useCallback(depositToVault, []),
-    sendToVault: useCallback(sendToVault, []),
     withdrawFromVault: useCallback(withdrawFromVault, []),
+    loadWithdrawalAmount: useCallback(loadWithdrawalAmount, []),
+
+    sendToVault: useCallback(sendToVault, []),
     delegateStake: useCallback(delegateStake, []),
     lockAmount: useCallback(lockAmount, []),
     unlockAmount: useCallback(unlockAmount, []),
-    loadDelegationInfo: useCallback(loadDelegationInfo, []),
     claimStakeDelegatorReward: useCallback(claimStakeDelegatorReward, []),
-    loadQVBalanceDetails: useCallback(loadQVBalanceDetails, []),
     announceNewVotingAgent: useCallback(announceNewVotingAgent, []),
     setNewVotingAgent: useCallback(setNewVotingAgent, []),
-    loadWithdrawalAmount: useCallback(loadWithdrawalAmount, []),
   };
 }

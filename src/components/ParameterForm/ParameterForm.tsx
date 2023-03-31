@@ -2,30 +2,32 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Form, useForm } from '@q-dev/form-hooks';
-import { ParameterType } from '@q-dev/q-js-sdk';
+import { filterParameter, ParameterType } from '@q-dev/gdk-sdk';
 import { RadioGroup, Select, Tip } from '@q-dev/q-ui-kit';
-import { FormParameter } from 'typings/forms';
+import { FormParameter, ParameterKey } from 'typings/forms';
 
 import Input from 'components/Input';
 
 import { ParameterFormContainer } from './styles';
 
-import { getParameterKeysByType, getParameterValueByKey } from 'contracts/helpers/parameters-helper';
+import { getParameters } from 'contracts/helpers/parameters-helper';
 
 import { parameterType, required } from 'utils/validators';
 
 interface Props {
-  contract: string;
+  panelName: string;
   disabled?: boolean;
   onChange: (form: Form<FormParameter>) => void;
 }
 
 function ParameterForm ({
-  contract,
+  panelName,
   disabled = false,
   onChange
 }: Props) {
   const { t } = useTranslation();
+  const [currentValue, setCurrentValue] = useState('');
+  const [keys, setKeys] = useState<ParameterKey[]>([]);
 
   const form = useForm({
     initialValues: {
@@ -42,34 +44,30 @@ function ParameterForm ({
     },
   });
 
-  const [currentValue, setCurrentValue] = useState('');
-  const [keys, setKeys] = useState<string[]>([]);
-
   useEffect(() => {
     onChange(form);
   }, [form.values, onChange]);
 
   useEffect(() => {
-    getParameterKeysByType(contract, form.values.type as ParameterType)
+    form.values.key = '';
+    getParameters(panelName, form.values.type as ParameterType)
       .then(setKeys);
 
     return () => {
       setKeys([]);
     };
-  }, [contract, form.values.type]);
+  }, [panelName, form.values.type]);
 
   useEffect(() => {
-    if (!keys.includes(String(form.values.key))) {
+    if (!keys.find(item => item.name === form.values.key)) {
       setCurrentValue('');
       form.fields.isNew.onChange(true);
       return;
     }
 
-    getParameterValueByKey(
-      contract,
-      form.values.type as ParameterType,
-      form.values.key as string
-    ).then(setCurrentValue);
+    const parameter = filterParameter(keys, form.values.type as ParameterType, form.values.key.toString());
+    if (!parameter.length) return;
+    setCurrentValue(parameter[0].value);
     form.fields.isNew.onChange(false);
 
     return () => {
@@ -84,7 +82,7 @@ function ParameterForm ({
         combobox
         label={t('PARAMETER_KEY')}
         placeholder={t('KEY')}
-        options={keys.map((key) => ({ label: key, value: key }))}
+        options={keys.map((key) => ({ label: key.name, value: key.name }))}
         disabled={disabled}
       />
 
@@ -95,9 +93,10 @@ function ParameterForm ({
         disabled={disabled}
         options={[
           { value: ParameterType.ADDRESS, label: t('ADDRESS') },
-          { value: ParameterType.BOOL, label: t('BOOLEAN') },
+          { value: ParameterType.UINT256, label: t('UINT') },
           { value: ParameterType.STRING, label: t('STRING') },
-          { value: ParameterType.UINT, label: t('UINT') },
+          { value: ParameterType.BYTES, label: t('BYTES') },
+          { value: ParameterType.BOOL, label: t('BOOLEAN') },
         ]}
       />
 

@@ -4,17 +4,11 @@ import { fromWei, toWei } from 'web3-utils';
 import { getUserAddress } from 'store';
 import { TokenInfo } from 'store/dao/reducer';
 
-import { contractRegistryInstance, daoInstance } from 'contracts/contract-instance';
+import { daoInstance } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
 
 const DEFAULT_GAS_PRICE = 50;
-
-export async function getDAOHolderRewardPool () {
-  const address = await contractRegistryInstance?.instance.methods.getAddress('tokeneconomics.qHolderRewardPool').call();
-  const balance = await window.web3.eth.getBalance(address || '');
-  return fromWei(balance);
-}
 
 export async function getDAOVaultDepositAmount (balance: string, token: TokenInfo) {
   try {

@@ -40,7 +40,7 @@ function DepositForm () {
   const { t } = useTranslation();
   const { walletBalance, depositToVault } = useDaoVault();
   const { submitTransaction } = useTransaction();
-  const user = useUser();
+  const { address } = useUser();
   const { tokenInfo } = useDaoStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
 
@@ -55,7 +55,7 @@ function DepositForm () {
         ? approveSpendToken()
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
-          submitFn: () => depositToVault({ address: user.address, amount }),
+          submitFn: () => depositToVault({ address: address, amount }),
           onSuccess: () => form.reset(),
         });
     }

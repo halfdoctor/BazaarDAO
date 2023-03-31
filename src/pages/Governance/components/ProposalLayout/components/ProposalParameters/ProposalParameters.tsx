@@ -1,15 +1,13 @@
+// waiting for contract implementation
 import { useTranslation } from 'react-i18next';
 
-import { Proposal } from 'typings/proposals';
+import { FormParameter } from 'typings/forms';
 
 import ParameterViewer from 'components/ParameterViewer';
 
-interface Props {
-  proposal: Proposal;
-}
-
-function ProposalParameters ({ proposal }: Props) {
+function ProposalParameters () {
   const { t } = useTranslation();
+  const parameters: FormParameter[] = [];
 
   return (
     <div className="block">
@@ -17,7 +15,7 @@ function ProposalParameters ({ proposal }: Props) {
 
       <div className="block__content">
         <div className="details-list">
-          {proposal.parameters.map((parameter, i) => (
+          {parameters.map((parameter, i) => (
             <ParameterViewer
               key={i}
               block

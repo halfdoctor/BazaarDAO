@@ -4,31 +4,30 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
-import { Proposal } from 'typings/proposals';
-import { fromWei } from 'web3-utils';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
 import { StyledVoteForm } from './styles';
 
-import { useBaseVotingWeightInfo, useProposals } from 'store/proposals/hooks';
+import { useDaoStore } from 'store/dao/hooks';
+import { useDaoProposals } from 'store/dao-proposals/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { required } from 'utils/validators';
 
 interface Props {
-  proposal: Proposal;
-  isMemberVoting?: boolean;
+  proposal: ProposalBaseInfo;
   onSubmit: () => void;
 }
 
-function VoteForm ({ proposal, isMemberVoting, onSubmit }: Props) {
+function VoteForm ({ proposal, onSubmit }: Props) {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { voteForProposal } = useProposals();
-  const { baseVotingWeightInfo } = useBaseVotingWeightInfo();
-
-  const weight = formatAsset(fromWei(baseVotingWeightInfo.ownWeight), 'Q');
+  const { voteForProposal } = useDaoProposals();
+  const { vaultBalance } = useDaoVault();
+  const { tokenInfo } = useDaoStore();
 
   const form = useForm({
     initialValues: { vote: '' },
@@ -38,7 +37,7 @@ function VoteForm ({ proposal, isMemberVoting, onSubmit }: Props) {
         successMessage: t('VOTE_TX'),
         onConfirm: () => onSubmit(),
         submitFn: () => voteForProposal({
-          type: 'basic',
+          type: 'vote',
           isVotedFor: form.vote === 'yes',
           proposal,
         })
@@ -52,17 +51,12 @@ function VoteForm ({ proposal, isMemberVoting, onSubmit }: Props) {
       $selectedOption={form.values.vote === 'yes' ? 'for' : 'against'}
       onSubmit={form.submit}
     >
-      {!isMemberVoting &&
-        <div>
-          <p className="text-md">{t('TOTAL_VOTING_WEIGHT')}</p>
-          <p
-            className="text-xl font-semibold"
-            title={weight}
-          >
-            {weight}
-          </p>
-        </div>
-      }
+      <div>
+        <p className="text-md">{t('TOTAL_VOTING_WEIGHT')}</p>
+        <p className="text-xl font-semibold">
+          {formatAsset(vaultBalance, tokenInfo.symbol)}
+        </p>
+      </div>
       <RadioGroup
         {...form.fields.vote}
         extended

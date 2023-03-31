@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Illustration } from '@q-dev/q-ui-kit';
 import { fillArray } from '@q-dev/utils';
-import { DaoProposal } from 'typings/proposals';
+import { DaoProposal, ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
@@ -17,26 +17,32 @@ const PAGE_LIMIT = 10;
 
 function Proposals ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
-  const { getProposalsList } = useDaoProposals();
-  const [list, setList] = useState<DaoProposal[]>([]);
+  const { getProposalsList, getProposalBaseInfo } = useDaoProposals();
+  const [list, setList] = useState<ProposalBaseInfo[]>([]);
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaginationAvailable, setIsPaginationAvailable] = useState(true);
 
-  const loadProposalsList = useCallback(async () => {
+  const loadProposalsList = async () => {
     setIsLoading(true);
-    const newList = await getProposalsList(panelName, offset, PAGE_LIMIT) || [];
+    const newList = (await getProposalsList(panelName, offset, PAGE_LIMIT) || []) as DaoProposal[];
     const futureList = await getProposalsList(panelName, offset + PAGE_LIMIT, PAGE_LIMIT) || []; // need to optimize
-    setList(newList as DaoProposal[]);
+    const preparedProposalList = await Promise.all(
+      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id))
+    );
+    setList(preparedProposalList as ProposalBaseInfo[]);
     setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);
     setIsLoading(false);
-  }, []);
+  };
 
   const handleNextProposals = async () => {
     const newOffset = offset + PAGE_LIMIT;
-    const newList = await getProposalsList(panelName, newOffset, PAGE_LIMIT) || [];
+    const newList = (await getProposalsList(panelName, newOffset, PAGE_LIMIT) || []) as DaoProposal[];
     const futureList = await getProposalsList(panelName, newOffset + PAGE_LIMIT, PAGE_LIMIT) || []; // need to optimize
-    setList(oldList => [...oldList, ...newList] as DaoProposal[]);
+    const preparedProposalList = await Promise.all(
+      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id))
+    );
+    setList(oldList => [...oldList, ...preparedProposalList] as ProposalBaseInfo[]);
     setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);
     setOffset(newOffset);
   };
@@ -71,7 +77,6 @@ function Proposals ({ panelName }: { panelName: string }) {
           <ProposalCard
             key={index}
             proposal={proposal}
-            panelName={panelName}
           />
         ))}
       </ListWrapper>

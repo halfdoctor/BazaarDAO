@@ -1,23 +1,20 @@
 import { useTranslation } from 'react-i18next';
 
-import { Classification } from '@q-dev/q-js-sdk';
+import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 
 import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterViewer from 'components/ParameterViewer';
+
+import useProposalStep from 'hooks/useProposalStep';
 
 import { useCreateProposalForm } from '../CreateProposal';
 
 function ConfirmationStep () {
   const { t } = useTranslation();
   const { values, goBack, confirm, updateStep } = useCreateProposalForm();
-  const isConstitutionType = values.type === 'constitution';
-
-  const classificationMap: Record<Classification, string> = {
-    [Classification.BASIC]: t('BASIC_PART'),
-    [Classification.DETAILED]: t('DETAILED_PART'),
-    [Classification.FUNDAMENTAL]: t('FUNDAMENTAL_PART')
-  };
+  const { proposalSteps } = useProposalStep();
+  const proposalType = proposalSteps.find(item => item.value === values.type);
 
   return (
     <FormStep
@@ -30,73 +27,88 @@ function ConfirmationStep () {
         onAction={() => updateStep(0)}
       >
         <p className="text-lg">
-          Type
+          {proposalType?.label}
         </p>
       </FormBlock>
 
-      {isConstitutionType
-        ? (
+      {values.type === DefaultVotingSituations.ConstitutionSituation && (
+        <FormBlock
+          icon="edit"
+          title={t('BASIC_PART')}
+          onAction={() => updateStep(1)}
+        >
+          <div>
+            <p className="text-md color-secondary">{t('HASH')}</p>
+            <p className="text-lg ellipsis">{values.hash}</p>
+          </div>
+
+          <div>
+            <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
+            <p className="text-lg ellipsis">{values.externalLink}</p>
+          </div>
+        </FormBlock>
+      )}
+
+      {(values.type === DefaultVotingSituations.ConstitutionSituation ||
+        values.type === DefaultVotingSituations.ParameterSituation) &&
+        (
           <FormBlock
             icon="edit"
-            title={t('BASIC_PART')}
-            onAction={() => updateStep(1)}
+            title={t('PARAMETERS')}
+            onAction={() => updateStep(values.type === DefaultVotingSituations.ConstitutionSituation ? 2 : 1)}
           >
             <div>
-              <p className="text-md color-secondary">{t('CLASSIFICATION')}</p>
+              <p className="text-md color-secondary">
+                {t('CHANGE_CONSTITUTION_PARAMETER')}
+              </p>
               <p className="text-lg">
-                {classificationMap[values.classification]}
+                {values.isParamsChanged ? t('YES') : t('NO')}
               </p>
             </div>
 
-            <div>
-              <p className="text-md color-secondary">{t('HASH')}</p>
-              <p className="text-lg ellipsis">{values.hash}</p>
-            </div>
-
-            <div>
-              <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-              <p className="text-lg ellipsis">{values.externalLink}</p>
-            </div>
+            {values.params.map((param, index) => (
+              <ParameterViewer
+                key={index + param.key}
+                parameter={param}
+                index={index}
+              />
+            ))}
           </FormBlock>
-        )
-        : (
-          <FormBlock
-            icon="edit"
-            title={t('DETAILS')}
-            onAction={() => updateStep(1)}
-          >
-            <div>
-              <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-              <p className="text-lg ellipsis">{values.externalLink}</p>
-            </div>
-          </FormBlock>
-        )
-      }
+        )}
 
-      {isConstitutionType && (
+      {values.type === DefaultVotingSituations.GeneralSituation && (
         <FormBlock
           icon="edit"
-          title={t('PARAMETERS')}
-          onAction={() => updateStep(2)}
+          title={t('DETAILS')}
+          onAction={() => updateStep(1)}
         >
           <div>
-            <p className="text-md color-secondary">
-              {t('CHANGE_CONSTITUTION_PARAMETER')}
-            </p>
-            <p className="text-lg">
-              {values.isParamsChanged ? t('YES') : t('NO')}
+            <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
+            <p className="text-lg ellipsis">{values.externalLink}</p>
+          </div>
+        </FormBlock>)}
+
+      {values.type === DefaultVotingSituations.MembershipSituation && (
+        <FormBlock
+          icon="edit"
+          title={t('DETAILS')}
+          onAction={() => updateStep(1)}
+        >
+          <div>
+            <p className="text-md color-secondary">{t('ACTION_TYPE')}</p>
+            <p className="text-lg ellipsis">
+              {values.membershipSituationType === 'add-member' ? t('ADD_NEW_MEMBER') : t('REMOVE_MEMBER')}
             </p>
           </div>
-
-          {values.params.map((param, index) => (
-            <ParameterViewer
-              key={index + param.key}
-              parameter={param}
-              index={index}
-            />
-          ))}
-        </FormBlock>
-      )}
+          <div>
+            <p className="text-md color-secondary">{t('CANDIDATE_ADDRESS')}</p>
+            <p className="text-lg ellipsis">{values.candidateAddress}</p>
+          </div>
+          <div>
+            <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
+            <p className="text-lg ellipsis">{values.externalLink}</p>
+          </div>
+        </FormBlock>)}
     </FormStep>
   );
 }

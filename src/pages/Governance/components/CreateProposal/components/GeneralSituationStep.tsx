@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
-import { GeneralSituationType, QProposalForm } from 'typings/forms';
+import { CreateProposalForm, GeneralSituationType } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
@@ -25,7 +25,7 @@ function GeneralSituationStep () {
       externalLink: [required, url],
     },
     onSubmit: (form) => {
-      goNext(form as QProposalForm);
+      goNext(form as CreateProposalForm);
     },
   });
 

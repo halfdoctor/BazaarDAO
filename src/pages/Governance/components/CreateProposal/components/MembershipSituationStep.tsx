@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
-import { MembershipSituationType, QProposalForm } from 'typings/forms';
+import { CreateProposalForm, MembershipSituationType } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
@@ -26,7 +26,7 @@ function MembershipSituationStep () {
       externalLink: [required, url],
       candidateAddress: [required, address],
     },
-    onSubmit: (form) => goNext(form as QProposalForm),
+    onSubmit: (form) => goNext(form as CreateProposalForm),
   });
 
   const panelTypeOptions: RadioOptions<MembershipSituationType> = [

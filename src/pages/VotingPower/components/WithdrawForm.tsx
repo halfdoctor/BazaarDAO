@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
@@ -35,18 +34,9 @@ const StyledForm = styled.form`
 function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-
-  const {
-    withdrawFromVault,
-    loadLockInfo,
-    withdrawalBalance
-  } = useDaoVault();
-  const user = useUser();
+  const { withdrawFromVault, withdrawalBalance } = useDaoVault();
+  const { address } = useUser();
   const { tokenInfo } = useDaoStore();
-
-  useEffect(() => {
-    loadLockInfo(user.address);
-  }, []);
 
   const form = useForm({
     initialValues: { amount: '' },
@@ -54,7 +44,7 @@ function WithdrawForm () {
     onSubmit: ({ amount }) => {
       submitTransaction({
         successMessage: t('WITHDRAW_FROM_VAULT_TX'),
-        submitFn: async () => withdrawFromVault({ amount, address: user.address }),
+        submitFn: async () => withdrawFromVault({ amount, address: address }),
         onSuccess: () => form.reset(),
       });
     }

@@ -1,4 +1,4 @@
-import { MasterDAORegistryInstance, PermissionManagerInstance } from '@q-dev/gdk-sdk';
+import { MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
 import ERC20 from '@q-dev/gdk-sdk/lib/abi/ERC20Upgradeable.json';
 import { DAOInstance } from '@q-dev/gdk-sdk/lib/contracts/DAOInstance';
 import { ContractRegistryInstance } from '@q-dev/q-js-sdk';
@@ -43,7 +43,6 @@ export function getInstance<T extends ContractType> (
 }
 
 export let masterDaoRegistryInstance: MasterDAORegistryInstance | null = null;
-export let permissionManagerInstance: PermissionManagerInstance | null = null;
 
 export const getMasterDaoRegistryInstance = (masterDaoFactoryAddress: string) => {
   if (!masterDaoRegistryInstance) {
@@ -51,14 +50,6 @@ export const getMasterDaoRegistryInstance = (masterDaoFactoryAddress: string) =>
   }
 
   return masterDaoRegistryInstance;
-};
-
-export const getPermissionManagerInstance = (managerAddress: string) => {
-  if (!permissionManagerInstance) {
-    permissionManagerInstance = new PermissionManagerInstance(window.web3, managerAddress);
-  }
-
-  return permissionManagerInstance;
 };
 
 export const getGeneralUpdateVotingInstance = getInstance('generalUpdateVoting');

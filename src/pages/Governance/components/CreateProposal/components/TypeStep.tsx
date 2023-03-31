@@ -7,47 +7,33 @@ import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
 
 import { FormStep } from 'components/MultiStepForm';
 
+import useProposalStep from 'hooks/useProposalStep';
+
 import { useCreateProposalForm } from '../CreateProposal';
 
 import { required } from 'utils/validators';
 
-function TypeStep ({ situations }: { situations: string[] }) {
+function TypeStep ({ situations, panelName }: { situations: string[]; panelName: string }) {
   const { t } = useTranslation();
   const { goNext, onChange } = useCreateProposalForm();
+  const { proposalSteps } = useProposalStep();
 
   const form = useForm({
-    initialValues: { type: DefaultVotingSituations.GeneralSituation as string },
-    validators: { type: [required] },
+    initialValues: {
+      type: DefaultVotingSituations.GeneralSituation as string,
+      currentPanelName: panelName
+    },
+    validators: {
+      type: [required],
+      currentPanelName: [required]
+    },
     onChange,
     onSubmit: goNext,
   });
 
-  const DEFAULT_PROPOSALS: RadioOptions<string> = [
-    {
-      value: DefaultVotingSituations.ConstitutionSituation,
-      label: t('CONSTITUTION_UPDATE'),
-      tip: t('CONSTITUTION_UPDATE_TIP')
-    },
-    {
-      value: DefaultVotingSituations.GeneralSituation,
-      label: t('GENERAL_Q_UPDATE'),
-      tip: t('GENERAL_Q_UPDATE_TIP')
-    },
-    {
-      value: DefaultVotingSituations.ParameterSituation,
-      label: t('PARAMETER_VOTE'),
-      tip: t('PARAMETER_VOTE')
-    },
-    {
-      value: DefaultVotingSituations.MembershipSituation,
-      label: t('MEMBERSHIP_VOTE'),
-      tip: t('MEMBERSHIP_VOTE')
-    },
-  ];
-
   const typeOptions: RadioOptions<string> = useMemo(() => {
     return situations.map(item => {
-      return DEFAULT_PROPOSALS.find(el => el.value === item) || {
+      return proposalSteps.find(el => el.value === item) || {
         value: item,
         label: item,
         tip: t('COMING_SOON'),

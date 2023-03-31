@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
@@ -5,6 +6,7 @@ import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import { singlePrecision } from 'helpers/convert';
 import { useTheme } from 'styled-components';
 import { DaoProposal } from 'typings/proposals';
+import { fromWei } from 'web3-utils';
 
 import useEndTime from '../../hooks/useEndTime';
 
@@ -13,8 +15,13 @@ import { StyledProposalVoting } from './styles';
 function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const votingEndTime = useEndTime(new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber()));
-  const totalVotes = toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber();
+
+  const votingEndTime = useMemo(() => useEndTime(
+    new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber())
+  ), [proposal]);
+
+  const totalVotes = useMemo(() => toBigNumber(
+    proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber(), [proposal]);
 
   return (
     <StyledProposalVoting className="block">
@@ -58,7 +65,7 @@ function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
               {formatPercent(toBigNumber(proposal.counters.votedFor).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(proposal.counters.votedFor)}
+              {formatNumber(fromWei(proposal.counters.votedFor))}
             </p>
           </div>
 
@@ -74,7 +81,7 @@ function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
               {formatPercent(toBigNumber(proposal.counters.votedAgainst).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(proposal.counters.votedAgainst)}
+              {formatNumber(fromWei(proposal.counters.votedAgainst))}
             </p>
           </div>
         </div>

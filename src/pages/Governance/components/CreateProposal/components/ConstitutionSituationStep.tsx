@@ -11,9 +11,7 @@ import ParameterForm from 'components/ParameterForm';
 
 import { useCreateProposalForm } from '../CreateProposal';
 
-import { CONTRACT_TYPES } from 'constants/contracts';
-
-function ConstitutionSituationStep () {
+function ConstitutionSituationStep ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
   const { values, goNext, goBack, onChange } = useCreateProposalForm();
 
@@ -56,7 +54,7 @@ function ConstitutionSituationStep () {
         >
           <ParameterForm
             key={form.id}
-            contract={CONTRACT_TYPES.constitution}
+            panelName={panelName}
             disabled={!values.isParamsChanged}
             onChange={form.onChange}
           />

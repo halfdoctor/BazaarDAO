@@ -1312,5 +1312,8 @@
   "REMOVE_VOTING_SITUATION": "Remove voting situation (coming soon)",
   "ADD_NEW_MEMBER": "Add new member",
   "REMOVE_MEMBER": "Remove member",
-  "COMING_SOON": "Coming Soon"
+  "COMING_SOON": "Coming Soon",
+  "ACTION_TYPE": "Action type",
+  "NO_PANELS_FOUND": "No panels found",
+  "NO_SITUATIONS_FOUND": "No situations found"
 }

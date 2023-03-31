@@ -1,10 +1,11 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, Route, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { Icon } from '@q-dev/q-ui-kit';
+import { Icon, Illustration } from '@q-dev/q-ui-kit';
 
+import SpinnerLoading from 'components/Base/SpinnerLoading';
 import Button from 'components/Button';
 import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
@@ -13,6 +14,7 @@ import { TabRoute, TabSwitch } from 'components/Tabs/components';
 import useDao from 'hooks/useDao';
 
 import Proposals from './components/Proposals';
+import { ListEmptyStub } from './components/Proposals/styles';
 import VotingStats from './components/VotingStats';
 
 import { useDaoProposals } from 'store/dao-proposals/hooks';
@@ -24,6 +26,15 @@ function Governance () {
   const { t } = useTranslation();
   const { getPanelsName, panelsName } = useDaoProposals();
   const { composeDaoLink } = useDao();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadPanelsName = async () => {
+    setIsLoading(true);
+    await getPanelsName();
+    setIsLoading(false);
+  };
+
+  useEffect(() => { loadPanelsName(); }, []);
 
   const tabs = useMemo(() => {
     return panelsName.map((name, index) => ({
@@ -38,7 +49,20 @@ function Governance () {
     return acc;
   }, {});
 
-  useEffect(() => { getPanelsName(); }, []);
+  if (isLoading) {
+    return (
+      <SpinnerLoading />
+    );
+  }
+
+  if (!tabs.length) {
+    return (
+      <ListEmptyStub>
+        <Illustration type="empty-list" />
+        <p className="text-lg font-semibold">{t('NO_PANELS_FOUND')}</p>
+      </ListEmptyStub>
+    );
+  }
 
   return (
     <PageLayout
@@ -53,30 +77,23 @@ function Governance () {
       )}
     >
       <VotingStats />
-      {tabs.length
-        ? (
-          <>
-            <Tabs tabs={tabs} />
-            <TabSwitch>
-              <>
-                <Route exact path={'/:address' + RoutePaths.governance}>
-                  <Redirect to={tabs[0].link} />
-                </Route>
-                {tabs.map(({ id, label, link }) => (
-                  <TabRoute
-                    key={id}
-                    exact
-                    path={link}
-                  >
-                    <Proposals panelName={label} />
-                  </TabRoute>
-                ))}
-              </>
-            </TabSwitch>
-          </>)
-        : <>
-          loader
-        </>}
+      <Tabs tabs={tabs} />
+      <TabSwitch>
+        <>
+          <Route exact path={'/:address' + RoutePaths.governance}>
+            <Redirect to={tabs[0].link} />
+          </Route>
+          {tabs.map(({ id, label, link }) => (
+            <TabRoute
+              key={id}
+              exact
+              path={link}
+            >
+              <Proposals panelName={label} />
+            </TabRoute>
+          ))}
+        </>
+      </TabSwitch>
     </PageLayout>
   );
 }

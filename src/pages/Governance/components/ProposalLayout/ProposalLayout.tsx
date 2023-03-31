@@ -1,41 +1,44 @@
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
-import { DaoProposal, DaoProposalVotingInfo } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import PageLayout from 'components/PageLayout';
 
+import ProposalActions from './components/ProposalActions';
+import ProposalDetails from './components/ProposalDetails';
 import ProposalTurnout from './components/ProposalTurnout';
 import ProposalVeto from './components/ProposalVeto';
 import ProposalVoting from './components/ProposalVoting';
 import { ProposalLayoutContainer } from './styles';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
+import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
-function ProposalLayout ({ proposal, proposalInfo }: {
-  proposal: DaoProposal; proposalInfo: DaoProposalVotingInfo;
+function ProposalLayout ({ proposal }: {
+  proposal: ProposalBaseInfo;
 }) {
-  const { statusMap, getStatusState } = useDaoProposals();
+  const { t } = useTranslation();
   const status = useMemo(() => {
-    return statusMap[proposalInfo?.votingStatus || ProposalStatus.NONE];
-  }, [proposalInfo]);
+    return t(statusMap[proposal.votingStatus || ProposalStatus.NONE]);
+  }, [proposal]);
 
   return (
     <PageLayout
-      title={`#${proposal.id} ${proposal.remark}`}
-      titleExtra={<Tag state={getStatusState(proposalInfo.votingStatus)}>{status}</Tag>}
-    // action={<ProposalActions proposal={proposal} title={title} />}
+      title={`#${proposal.id} ${proposal.relatedVotingSituation}`}
+      titleExtra={<Tag state={getStatusState(proposal.votingStatus)}>{status}</Tag>}
+      action={<ProposalActions
+        proposal={proposal}
+        title={proposal.remark}
+      />}
     >
       <ProposalLayoutContainer>
-        {/* <ProposalDetails proposal={proposal} type={type} />
-        {proposal.parameters?.length > 0 && (
-          <ProposalParameters proposal={proposal} />
-        )} */}
+        <ProposalDetails proposal={proposal} />
 
         <div className="proposal-layout__voting">
-          <ProposalTurnout proposal={proposal} proposalInfo={proposalInfo} />
+          <ProposalTurnout proposal={proposal} />
           <ProposalVoting proposal={proposal} />
           <ProposalVeto proposal={proposal} />
         </div>
