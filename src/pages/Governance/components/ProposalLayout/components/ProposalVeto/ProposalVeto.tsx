@@ -13,9 +13,7 @@ import { StyledProposalVeto } from './styles';
 function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
 
-  const vetoEndTime = useMemo(() => {
-    return useEndTime(new Date(toBigNumber(proposal.params.vetoEndTime).multipliedBy(1000).toNumber()));
-  }, [proposal]);
+  const vetoEndTime = useEndTime(new Date(toBigNumber(proposal.params.vetoEndTime).multipliedBy(1000).toNumber()));
 
   const noVoteCount = useMemo(() => {
     return toBigNumber(proposal.vetoMembersCount).minus(proposal.counters.vetoesCount).toNumber();

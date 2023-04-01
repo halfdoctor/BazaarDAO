@@ -34,7 +34,9 @@ function Governance () {
     setIsLoading(false);
   };
 
-  useEffect(() => { loadPanelsName(); }, []);
+  useEffect(() => {
+    loadPanelsName();
+  }, []);
 
   const tabs = useMemo(() => {
     return panelsName.map((name, index) => ({

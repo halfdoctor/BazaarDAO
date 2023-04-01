@@ -16,9 +16,9 @@ function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
 
-  const votingEndTime = useMemo(() => useEndTime(
+  const votingEndTime = useEndTime(
     new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber())
-  ), [proposal]);
+  );
 
   const totalVotes = useMemo(() => toBigNumber(
     proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber(), [proposal]);

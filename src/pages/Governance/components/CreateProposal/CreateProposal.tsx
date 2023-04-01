@@ -61,6 +61,10 @@ function CreateProposal ({ panelName }: { panelName: string }) {
 
   useEffect(() => {
     loadPanelSituation();
+
+    return () => {
+      setPanelSituations([]);
+    };
   }, [panelName]);
 
   const form = useMultiStepForm({

@@ -49,6 +49,10 @@ function Proposals ({ panelName }: { panelName: string }) {
 
   useEffect(() => {
     loadProposalsList();
+
+    return () => {
+      setList([]);
+    };
   }, [panelName]);
 
   if (isLoading) {
