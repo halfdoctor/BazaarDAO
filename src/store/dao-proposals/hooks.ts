@@ -87,6 +87,17 @@ export function useDaoProposals () {
       captureError(error);
     }
   }
+  async function getAccountStatuses () {
+    try {
+      if (!daoInstance) return;
+      const proposalAccountStatuses = await daoInstance.DAORegistryInstance
+        .getAccountStatuses(getUserAddress()) as string[];
+      const preparedAccountStatuses = proposalAccountStatuses.map(item => { return item.split('DAOGroup:')[1]; });
+      return { accountGroupsStatuses: preparedAccountStatuses };
+    } catch (error) {
+      captureError(error);
+    }
+  }
 
   async function getProposalVotingDetails (proposal: DaoProposal) {
     try {
@@ -110,7 +121,13 @@ export function useDaoProposals () {
         getProposalVetoStats(proposal),
         getProposalVotingDetails(proposal),
       ]);
-      return { ...proposal, ...userVotingInfo, ...userVetoInfo, ...proposalInfo } as ProposalBaseInfo;
+
+      return {
+        ...proposal,
+        ...userVotingInfo,
+        ...userVetoInfo,
+        ...proposalInfo,
+      } as ProposalBaseInfo;
     } catch (error) {
       captureError(error);
     }
@@ -164,5 +181,6 @@ export function useDaoProposals () {
     getUserVotingStats: useCallback(getUserVotingStats, []),
     getProposalVetoStats: useCallback(getProposalVetoStats, []),
     getProposalBaseInfo: useCallback(getProposalBaseInfo, []),
+    getAccountStatuses: useCallback(getAccountStatuses, []),
   };
 }

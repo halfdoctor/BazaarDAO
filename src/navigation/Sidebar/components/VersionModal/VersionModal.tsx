@@ -41,6 +41,10 @@ function VersionModal ({ open, onClose }: Props) {
     if (web3Adapter) {
       loadConnectionInfo();
     }
+
+    return () => {
+      setConnectionInfo(null);
+    };
   }, []);
 
   const versionGroups = [

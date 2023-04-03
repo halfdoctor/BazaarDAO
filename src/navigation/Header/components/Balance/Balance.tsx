@@ -23,10 +23,9 @@ function Balance () {
   const { walletBalance, loadAllBalances, vaultBalance } = useDaoVault();
   const { tokenInfo } = useDaoStore();
   const { composeDaoLink } = useDao();
+  const [balanceOpen, setBalanceOpen] = useState(false);
 
   useInterval(loadAllBalances, 5000);
-
-  const [balanceOpen, setBalanceOpen] = useState(false);
 
   return (
     <BalanceDropdown

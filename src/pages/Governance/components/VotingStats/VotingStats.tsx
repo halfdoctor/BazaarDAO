@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatAsset } from '@q-dev/utils';
@@ -7,6 +7,7 @@ import { fromWei } from 'web3-utils';
 import { StatsContainer } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
+import { useDaoProposals } from 'store/dao-proposals/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
@@ -15,7 +16,13 @@ function VotingStats () {
   const { t, i18n } = useTranslation();
   const { vaultBalance, vaultTimeLock, loadWithdrawalAmount } = useDaoVault();
   const { tokenInfo } = useDaoStore();
-  const voterStatus = 'Need get from contract';
+  const { getAccountStatuses } = useDaoProposals();
+  const [voterStatus, setVoterStatus] = useState<string[]>([]);
+
+  const loadAccountStatuses = async () => {
+    const response = await getAccountStatuses();
+    setVoterStatus(response?.accountGroupsStatuses || []);
+  };
 
   const statsList = [
     {
@@ -35,12 +42,17 @@ function VotingStats () {
     },
     {
       title: t('VOTING_STATUS'),
-      value: <span className="text-lg font-semibold">{voterStatus}</span>
+      value: <span className="text-lg font-semibold stats-item-val--groups">{voterStatus.length ? voterStatus.join(', ') : '–'}</span>
     }
   ];
 
   useEffect(() => {
     loadWithdrawalAmount();
+    loadAccountStatuses();
+
+    return () => {
+      setVoterStatus([]);
+    };
   }, []);
 
   return (

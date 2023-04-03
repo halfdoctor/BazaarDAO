@@ -4,6 +4,7 @@ import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
+import ConnectWallet from 'navigation/Header/components/ConnectWallet';
 
 export const StyledWrapper = styled.div`
   position: fixed;
@@ -24,11 +25,35 @@ export const StyledWrapper = styled.div`
     margin-top: 24px;
     width: 100%;
   }
+
+  .network-warning__actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+    width: 100%;
+  }
 `;
 
 function NetworkWarning () {
   const { t } = useTranslation();
-  const { switchNetwork } = useWeb3Context();
+  const { switchNetwork, isConnected } = useWeb3Context();
+
+  if (!isConnected) {
+    return (
+      <StyledWrapper className="block">
+        <p className="text-xl font-semibold">
+          {t('NETWORK_NOT_CONNECT_HEADER')}
+        </p>
+        <p className="network-warning__message text-md color-secondary">
+          {t('NETWORK_NOT_CONNECT_MESSAGE')}
+        </p>
+        <div className="network-warning__actions">
+          <ConnectWallet />
+        </div>
+      </StyledWrapper>
+    );
+  }
 
   return (
     <StyledWrapper className="block">

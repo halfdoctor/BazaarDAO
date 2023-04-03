@@ -42,7 +42,7 @@ function Layout ({ children }: Props) {
         gap: '12px',
       }}
     >
-      {isConnected && !isRightNetwork
+      {(!isConnected || !isRightNetwork) && isDaoPage
         ? <NetworkWarning />
         : (
           <AppContainer $wide={!isDaoPage}>

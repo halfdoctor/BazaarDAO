@@ -90,8 +90,8 @@ function CreateProposal ({ panelName }: { panelName: string }) {
         ...(form.values.type === DefaultVotingSituations.GeneralSituation
           ? [{
             id: 'general-situation',
-            name: t('GENERAL_SITUATION'),
-            title: t('GENERAL_SITUATION'),
+            name: t('DETAILS'),
+            title: t('DETAILS'),
             children: <GeneralSituationStep />
           }]
           : []
@@ -100,7 +100,7 @@ function CreateProposal ({ panelName }: { panelName: string }) {
           ? [{
             id: 'parameter-situation',
             name: t('PARAMETERS'),
-            title: t('CHANGE_OF_CONSTITUTION_PARAMETERS'),
+            title: t('PARAMETER_VOTE'),
             children: <ParameterSituationStep panelName={panelName} />
           }]
           : []
@@ -108,8 +108,8 @@ function CreateProposal ({ panelName }: { panelName: string }) {
         ...(form.values.type === DefaultVotingSituations.MembershipSituation
           ? [{
             id: 'membership-situation',
-            name: t('PARAMETERS'),
-            title: t('CHANGE_OF_CONSTITUTION_PARAMETERS'),
+            name: t('DETAILS'),
+            title: t('INTERACTION_WITH_USER'),
             children: <MembershipSituationStep />
           }]
           : []

@@ -38,4 +38,8 @@ export const StatsContainer = styled.div`
   .stats-item-val {
     display: grid;
   }
+
+  .stats-item-val--groups {
+    overflow-wrap: anywhere;
+  }
 `;

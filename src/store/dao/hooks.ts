@@ -53,10 +53,8 @@ export function useDaoStore () {
   async function loadAllDaoInfo (daoAddress?: string) {
     try {
       setNewDaoAddress(daoAddress);
-      await Promise.all([
-        loadDaoVotingToken(),
-        getTokenInfo()
-      ]);
+      await loadDaoVotingToken();
+      await getTokenInfo();
     } catch (error) {
       captureError(error);
     }

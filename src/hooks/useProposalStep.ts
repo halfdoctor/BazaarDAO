@@ -20,12 +20,12 @@ function useProposalStep () {
     {
       value: DefaultVotingSituations.ParameterSituation,
       label: t('PARAMETER_VOTE'),
-      tip: t('PARAMETER_VOTE')
+      tip: t('PARAMETER_VOTE_TIP')
     },
     {
       value: DefaultVotingSituations.MembershipSituation,
       label: t('MEMBERSHIP_VOTE'),
-      tip: t('MEMBERSHIP_VOTE')
+      tip: t('MEMBERSHIP_VOTE_TIP')
     },
   ];
 
