@@ -2,18 +2,18 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
-import { CreateProposalForm, GeneralSituationType } from 'typings/forms';
+import { GeneralSituationType, NewProposalForm } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 import { required, url } from 'utils/validators';
 
 function GeneralSituationStep () {
   const { t } = useTranslation();
-  const { goNext, goBack } = useCreateProposalForm();
+  const { goNext, goBack } = useNewProposalForm();
 
   const form = useForm({
     initialValues: {
@@ -25,7 +25,7 @@ function GeneralSituationStep () {
       externalLink: [required, url],
     },
     onSubmit: (form) => {
-      goNext(form as CreateProposalForm);
+      goNext(form as NewProposalForm);
     },
   });
 

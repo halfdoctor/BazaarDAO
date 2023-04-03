@@ -9,11 +9,12 @@ import { ProposalBaseInfo } from 'typings/proposals';
 import Button from 'components/Button';
 
 import useDao from 'hooks/useDao';
+import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import ProposalLayout from './components/ProposalLayout';
 import ProposalSkeleton from './components/Proposals/components/ProposalSkeleton';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
 import { captureError } from 'utils/errors';
@@ -27,15 +28,16 @@ function Proposal () {
   const history = useHistory();
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { getPanelsName, panelsName, getProposalBaseInfo } = useDaoProposals();
+  const { panels, loadExpertPanels } = useExpertPanels();
+  const { getProposalBaseInfo } = useDaoProposals();
   const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
   const { id, panel } = useParams<ProposalParams>();
 
   const loadProposal = async () => {
     try {
-      await getPanelsName();
-      const pathPanelId = panel.split('panels-')[1];
-      const panelName = panelsName.find((_, index) => index === Number(pathPanelId)) || '';
+      await loadExpertPanels();
+      const pathPanelId = panel.split('panel-')[1];
+      const panelName = panels.find((_, index) => index === Number(pathPanelId)) || '';
       const proposalBaseInfo = panelName && id ? await getProposalBaseInfo(panelName, id) : null;
       if (!proposalBaseInfo) {
         history.replace('/not-found');

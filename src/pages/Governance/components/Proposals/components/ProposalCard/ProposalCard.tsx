@@ -6,7 +6,6 @@ import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Icon, Progress, Tag, toBigNumber } from '@q-dev/q-ui-kit';
 import { formatPercent } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
-import { singlePrecision } from 'helpers/convert';
 import styled from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -15,9 +14,11 @@ import useDao from 'hooks/useDao';
 import ProposalCardSkeleton from '../ProposalCardSkeleton';
 import VotingPeriods from '../VotingPeriods';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
+
+import { singlePrecision } from 'utils/web3';
 
 const ProposalCardLink = styled(Link)`
 background-color: ${({ theme }) => theme.colors.backgroundPrimary};
@@ -65,7 +66,7 @@ transition: all 150ms ease-out;
 function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { panelsName } = useDaoProposals();
+  const { panels } = useExpertPanels();
 
   const leftQuorum = useMemo(() => {
     return Math.max(
@@ -81,7 +82,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   }, [proposal]);
 
   const panelNamePosition = useMemo(() => {
-    return panelsName.findIndex(item => item === proposal.relatedExpertPanel);
+    return panels.findIndex(item => item === proposal.relatedExpertPanel);
   }, [proposal]);
 
   return proposal
@@ -89,7 +90,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
       <ProposalCardLink
         className="block"
         to={{
-          pathname: composeDaoLink(`/governance/proposal/panels-${panelNamePosition}/${proposal.id}`),
+          pathname: composeDaoLink(`/governance/proposal/panel-${panelNamePosition}/${proposal.id}`),
           state: { from: 'list' },
         }}
       >

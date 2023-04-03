@@ -7,11 +7,11 @@ import { DaoProposal, ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
+import { useDaoProposals } from 'hooks/useDaoProposals';
+
 import ProposalCard from './components/ProposalCard';
 import ProposalCardSkeleton from './components/ProposalCardSkeleton';
 import { ListEmptyStub, ListNextContainer, ListWrapper } from './styles';
-
-import { useDaoProposals } from 'store/dao-proposals/hooks';
 
 const PAGE_LIMIT = 10;
 

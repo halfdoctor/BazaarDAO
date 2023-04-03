@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
-import { singlePrecision } from 'helpers/convert';
 import { useTheme } from 'styled-components';
 import { DaoProposal } from 'typings/proposals';
 import { fromWei } from 'web3-utils';
@@ -11,6 +10,8 @@ import { fromWei } from 'web3-utils';
 import useEndTime from '../../hooks/useEndTime';
 
 import { StyledProposalVoting } from './styles';
+
+import { singlePrecision } from 'utils/web3';
 
 function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
   const { t } = useTranslation();

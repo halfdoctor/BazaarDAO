@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
-import { TomeLockInfoStruct } from 'typings/dao';
+import { TimeLockInfoStruct } from 'typings/dao';
 import { fromWei, toWei } from 'web3-utils';
 
 import {
@@ -63,7 +63,7 @@ export function useDaoVault () {
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
       const balance = await daoVaultInstance
-        .getTimeLockInfo(address || getUserAddress(), votingToken) as TomeLockInfoStruct;
+        .getTimeLockInfo(address || getUserAddress(), votingToken) as TimeLockInfoStruct;
       dispatch(setWithdrawalBalance(fromWei(balance.withdrawalAmount)));
       dispatch(setLockedBalance(balance.lockedAmount));
       dispatch(setVaultTimeLock(balance.unlockTime));

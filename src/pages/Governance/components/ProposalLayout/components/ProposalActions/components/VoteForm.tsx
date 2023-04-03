@@ -8,10 +8,11 @@ import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
+import { useDaoProposals } from 'hooks/useDaoProposals';
+
 import { StyledVoteForm } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useDaoProposals } from 'store/dao-proposals/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 

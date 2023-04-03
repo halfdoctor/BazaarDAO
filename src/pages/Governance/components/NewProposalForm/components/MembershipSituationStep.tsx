@@ -2,18 +2,18 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
-import { CreateProposalForm, MembershipSituationType } from 'typings/forms';
+import { MembershipSituationType, NewProposalForm } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 import { address, required, url } from 'utils/validators';
 
 function MembershipSituationStep () {
   const { t } = useTranslation();
-  const { goNext, goBack } = useCreateProposalForm();
+  const { goNext, goBack } = useNewProposalForm();
 
   const form = useForm({
     initialValues: {
@@ -26,7 +26,7 @@ function MembershipSituationStep () {
       externalLink: [required, url],
       candidateAddress: [required, address],
     },
-    onSubmit: (form) => goNext(form as CreateProposalForm),
+    onSubmit: (form) => goNext(form as NewProposalForm),
   });
 
   const panelTypeOptions: RadioOptions<MembershipSituationType> = [

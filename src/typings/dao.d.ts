@@ -5,7 +5,7 @@ export interface DaoCardType {
   address: string;
 }
 
-export interface TomeLockInfoStruct {
+export interface TimeLockInfoStruct {
   lockedAmount: string;
   unlockTime: string;
   withdrawalAmount: string;

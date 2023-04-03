@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 
 import dao from './dao/reducer';
-import daoProposals from './dao-proposals/reducer';
 import qVault from './dao-vault/reducer';
+import expertPanels from './expert-panels/reducer';
 import experts from './experts/reducer';
 import parameters from './parameters/reducer';
 import transaction from './transaction/reducer';
@@ -18,8 +18,8 @@ export const store = configureStore({
     experts,
     parameters,
     dao,
-    daoProposals
-  },
+    expertPanels
+  }
 });
 
 export type AppState = ReturnType<typeof store.getState>;

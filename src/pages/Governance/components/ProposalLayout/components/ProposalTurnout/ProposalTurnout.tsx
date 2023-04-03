@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Icon, Progress } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
-import { singlePrecision } from 'helpers/convert';
 import { ProposalBaseInfo } from 'typings/proposals';
 import { fromWei } from 'web3-utils';
 
 import { StyledProposalTurnout } from './styles';
+
+import { singlePrecision } from 'utils/web3';
 
 function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();

@@ -8,11 +8,12 @@ import { ProposalBaseInfo } from 'typings/proposals';
 import Button from 'components/Button';
 import { ShareButton } from 'components/ShareButton';
 
+import { useDaoProposals } from 'hooks/useDaoProposals';
+
 import useEndTime from '../../hooks/useEndTime';
 
 import VoteForm from './components/VoteForm';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { unixToDate } from 'utils/date';

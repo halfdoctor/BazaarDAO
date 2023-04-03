@@ -6,14 +6,14 @@ import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterViewer from 'components/ParameterViewer';
 
-import useProposalStep from 'hooks/useProposalStep';
+import useProposalSteps from 'hooks/useProposalSteps';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 function ConfirmationStep () {
   const { t } = useTranslation();
-  const { values, goBack, confirm, updateStep } = useCreateProposalForm();
-  const { proposalSteps } = useProposalStep();
+  const { values, goBack, confirm, updateStep } = useNewProposalForm();
+  const { proposalSteps } = useProposalSteps();
   const proposalType = proposalSteps.find(item => item.value === values.type);
 
   return (

@@ -1,18 +1,18 @@
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
-import { CreateProposalForm } from 'typings/forms';
+import { NewProposalForm } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 import { hash, required, url } from 'utils/validators';
 
 function ConstitutionHashStep () {
   const { t } = useTranslation();
-  const { goNext, goBack } = useCreateProposalForm();
+  const { goNext, goBack } = useNewProposalForm();
 
   const form = useForm({
     initialValues: {
@@ -24,7 +24,7 @@ function ConstitutionHashStep () {
       externalLink: [required, url],
     },
     onSubmit: (form) => {
-      goNext(form as CreateProposalForm);
+      goNext(form as NewProposalForm);
     },
   });
 

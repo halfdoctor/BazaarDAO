@@ -367,6 +367,7 @@
   "KEY": "Key",
   "BOOLEAN": "Boolean",
   "STRING": "String",
+  "BYTES": "Bytes",
   "UINT": "Uint",
   "CURRENT_VALUE": "Current value",
   "PARAMETER_VALUE": "Parameter value",

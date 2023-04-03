@@ -16,9 +16,9 @@ interface ParameterKey {
 type GeneralSituationType = 'raise-topic' | 'create-voting' | 'remove-voting';
 type MembershipSituationType = 'add-member' | 'remove-member';
 
-interface CreateProposalForm {
+interface NewProposalForm {
   type: string;
-  currentPanelName: string;
+  panel: string;
   generalSituationType: GeneralSituationType;
   membershipSituationType: MembershipSituationType;
   candidateAddress: string;

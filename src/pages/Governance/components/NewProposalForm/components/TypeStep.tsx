@@ -7,25 +7,25 @@ import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
 
 import { FormStep } from 'components/MultiStepForm';
 
-import useProposalStep from 'hooks/useProposalStep';
+import useProposalSteps from 'hooks/useProposalSteps';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 import { required } from 'utils/validators';
 
 function TypeStep ({ situations, panelName }: { situations: string[]; panelName: string }) {
   const { t } = useTranslation();
-  const { goNext, onChange } = useCreateProposalForm();
-  const { proposalSteps } = useProposalStep();
+  const { goNext, onChange } = useNewProposalForm();
+  const { proposalSteps } = useProposalSteps();
 
   const form = useForm({
     initialValues: {
       type: DefaultVotingSituations.GeneralSituation as string,
-      currentPanelName: panelName
+      panel: panelName
     },
     validators: {
       type: [required],
-      currentPanelName: [required]
+      panel: [required]
     },
     onChange,
     onSubmit: goNext,

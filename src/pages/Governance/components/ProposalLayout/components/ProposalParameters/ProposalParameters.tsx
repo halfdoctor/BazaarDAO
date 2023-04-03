@@ -1,4 +1,4 @@
-// waiting for contract implementation
+// TODO: waiting for contract implementation
 import { useTranslation } from 'react-i18next';
 
 import { FormParameter } from 'typings/forms';

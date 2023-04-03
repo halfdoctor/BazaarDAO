@@ -9,11 +9,11 @@ import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterForm from 'components/ParameterForm';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 function ConstitutionSituationStep ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
-  const { values, goNext, goBack, onChange } = useCreateProposalForm();
+  const { values, goNext, goBack, onChange } = useNewProposalForm();
 
   const formArray = useFormArray<FormParameter>({
     minCount: 1,

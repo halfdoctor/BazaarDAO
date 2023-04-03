@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { formatAsset } from '@q-dev/utils';
 import { fromWei } from 'web3-utils';
 
+import { useDaoProposals } from 'hooks/useDaoProposals';
+
 import { StatsContainer } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useDaoProposals } from 'store/dao-proposals/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
@@ -21,7 +22,7 @@ function VotingStats () {
 
   const loadAccountStatuses = async () => {
     const response = await getAccountStatuses();
-    setVoterStatus(response?.accountGroupsStatuses || []);
+    setVoterStatus(response?.accountGroupStatuses || []);
   };
 
   const statsList = [

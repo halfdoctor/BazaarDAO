@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm, useFormArray } from '@q-dev/form-hooks';
 import { Icon } from '@q-dev/q-ui-kit';
-import { CreateProposalForm, FormParameter } from 'typings/forms';
+import { FormParameter, NewProposalForm } from 'typings/forms';
 
 import Button from 'components/Button';
 import FormBlock from 'components/FormBlock';
@@ -10,13 +10,13 @@ import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterForm from 'components/ParameterForm';
 
-import { useCreateProposalForm } from '../CreateProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
 import { required, url } from 'utils/validators';
 
 function ParameterSituation ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
-  const { goNext, goBack, onChange } = useCreateProposalForm();
+  const { goNext, goBack, onChange } = useNewProposalForm();
 
   const form = useForm({
     initialValues: {
@@ -26,7 +26,7 @@ function ParameterSituation ({ panelName }: { panelName: string }) {
       externalLink: [required, url],
     },
     onSubmit: (form) => {
-      goNext(form as CreateProposalForm);
+      goNext(form as NewProposalForm);
     },
   });
 

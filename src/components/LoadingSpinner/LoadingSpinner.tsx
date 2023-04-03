@@ -2,7 +2,7 @@
 import { Spinner } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
-export const SpinnerLoadingWrapper = styled.div`
+export const LoadingSpinnerWrapper = styled.div`
   position: absolute;
   left: 50%;
   display: flex;
@@ -10,12 +10,12 @@ export const SpinnerLoadingWrapper = styled.div`
   height: 50vh;
 `;
 
-function SpinnerLoading ({ size = 48 }: { size?: number }) {
+function LoadingSpinner ({ size = 48 }: { size?: number }) {
   return (
-    <SpinnerLoadingWrapper>
+    <LoadingSpinnerWrapper>
       <Spinner size={size} />
-    </SpinnerLoadingWrapper>
+    </LoadingSpinnerWrapper>
   );
 }
 
-export default SpinnerLoading;
+export default LoadingSpinner;

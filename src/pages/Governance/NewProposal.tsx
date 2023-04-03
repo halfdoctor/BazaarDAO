@@ -3,43 +3,43 @@ import { useTranslation } from 'react-i18next';
 
 import { Illustration } from '@q-dev/q-ui-kit';
 
-import SpinnerLoading from 'components/Base/SpinnerLoading';
+import LoadingSpinner from 'components/LoadingSpinner';
 import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
 import useDao from 'hooks/useDao';
 
-import CreateProposal from './components/CreateProposal';
+import NewProposalForm from './components/NewProposalForm';
 import { ListEmptyStub } from './components/Proposals/styles';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 function NewProposal () {
   const { t } = useTranslation();
-  const { getPanelsName, panelsName } = useDaoProposals();
+  const { loadExpertPanels, panels } = useExpertPanels();
   const { composeDaoLink } = useDao();
   const [isLoading, setIsLoading] = useState(true);
 
   const tabs = useMemo(() => {
-    return panelsName.map((name, index) => ({
+    return panels.map((name, index) => ({
       id: index,
       label: name,
-      link: composeDaoLink(`/governance/panels-${index}/new`),
+      link: composeDaoLink(`/governance/panel-${index}/new`),
     }));
-  }, [panelsName]);
+  }, [panels]);
 
-  const loadPanelsName = async () => {
+  const loadAllPanels = async () => {
     setIsLoading(true);
-    await getPanelsName();
+    await loadExpertPanels();
     setIsLoading(false);
   };
 
-  useEffect(() => { loadPanelsName(); }, []);
+  useEffect(() => { loadAllPanels(); }, []);
 
   if (isLoading) {
     return (
-      <SpinnerLoading />
+      <LoadingSpinner />
     );
   }
 
@@ -63,7 +63,7 @@ function NewProposal () {
               exact
               path={link}
             >
-              <CreateProposal panelName={label} />
+              <NewProposalForm panelName={label} />
             </TabRoute>
           ))}
         </>

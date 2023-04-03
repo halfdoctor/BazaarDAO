@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
-import { singlePrecision } from 'helpers/convert';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import useEndTime from '../../hooks/useEndTime';
 
 import { StyledProposalVeto } from './styles';
+
+import { singlePrecision } from 'utils/web3';
 
 function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();

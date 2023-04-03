@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { RadioOptions } from '@q-dev/q-ui-kit';
 
-function useProposalStep () {
+function useProposalSteps () {
   const { t } = useTranslation();
 
   const proposalSteps: RadioOptions<string> = [
@@ -26,10 +26,10 @@ function useProposalStep () {
       value: DefaultVotingSituations.MembershipSituation,
       label: t('MEMBERSHIP_VOTE'),
       tip: t('MEMBERSHIP_VOTE_TIP')
-    },
+    }
   ];
 
   return { proposalSteps };
 }
 
-export default useProposalStep;
+export default useProposalSteps;

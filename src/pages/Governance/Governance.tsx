@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 import { Icon, Illustration } from '@q-dev/q-ui-kit';
 
-import SpinnerLoading from 'components/Base/SpinnerLoading';
 import Button from 'components/Button';
+import LoadingSpinner from 'components/LoadingSpinner';
 import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
@@ -17,34 +17,35 @@ import Proposals from './components/Proposals';
 import { ListEmptyStub } from './components/Proposals/styles';
 import VotingStats from './components/VotingStats';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
 
 function Governance () {
   const { pathname } = useLocation();
   const { t } = useTranslation();
-  const { getPanelsName, panelsName } = useDaoProposals();
+  const { loadExpertPanels, panels } = useExpertPanels();
+
   const { composeDaoLink } = useDao();
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadPanelsName = async () => {
+  const loadAllPanels = async () => {
     setIsLoading(true);
-    await getPanelsName();
+    await loadExpertPanels();
     setIsLoading(false);
   };
 
   useEffect(() => {
-    loadPanelsName();
+    loadAllPanels();
   }, []);
 
   const tabs = useMemo(() => {
-    return panelsName.map((name, index) => ({
+    return panels.map((name, index) => ({
       id: index,
       label: name,
-      link: composeDaoLink(`/governance/panels-${index}`),
+      link: composeDaoLink(`/governance/panel-${index}`),
     }));
-  }, [panelsName]);
+  }, [panels]);
 
   const pathToNewProposalPath = tabs.reduce((acc: Record<string, string>, item) => {
     acc[item.link] = `${item.link}/new`;
@@ -53,7 +54,7 @@ function Governance () {
 
   if (isLoading) {
     return (
-      <SpinnerLoading />
+      <LoadingSpinner />
     );
   }
 

@@ -5,12 +5,13 @@ import { useHistory } from 'react-router';
 import { useMultiStepForm } from '@q-dev/form-hooks';
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Illustration } from '@q-dev/q-ui-kit';
-import { CreateProposalForm } from 'typings/forms';
+import { NewProposalForm as NewProposalFormType } from 'typings/forms';
 
-import SpinnerLoading from 'components/Base/SpinnerLoading';
+import LoadingSpinner from 'components/LoadingSpinner';
 import MultiStepForm from 'components/MultiStepForm';
 
 import useDao from 'hooks/useDao';
+import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import { ListEmptyStub } from '../Proposals/styles';
 
@@ -22,14 +23,13 @@ import MembershipSituationStep from './components/MembershipSituationStep';
 import ParameterSituationStep from './components/ParameterSituationStep';
 import TypeStep from './components/TypeStep';
 
-import { useDaoProposals } from 'store/dao-proposals/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { RoutePaths } from 'constants/routes';
 
-const DEFAULT_VALUES: CreateProposalForm = {
+const DEFAULT_VALUES: NewProposalFormType = {
   type: 'constitution',
-  currentPanelName: '',
+  panel: '',
   hash: '',
   candidateAddress: '',
   externalLink: '',
@@ -39,28 +39,28 @@ const DEFAULT_VALUES: CreateProposalForm = {
   params: []
 };
 
-const CreateProposalContext = createContext(
+const NewProposalContext = createContext(
   {} as ReturnType<typeof useMultiStepForm<typeof DEFAULT_VALUES>>
 );
 
-function CreateProposal ({ panelName }: { panelName: string }) {
+function NewProposalForm ({ panelName }: { panelName: string }) {
   const history = useHistory();
   const { t } = useTranslation();
-  const { createNewProposal, getPanelSituation } = useDaoProposals();
+  const { createNewProposal, getPanelSituations } = useDaoProposals();
   const { submitTransaction } = useTransaction();
   const { composeDaoLink } = useDao();
   const [panelSituations, setPanelSituations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadPanelSituation = async () => {
+  const loadPanelSituations = async () => {
     setIsLoading(true);
-    const situation = await getPanelSituation(panelName);
-    setPanelSituations(situation || []);
+    const situations = await getPanelSituations(panelName);
+    setPanelSituations(situations || []);
     setIsLoading(false);
   };
 
   useEffect(() => {
-    loadPanelSituation();
+    loadPanelSituations();
 
     return () => {
       setPanelSituations([]);
@@ -144,7 +144,7 @@ function CreateProposal ({ panelName }: { panelName: string }) {
 
   if (isLoading) {
     return (
-      <SpinnerLoading size={60} />
+      <LoadingSpinner size={60} />
     );
   }
 
@@ -158,12 +158,12 @@ function CreateProposal ({ panelName }: { panelName: string }) {
   }
 
   return (
-    <CreateProposalContext.Provider value={form}>
+    <NewProposalContext.Provider value={form}>
       <MultiStepForm stepIndex={form.stepIndex} steps={steps} />
-    </CreateProposalContext.Provider>
+    </NewProposalContext.Provider>
   );
 }
 
-export const useCreateProposalForm = () => useContext(CreateProposalContext);
+export const useNewProposalForm = () => useContext(NewProposalContext);
 
-export default CreateProposal;
+export default NewProposalForm;

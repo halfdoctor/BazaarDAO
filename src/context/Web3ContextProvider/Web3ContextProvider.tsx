@@ -10,8 +10,8 @@ import Web3 from 'web3';
 import { Wrap } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useDaoProposals } from 'store/dao-proposals/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { getContractRegistryInstance } from 'contracts/contract-instance';
@@ -50,7 +50,7 @@ export const Web3Context = createContext({} as Web3Data);
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const { setAddress, setChainId, address } = useUser();
   const { loadAllBalances } = useDaoVault();
-  const { getPanelsName } = useDaoProposals();
+  const { loadExpertPanels } = useExpertPanels();
   const { loadAllDaoInfo } = useDaoStore();
 
   const networkConfig = networkConfigsMap[ORIGIN_NETWORK_NAME];
@@ -73,7 +73,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const loadAdditionalInfo = async () => {
     await loadAllDaoInfo();
     await Promise.allSettled(
-      [loadAllBalances(), getPanelsName()]
+      [loadAllBalances(), loadExpertPanels()]
     );
   };
 
