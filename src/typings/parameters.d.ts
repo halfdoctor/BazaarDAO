@@ -1,8 +1,8 @@
 import { ParameterType } from '@q-dev/gdk-sdk';
 
-export interface ParameterValue {
-  name: string;
-  value: string;
+import { ParameterKey } from './forms';
+
+export interface ParameterValue extends ParameterKey {
   normalValue: string;
-  type: ParameterType;
+  solidityType: ParameterType;
 }

@@ -365,6 +365,7 @@
   "BACK": "Back",
   "PARAMETER_KEY": "Parameter key",
   "KEY": "Key",
+  "TYPE": "Type",
   "BOOLEAN": "Boolean",
   "STRING": "String",
   "BYTES": "Bytes",
@@ -1327,5 +1328,6 @@
   "NO_PANELS_FOUND": "No panels found",
   "NO_SITUATIONS_FOUND": "No situations found",
   "PANEL_PARAMETERS": "{{panel}} Parameters",
-  "PANEL_PARAMETERS_LOADING_ERROR": "Error while loading {{panel}} parameters"
+  "PANEL_PARAMETERS_LOADING_ERROR": "Error while loading {{panel}} parameters",
+  "DAO_CONTRACT_REGISTRY_LOADING_ERROR": "Error while loading DAO contract registry"
 }

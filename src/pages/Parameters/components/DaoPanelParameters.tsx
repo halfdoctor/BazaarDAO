@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ParameterValue } from 'typings/parameters';
+
 import ParametersBlock from './ParametersBlock';
 
 import { getParameters } from 'contracts/helpers/parameters-helper';
@@ -13,9 +15,9 @@ interface Props {
 
 function DaoPanelParameters ({ panel }: Props) {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [parameters, setParameters] = useState([]);
+  const [parameters, setParameters] = useState<ParameterValue[]>([]);
 
   useEffect(() => {
     loadParameters();

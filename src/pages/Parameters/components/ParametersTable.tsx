@@ -1,4 +1,6 @@
 
+import { useTranslation } from 'react-i18next';
+
 import { ParameterType } from '@q-dev/gdk-sdk';
 import styled from 'styled-components';
 import { ParameterValue } from 'typings/parameters';
@@ -17,10 +19,11 @@ export const TableWrapper = styled.div`
     border-bottom: 1px solid ${({ theme }) => theme.colors.borderSecondary};
   }
 
+  th {
+    padding: 7px 5px;
+  }
+
   td {
-    color: ${(props) => props.theme.colors.textPrimary};
-    font-size: 13px;
-    line-height: 18px;
     padding: 7px 5px;
     white-space: nowrap;
   }
@@ -41,18 +44,36 @@ interface Props {
 }
 
 function ParametersTable ({ parameters }: Props) {
+  const { t } = useTranslation();
+  const parameterTypeMap = {
+    [ParameterType.NONE]: t('NONE'),
+    [ParameterType.ADDRESS]: t('ADDRESS'),
+    [ParameterType.UINT256]: t('UINT'),
+    [ParameterType.STRING]: t('STRING'),
+    [ParameterType.BYTES]: t('BYTES'),
+    [ParameterType.BOOL]: t('BOOLEAN'),
+  };
+
   return (
     <TableWrapper>
       <table>
+        <thead>
+          <tr>
+            <th className="text-md font-bold">{t('KEY')}</th>
+            <th className="text-md font-bold">{t('VALUE')}</th>
+            <th className="text-md font-bold">{t('TYPE')}</th>
+          </tr>
+        </thead>
+
         <tbody>
           {parameters.map((item, index) => (
             <tr key={item.name + index}>
-              <td>
+              <td className="text-md">
                 <span>{item.name}</span>
                 <CopyToClipboard value={item.name} />
               </td>
-              <td>
-                {item.type === ParameterType.ADDRESS
+              <td className="text-md">
+                {item.solidityType === ParameterType.ADDRESS
                   ? <ExplorerAddress address={item.normalValue} />
                   : (
                     <>
@@ -62,7 +83,9 @@ function ParametersTable ({ parameters }: Props) {
                   )
                 }
               </td>
-              <td>{item.type}</td>
+              <td className="text-md">
+                {parameterTypeMap[item.solidityType] || item.solidityType}
+              </td>
             </tr>
           ))}
         </tbody>

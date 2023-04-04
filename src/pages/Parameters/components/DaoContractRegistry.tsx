@@ -1,28 +1,45 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { ParameterValue } from 'typings/parameters';
+
+import ParametersBlock from './ParametersBlock';
+
+import { getRegistryContracts } from 'contracts/helpers/parameters-helper';
+
+import { captureError } from 'utils/errors';
 
 function DaoContractRegistry () {
   const { t } = useTranslation();
-  // const {
-  //   contractRegistry,
-  //   contractRegistryLoading,
-  //   contractRegistryError,
-  //   getContractRegistry
-  // } = useParameters();
-  // useEffect(() => {
-  //   getContractRegistry();
-  // }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [contracts, setContracts] = useState<ParameterValue[]>([]);
 
-  // return (
-  //   <ParametersBlock
-  //     title={t('DAO_CONTRACT_REGISTRY')}
-  //     parameters={contractRegistry}
-  //     loading={contractRegistryLoading}
-  //     errorMsg={contractRegistryError}
-  //     emptyMsg={t('DAO_CONTRACT_REGISTRY_EMPTY_MSG')}
-  //   />
-  // );
+  useEffect(() => {
+    loadContracts();
+  }, []);
 
-  return null;
+  async function loadContracts () {
+    try {
+      setLoading(true);
+      const contracts = await getRegistryContracts();
+      setContracts(contracts);
+    } catch (error) {
+      captureError(error);
+      setError(t('DAO_CONTRACT_REGISTRY_LOADING_ERROR'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <ParametersBlock
+      title={t('DAO_CONTRACT_REGISTRY')}
+      parameters={contracts}
+      loading={loading}
+      errorMsg={error}
+    />
+  );
 }
 
 export default DaoContractRegistry;
