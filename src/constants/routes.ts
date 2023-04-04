@@ -11,12 +11,12 @@ export enum RoutePaths {
   newQProposal = '/governance/q-proposals/new',
   newExpertProposal = '/governance/expert-proposals/new',
 
-  qParameters = '/q-parameters',
-  qDefiRiskExpertPanelParameters = '/q-parameters/defi-risk-experts',
-  qRootNodeSelectionExpertPanelParameters = '/q-parameters/root-node-selection-experts',
-  qFeesAndIncentivesExpertPanel = '/q-parameters/fees-and-incentives-experts',
-  qContractRegistry = '/q-parameters/contract-registry',
-  qConstitution = '/q-parameters/constitution',
+  parameters = '/parameters',
+  qDefiRiskExpertPanelParameters = '/parameters/defi-risk-experts',
+  qRootNodeSelectionExpertPanelParameters = '/parameters/root-node-selection-experts',
+  qFeesAndIncentivesExpertPanel = '/parameters/fees-and-incentives-experts',
+  qContractRegistry = '/parameters/contract-registry',
+  qConstitution = '/parameters/constitution',
 
   votingPower = '/voting-power',
 }

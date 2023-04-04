@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { configureStore } from '@reduxjs/toolkit';
 
+import constitution from './constitution/reducer';
 import dao from './dao/reducer';
 import qVault from './dao-vault/reducer';
 import expertPanels from './expert-panels/reducer';
@@ -18,7 +19,8 @@ export const store = configureStore({
     experts,
     parameters,
     dao,
-    expertPanels
+    expertPanels,
+    constitution
   }
 });
 
