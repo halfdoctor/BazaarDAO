@@ -23,7 +23,7 @@ const QFIParameters = lazy(() => import('./components/QParameters/QFIParameters'
 const QEPDRParameters = lazy(() => import('./components/QParameters/QEPDRParameters'));
 const QEPRSParameters = lazy(() => import('./components/QParameters/QEPRSParameters'));
 
-function ManageParameters () {
+function Parameters () {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
 
@@ -57,10 +57,10 @@ function ManageParameters () {
 
   return (
     <PageLayout
-      title={t('Q_PARAMETERS')}
+      title={t('PARAMETERS')}
       action={
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Link to="/">
+          <Link to={composeDaoLink(RoutePaths.dashboard)}>
             <Button
               block
               alwaysEnabled
@@ -77,7 +77,7 @@ function ManageParameters () {
 
       <TabSwitch>
         <>
-          <Route exact path={composeDaoLink(RoutePaths.qParameters)}>
+          <Route exact path={composeDaoLink(RoutePaths.parameters)}>
             <Redirect to={composeDaoLink(RoutePaths.qContractRegistry)} />
           </Route>
 
@@ -112,7 +112,6 @@ function ManageParameters () {
               <QEPRSParameters />
             </LazyLoading>
           </TabRoute>
-
         </>
       </TabSwitch>
 
@@ -120,4 +119,4 @@ function ManageParameters () {
   );
 }
 
-export default ManageParameters;
+export default Parameters;

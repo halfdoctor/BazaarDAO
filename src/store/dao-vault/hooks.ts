@@ -30,12 +30,11 @@ export function useDaoVault () {
 
   async function loadWalletBalance () {
     try {
-      const { votingToken, tokenInfo } = getState().dao;
-      const userAddress = getUserAddress();
-      const balance = votingToken
-        ? votingToken === ETHEREUM_ADDRESS
-          ? await window.web3.eth.getBalance(userAddress)
-          : await getErc20Contract(votingToken).methods.balanceOf(userAddress).call()
+      const { tokenInfo } = getState().dao;
+      const balance = tokenInfo.address
+        ? tokenInfo.address === ETHEREUM_ADDRESS
+          ? await window.web3.eth.getBalance(getUserAddress())
+          : await getErc20Contract(tokenInfo.address).methods.balanceOf(getUserAddress()).call()
         : '0';
       dispatch(setWalletBalance(fromWeiWithDecimals(balance, tokenInfo.decimals)));
     } catch (error) {

@@ -7,6 +7,7 @@ export interface TokenInfo {
   decimals: number;
   isNative: boolean;
   address: string;
+  totalSupply: string;
 };
 
 interface DAOState {
@@ -25,6 +26,7 @@ const initialState: DAOState = {
     decimals: 0,
     isNative: true,
     allowance: '0',
+    totalSupply: '0'
   }
 };
 

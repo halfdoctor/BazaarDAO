@@ -50,8 +50,8 @@ export const Web3Context = createContext({} as Web3Data);
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const { setAddress, setChainId, address } = useUser();
   const { loadAllBalances } = useDaoVault();
-  const { loadExpertPanels } = useExpertPanels();
   const { loadAllDaoInfo } = useDaoStore();
+  const { loadExpertPanels } = useExpertPanels();
 
   const networkConfig = networkConfigsMap[ORIGIN_NETWORK_NAME];
   const { connector, chainId, isActive } = useWeb3React();
@@ -72,9 +72,10 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   const loadAdditionalInfo = async () => {
     await loadAllDaoInfo();
-    await Promise.allSettled(
-      [loadAllBalances(), loadExpertPanels()]
-    );
+    await Promise.allSettled([
+      loadAllBalances(),
+      loadExpertPanels()
+    ]);
   };
 
   const cleanConnectorStorage = useCallback(() => {
