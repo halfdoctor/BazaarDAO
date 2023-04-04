@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
-import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
+import { formatNumber, formatPercent, toBigNumber, unixToDate } from '@q-dev/utils';
 import { useTheme } from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -20,9 +20,7 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { colors } = useTheme();
   const { tokenInfo } = useDaoStore();
 
-  const votingEndTime = useEndTime(
-    new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber())
-  );
+  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
 
   const totalVotes = useMemo(() => {
     return toBigNumber(

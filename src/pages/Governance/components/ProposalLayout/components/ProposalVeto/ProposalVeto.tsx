@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
-import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
+import { formatNumber, formatPercent, toBigNumber, unixToDate } from '@q-dev/utils';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import useEndTime from '../../hooks/useEndTime';
@@ -14,7 +14,7 @@ import { singlePrecision } from 'utils/web3';
 function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
 
-  const vetoEndTime = useEndTime(new Date(toBigNumber(proposal.params.vetoEndTime).multipliedBy(1000).toNumber()));
+  const vetoEndTime = useEndTime(unixToDate(proposal.params.vetoEndTime));
 
   const noVoteCount = useMemo(() => {
     return toBigNumber(proposal.vetoMembersCount).minus(proposal.counters.vetoesCount).toNumber();

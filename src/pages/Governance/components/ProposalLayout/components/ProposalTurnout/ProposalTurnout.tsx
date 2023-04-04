@@ -18,11 +18,11 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { tokenInfo } = useDaoStore();
 
   const leftQuorum = useMemo(() => {
-    return Math.max(
+    return BigNumber.max(
       toBigNumber(proposal.requiredQuorum)
         .minus(proposal.currentQuorum)
         .integerValue(BigNumber.ROUND_CEIL)
-        .toNumber(), 0);
+        .toNumber(), 0).toString();
   }, [proposal]);
 
   const totalVotes = useMemo(() => {

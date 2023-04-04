@@ -69,12 +69,12 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { panels } = useExpertPanels();
 
   const leftQuorum = useMemo(() => {
-    return Math.max(
+    return BigNumber.max(
       toBigNumber(proposal.requiredQuorum)
         .minus(proposal.currentQuorum)
         .integerValue(BigNumber.ROUND_CEIL)
         .toNumber(),
-      0);
+      0).toString();
   }, [proposal]);
 
   const status = useMemo(() => {

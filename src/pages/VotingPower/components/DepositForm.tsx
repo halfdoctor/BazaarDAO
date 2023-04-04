@@ -62,14 +62,14 @@ function DepositForm () {
   });
 
   const updateMaxAmount = async () => {
-    const depositAmount = await getDAOVaultDepositAmount(walletBalance, tokenInfo);
+    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, tokenInfo);
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
 
   useEffect(() => {
     updateMaxAmount();
-  }, [walletBalance]);
+  }, [form.values.amount]);
 
   const isDepositApprovalNeeded = useMemo(() => {
     return checkIsApprovalNeeded(form.values.amount);

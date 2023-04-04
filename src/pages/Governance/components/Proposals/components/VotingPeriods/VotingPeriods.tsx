@@ -2,7 +2,7 @@ import { HTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from '@q-dev/q-ui-kit';
-import { toBigNumber } from '@q-dev/utils';
+import { unixToDate } from '@q-dev/utils';
 import styled from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -24,8 +24,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 function VotingPeriods ({ proposal, ...rest }: Props) {
   const { t, i18n } = useTranslation();
-  const votingEndTime = new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber()).getTime();
-  const vetoEndTime = new Date(toBigNumber(proposal.params.vetoEndTime).multipliedBy(1000).toNumber()).getTime();
+  const votingEndTime = unixToDate(proposal.params.votingEndTime).getTime();
+  const vetoEndTime = unixToDate(proposal.params.vetoEndTime).getTime();
 
   const votingText = votingEndTime > Date.now()
     ? t('VOTING_ENDS')
