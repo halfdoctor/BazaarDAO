@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
 import { useExpertPanels } from 'store/expert-panels/hooks';
-import { useProposals } from 'store/proposals/hooks';
 
 const StyledWrapper = styled.div`
   padding: 24px 16px 16px 24px;
@@ -25,7 +24,8 @@ const StyledWrapper = styled.div`
 function TotalExpertPanels () {
   const { t } = useTranslation();
   const { panels } = useExpertPanels();
-  const { activeProposalsCount } = useProposals();
+  // TODO: get from contract
+  const activeProposalsCount = 0;
 
   return (
     <StyledWrapper className="block">

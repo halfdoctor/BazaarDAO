@@ -85,7 +85,6 @@ function Parameters () {
           ))}
         </>
       </TabSwitch>
-
     </PageLayout>
   );
 }

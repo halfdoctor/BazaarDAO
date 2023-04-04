@@ -3,109 +3,60 @@ import { useTranslation } from 'react-i18next';
 
 import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
-import { Proposal } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 import { ShareButton } from 'components/ShareButton';
+
+import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import useEndTime from '../../hooks/useEndTime';
 
 import VoteForm from './components/VoteForm';
 
-import { useExperts } from 'store/experts/hooks';
-import { useProposals } from 'store/proposals/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
-import { CONTRACTS_NAMES } from 'constants/contracts';
 import { unixToDate } from 'utils/date';
 
 interface Props {
-  proposal: Proposal;
+  proposal: ProposalBaseInfo;
   title: string;
 }
 
 function ProposalActions ({ proposal, title }: Props) {
   const { t } = useTranslation();
-
   const { submitTransaction } = useTransaction();
-  const { voteForProposal, executeProposal } = useProposals();
-
-  const { isEpdrMember, isEpqfiMember, isEprsMember } = useExperts();
-  const isRootNode = false;
-  const votingEndTime = useEndTime(unixToDate(proposal.votingEndTime));
-
+  const { voteForProposal, executeProposal } = useDaoProposals();
   const [modalOpen, setModalOpen] = useState(false);
-
-  const isContractWithoutVeto = [
-    CONTRACTS_NAMES.emergencyUpdateVoting,
-  ].includes(proposal.contract);
-
-  const isMemberVoting = [
-    CONTRACTS_NAMES.emergencyUpdateVoting,
-    CONTRACTS_NAMES.ePQFIParametersVoting,
-    CONTRACTS_NAMES.ePRSParametersVoting,
-    CONTRACTS_NAMES.ePDRParametersVoting,
-  ].includes(proposal.contract);
-
-  const getVotingState = (): { tooltip: string; enabled: boolean } => {
-    switch (true) {
-      case isContractWithoutVeto:
-        return { enabled: isRootNode, tooltip: t('ROOT_NODES_VOTE_TIP') };
-      case proposal.contract === CONTRACTS_NAMES.ePRSParametersVoting:
-        return { enabled: isEprsMember, tooltip: t('ROOT_NODE_SELECTION_EXPERTS_VOTE_TIP') };
-      case proposal.contract === CONTRACTS_NAMES.ePDRParametersVoting:
-        return { enabled: isEpdrMember, tooltip: t('DEFI_RISK_EXPERTS_VOTE_TIP') };
-      case proposal.contract === CONTRACTS_NAMES.ePQFIParametersVoting:
-        return { enabled: isEpqfiMember, tooltip: t('FEES_INCENTIVES_EXPERTS_VOTE_TIP') };
-      default:
-        return { enabled: true, tooltip: '' };
-    }
-  };
-
-  const votingState = getVotingState();
-  const isVetoShown = proposal.status === ProposalStatus.ACCEPTED && !isContractWithoutVeto;
-
-  const voteText = t('VOTE');
-
-  const handleVote = () => {
-    setModalOpen(true);
-  };
+  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
 
   return (
     <div style={{ display: 'flex', gap: '8px' }}>
       <ShareButton title={`#${proposal.id} ${title}`} url={window.location.href} />
 
-      {proposal.status === ProposalStatus.PENDING && (
-        <Tooltip
-          disabled={votingState.enabled}
-          trigger={
-            <Button
-              style={{ width: '160px' }}
-              disabled={proposal.userVoted || !votingState.enabled}
-              onClick={handleVote}
-            >
-              {proposal.userVoted ? t('YOU_VOTED') : voteText}
-            </Button>
-          }
+      {proposal.votingStatus === ProposalStatus.PENDING && (
+        <Button
+          style={{ width: '160px' }}
+          disabled={proposal.isUserVoted}
+          onClick={() => setModalOpen(true)}
         >
-          {votingState.tooltip}
-        </Tooltip>
+          {proposal.isUserVoted ? t('YOU_VOTED') : t('VOTE')}
+        </Button>
       )}
 
-      {isVetoShown && (
+      {proposal.votingStatus === ProposalStatus.ACCEPTED && (
         <Tooltip
-          disabled={isRootNode}
           trigger={
             <Button
               look="danger"
               style={{ width: '160px' }}
-              disabled={proposal.userVetoed || !isRootNode}
+              disabled={proposal.isUserVetoed}
               onClick={() => submitTransaction({
                 successMessage: t('VETO_TX'),
-                submitFn: () => voteForProposal({ type: 'constitution', proposal })
+                submitFn: () => voteForProposal({ type: 'veto', proposal })
               })}
             >
-              {proposal.userVetoed ? t('YOU_VETOED') : t('VETO')}
+              {proposal.isUserVetoed ? t('YOU_VETOED') : t('VETO')}
             </Button>
           }
         >
@@ -113,7 +64,7 @@ function ProposalActions ({ proposal, title }: Props) {
         </Tooltip>
       )}
 
-      {proposal.status === ProposalStatus.PASSED && (
+      {proposal.votingStatus === ProposalStatus.PASSED && (
         <Button
           onClick={() => submitTransaction({
             successMessage: t('EXECUTE_TX'),
@@ -128,15 +79,12 @@ function ProposalActions ({ proposal, title }: Props) {
         open={modalOpen}
         title={t('VOTE')}
         tip={
-          isMemberVoting
-            ? ''
-            : t('VOTE_MODAL_TIP', { time: votingEndTime.formatted })
+          t('VOTE_MODAL_TIP', { time: votingEndTime.formatted })
         }
         onClose={() => setModalOpen(false)}
       >
         <VoteForm
           proposal={proposal}
-          isMemberVoting={isMemberVoting}
           onSubmit={() => setModalOpen(false)}
         />
       </Modal>

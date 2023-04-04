@@ -5,14 +5,6 @@ export function isAddress (value: string) {
   return isWeb3Address(value.toLowerCase());
 }
 
-export function toWeiWithDecimals (value: number | string, decimals: number) {
-  return toBigNumber(value)
-    .multipliedBy(10 ** decimals)
-    .toFixed();
-}
-
-export function fromWeiWithDecimals (value: number | string, decimals: number) {
-  return toBigNumber(value)
-    .dividedBy(10 ** decimals)
-    .toFixed();
+export function singlePrecision (amount?: string | number) {
+  return amount ? toBigNumber(amount).div(1e25).toString() : '0';
 }

@@ -1,10 +1,12 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, Route, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { Icon } from '@q-dev/q-ui-kit';
+import { Icon, Illustration } from '@q-dev/q-ui-kit';
 
 import Button from 'components/Button';
+import LoadingSpinner from 'components/LoadingSpinner';
 import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
@@ -12,39 +14,58 @@ import { TabRoute, TabSwitch } from 'components/Tabs/components';
 import useDao from 'hooks/useDao';
 
 import Proposals from './components/Proposals';
+import { ListEmptyStub } from './components/Proposals/styles';
 import VotingStats from './components/VotingStats';
 
-import { useProposals } from 'store/proposals/hooks';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
 
 function Governance () {
   const { pathname } = useLocation();
   const { t } = useTranslation();
-  const { getActiveProposalsByType } = useProposals();
+  const { loadExpertPanels, panels } = useExpertPanels();
+
   const { composeDaoLink } = useDao();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const tabs = [
-    {
-      id: 'q-proposals',
-      label: t('Q_PROPOSALS'),
-      count: getActiveProposalsByType('q').length,
-      link: composeDaoLink(RoutePaths.qProposals),
-    },
-    {
-      id: 'expert-roposals',
-      label: t('EXPERT_PROPOSALS'),
-      count: getActiveProposalsByType('expert').length,
-      link: composeDaoLink(RoutePaths.expertProposals),
-    },
-  ];
-
-  const pathToNewProposalPath: Record<string, string> = {
-    [composeDaoLink(RoutePaths.qProposals)]: composeDaoLink(RoutePaths.newQProposal),
-    [composeDaoLink(RoutePaths.expertProposals)]: composeDaoLink(RoutePaths.newExpertProposal),
+  const loadAllPanels = async () => {
+    setIsLoading(true);
+    await loadExpertPanels();
+    setIsLoading(false);
   };
 
-  const redirectTab = tabs.find(tab => tab.count > 0) || tabs[0];
+  useEffect(() => {
+    loadAllPanels();
+  }, []);
+
+  const tabs = useMemo(() => {
+    return panels.map((name, index) => ({
+      id: index,
+      label: name,
+      link: composeDaoLink(`/governance/panel-${index}`),
+    }));
+  }, [panels]);
+
+  const pathToNewProposalPath = tabs.reduce((acc: Record<string, string>, item) => {
+    acc[item.link] = `${item.link}/new`;
+    return acc;
+  }, {});
+
+  if (isLoading) {
+    return (
+      <LoadingSpinner />
+    );
+  }
+
+  if (!tabs.length) {
+    return (
+      <ListEmptyStub>
+        <Illustration type="empty-list" />
+        <p className="text-lg font-semibold">{t('NO_PANELS_FOUND')}</p>
+      </ListEmptyStub>
+    );
+  }
 
   return (
     <PageLayout
@@ -63,16 +84,17 @@ function Governance () {
       <TabSwitch>
         <>
           <Route exact path={'/:address' + RoutePaths.governance}>
-            <Redirect to={redirectTab.link} />
+            <Redirect to={tabs[0].link} />
           </Route>
-
-          <TabRoute exact path={'/:address' + RoutePaths.qProposals}>
-            <Proposals type="q" />
-          </TabRoute>
-
-          <TabRoute exact path={'/:address' + RoutePaths.expertProposals}>
-            <Proposals type="expert" />
-          </TabRoute>
+          {tabs.map(({ id, label, link }) => (
+            <TabRoute
+              key={id}
+              exact
+              path={link}
+            >
+              <Proposals panelName={label} />
+            </TabRoute>
+          ))}
         </>
       </TabSwitch>
     </PageLayout>

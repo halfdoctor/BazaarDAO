@@ -12,7 +12,6 @@ import { Wrap } from './styles';
 import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
-import { useProposals } from 'store/proposals/hooks';
 import { useUser } from 'store/user/hooks';
 
 import { getContractRegistryInstance } from 'contracts/contract-instance';
@@ -31,6 +30,7 @@ const { ethereum } = window;
 
 export type Web3Data = {
   connectWallet: (wallet: WalletType, reload: boolean) => Promise<void>;
+  loadAdditionalInfo: () => Promise<void>;
   disconnectWallet: () => void;
   error: unknown;
   loading: boolean;
@@ -40,6 +40,7 @@ export type Web3Data = {
   switchNetworkError: boolean | null;
   success: boolean;
   setSwitchNetworkError: (err: boolean | null) => void;
+  setLoadAppType: (state: string) => void;
   isConnected: boolean;
   isRightNetwork: boolean;
 };
@@ -49,14 +50,13 @@ export const Web3Context = createContext({} as Web3Data);
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const { setAddress, setChainId, address } = useUser();
   const { loadAllBalances } = useDaoVault();
-  const { getAllProposals } = useProposals();
   const { loadAllDaoInfo } = useDaoStore();
   const { loadExpertPanels } = useExpertPanels();
 
   const networkConfig = networkConfigsMap[ORIGIN_NETWORK_NAME];
   const { connector, chainId, isActive } = useWeb3React();
 
-  const [loadAppType, setLoadAppType] = useState(LOAD_TYPES.loading);
+  const [loadAppType, setLoadAppType] = useState<string>(LOAD_TYPES.loading);
   const [selectedRpc, setSelectedRpc] = useLocalStorage('selectedRpc', networkConfig.rpcUrl);
   const [selectedWallet, setSelectedWallet] = useLocalStorage<undefined | WalletType>('selectedWallet', undefined);
   const [selectedChainId, setSelectedChainId] = useLocalStorage('selectedChainId', networkConfig.chainId);
@@ -74,8 +74,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
     await loadAllDaoInfo();
     await Promise.allSettled([
       loadAllBalances(),
-      loadExpertPanels(),
-      getAllProposals()
+      loadExpertPanels()
     ]);
   };
 
@@ -288,6 +287,8 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
             setSwitchNetworkError,
             isConnected,
             isRightNetwork,
+            loadAdditionalInfo,
+            setLoadAppType,
           }}
         >
           {children}

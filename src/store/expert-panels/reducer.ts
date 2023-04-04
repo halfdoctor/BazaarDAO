@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ExpertPanelsState {
   panels: string[];
-};
+}
 
 const initialState: ExpertPanelsState = {
   panels: []

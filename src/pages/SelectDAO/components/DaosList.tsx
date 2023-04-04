@@ -5,6 +5,8 @@ import { media } from '@q-dev/q-ui-kit';
 import daos from 'json/daos.json';
 import styled from 'styled-components';
 
+import useNetworkConfig from 'hooks/useNetworkConfig';
+
 import DaoCard from './DaoCard';
 
 const StyledWrapper = styled.div`
@@ -24,12 +26,13 @@ const StyledWrapper = styled.div`
 
 function DaosList () {
   const { t } = useTranslation();
+  const { networkName } = useNetworkConfig();
 
   return (
     <StyledWrapper>
       <h3 className="text-h3">{t('DAO_EXPLORE')}</h3>
       <div className="daos-list__items">
-        {daos.map((dao, index) => (
+        {daos[networkName].map((dao, index) => (
           <DaoCard key={index} card={dao} />
         ))}
       </div>

@@ -1,4 +1,5 @@
 
+import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { isAddress } from 'web3-utils';
@@ -10,7 +11,7 @@ import { getMasterDaoRegistryInstance } from 'contracts/contract-instance';
 function useDao () {
   const { pathname } = useLocation();
   const isDaoLoading = false;
-  const pathDaoAddress = pathname.split('/')[1] || '';
+  const pathDaoAddress = useMemo(() => pathname.split('/')[1] || '', [pathname]);
   const isDaoPage = isAddress(pathDaoAddress);
   const { masterDaoRegistryAddress } = useNetworkConfig();
 

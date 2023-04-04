@@ -16,7 +16,7 @@ import { formatDateDMY } from 'utils/date';
 const StyledWrapper = styled.div`
   padding: 16px 16px 16px 24px;
 
-  .constitution__menu {
+  .constitution-block__menu {
     background-color: ${({ theme }) => theme.colors.backgroundPrimary};
     display: grid;
     width: max-content;
@@ -29,7 +29,7 @@ const StyledWrapper = styled.div`
       0 -1px 2px ${({ theme }) => theme.colors.blockShadowLight};
   }
 
-  .constitution__menu-link {
+  .constitution-block__menu-link {
     display: flex;
     gap: 8px;
     align-items: center;
@@ -41,17 +41,17 @@ const StyledWrapper = styled.div`
     }
   }
 
-  .constitution__menu-btn {
+  .constitution-block__menu-btn {
     width: 32px;
     height: 32px;
     border-radius: 50%;
   }
 
-  .constitution__hash {
+  .constitution-block__hash {
     margin-top: 4px;
   }
 
-  .constitution__date {
+  .constitution-block__date {
     margin-top: 16px;
   }
 `;
@@ -90,7 +90,7 @@ function ConstitutionBlock () {
           trigger={(
             <Button
               icon
-              className="constitution__menu-btn"
+              className="constitution-block__menu-btn"
               look="ghost"
               active={menuOpen}
             >
@@ -99,9 +99,9 @@ function ConstitutionBlock () {
           )}
           onToggle={setMenuOpen}
         >
-          <div className="constitution__menu">
+          <div className="constitution-block__menu">
             <a
-              className="constitution__menu-link text-md"
+              className="constitution-block__menu-link text-md"
               href={`${constitutionUrl}/constitution/latest`}
               target="_blank"
               rel="noreferrer"
@@ -113,12 +113,12 @@ function ConstitutionBlock () {
         </Dropdown>
       </div>
 
-      <div className="constitution__hash text-xl font-semibold">
+      <div className="constitution-block__hash text-xl font-semibold">
         <span>{trimString(constitutionHash)}</span>
         <CopyToClipboard value={constitutionHash} />
       </div>
 
-      <p className="constitution__date text-sm font-light">
+      <p className="constitution-block__date text-sm font-light">
         {t('LAST_UPDATE', { date: constitutionLastUpdate ? formatDateDMY(constitutionLastUpdate, i18n.language) : '-' })}
       </p>
     </StyledWrapper>

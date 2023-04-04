@@ -1,30 +1,31 @@
 import { HTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Tooltip } from '@q-dev/q-ui-kit';
-import { Proposal } from 'typings/proposals';
+import { unixToDate } from '@q-dev/utils';
+import styled from 'styled-components';
+import { ProposalBaseInfo } from 'typings/proposals';
 
-import { VotingContainer } from './styles';
-
-import { CONTRACTS_NAMES } from 'constants/contracts';
 import { formatDate, formatDateRelative } from 'utils/date';
 
+const VotingContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  grid-template-columns: repeat(2, 1fr);
+
+  div:nth-child(2) {
+    text-align: right;
+  }
+`;
+
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  proposal: Proposal;
+  proposal: ProposalBaseInfo;
 }
 
 function VotingPeriods ({ proposal, ...rest }: Props) {
   const { t, i18n } = useTranslation();
-
-  const hasNoVeto = [
-    CONTRACTS_NAMES.emergencyUpdateVoting,
-  ].includes(proposal.contract);
-
-  const votingEndTime = new Date(proposal.votingEndTime * 1000).getTime();
-  const vetoEndTime = proposal.status === ProposalStatus.REJECTED
-    ? 0
-    : new Date(proposal.vetoEndTime * 1000).getTime();
+  const votingEndTime = unixToDate(proposal.params.votingEndTime).getTime();
+  const vetoEndTime = unixToDate(proposal.params.vetoEndTime).getTime();
 
   const votingText = votingEndTime > Date.now()
     ? t('VOTING_ENDS')
@@ -48,10 +49,10 @@ function VotingPeriods ({ proposal, ...rest }: Props) {
 
       <Tooltip
         placement="bottom"
-        disabled={hasNoVeto || !vetoEndTime}
+        disabled={!proposal.isVetoGroupExists || !vetoEndTime}
         trigger={(
           <p className="text-md font-light">
-            {hasNoVeto || !vetoEndTime
+            {!proposal.isVetoGroupExists || !vetoEndTime
               ? t('NO_VETO')
               : `${vetoText} ${formatDateRelative(vetoEndTime, i18n.language)}`
             }

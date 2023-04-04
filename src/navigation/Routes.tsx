@@ -1,9 +1,8 @@
-import { lazy, useEffect } from 'react';
-import { Route, RouteComponentProps, Switch } from 'react-router-dom';
+import { lazy, useCallback, useEffect } from 'react';
+import { Route, Switch } from 'react-router-dom';
 
-import { useInterval } from '@q-dev/react-hooks';
 import * as Sentry from '@sentry/react';
-import { ProposalContractType } from 'typings/contracts';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 
 import LazyLoading from 'components/Base/LazyLoading';
 import ErrorBoundary from 'components/Custom/ErrorBoundary';
@@ -13,6 +12,7 @@ import useDao from 'hooks/useDao';
 import { getState } from 'store';
 import { useDaoStore } from 'store/dao/hooks';
 
+import { LOAD_TYPES } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 const SelectDAO = lazy(() => import('pages/SelectDAO'));
@@ -38,14 +38,21 @@ function addSentryContext () {
 }
 
 function Routes () {
-  const { loadAllDaoInfo } = useDaoStore();
+  const { daoAddress } = useDaoStore();
   const { pathDaoAddress } = useDao();
+  const { loadAdditionalInfo, setLoadAppType } = useWeb3Context();
 
-  useEffect(() => {
-    loadAllDaoInfo(pathDaoAddress);
+  const loadApp = useCallback(async () => {
+    setLoadAppType(LOAD_TYPES.loading);
+    await loadAdditionalInfo();
+    setLoadAppType(LOAD_TYPES.loaded);
   }, [pathDaoAddress]);
 
-  useInterval(() => loadAllDaoInfo(pathDaoAddress), 5000);
+  useEffect(() => {
+    if (pathDaoAddress && pathDaoAddress !== daoAddress) {
+      loadApp();
+    }
+  }, [pathDaoAddress]);
 
   useEffect(() => {
     addSentryContext();
@@ -83,13 +90,9 @@ function Routes () {
             <Governance />
           </Route>
 
-          <Route
-            exact
-            path="/:address/governance/proposal/:contract?/:id?"
-            component={(props: RouteComponentProps<{ id: string; contract: ProposalContractType }>) => (
-              <Proposal {...props} />
-            )}
-          />
+          <Route exact path="/:address/governance/proposal/:panel?/:id?">
+            <Proposal />
+          </Route>
 
           <Route exact path="/:address/voting-power">
             <VotingPower />

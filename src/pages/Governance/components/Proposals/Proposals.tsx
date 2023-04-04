@@ -1,33 +1,101 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
-import { ProposalFilter, ProposalFilterStatus, ProposalType } from 'typings/proposals';
+import { Illustration } from '@q-dev/q-ui-kit';
+import { fillArray } from '@q-dev/utils';
+import { DaoProposal, ProposalBaseInfo } from 'typings/proposals';
 
-import ProposalsList from './components/ProposalsList';
+import Button from 'components/Button';
 
-import { useProposals } from 'store/proposals/hooks';
+import { useDaoProposals } from 'hooks/useDaoProposals';
 
-function Proposals ({ type }: { type: ProposalType }) {
-  const { getProposals } = useProposals();
+import ProposalCard from './components/ProposalCard';
+import ProposalCardSkeleton from './components/ProposalCardSkeleton';
+import { ListEmptyStub, ListNextContainer, ListWrapper } from './styles';
 
-  const { search } = useLocation();
-  const query = new URLSearchParams(search);
+const PAGE_LIMIT = 10;
 
-  const [filters, setFilters] = useState<ProposalFilter>(getDefaultFilters());
+function Proposals ({ panelName }: { panelName: string }) {
+  const { t } = useTranslation();
+  const { getProposalsList, getProposalBaseInfo } = useDaoProposals();
+  const [list, setList] = useState<ProposalBaseInfo[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPaginationAvailable, setIsPaginationAvailable] = useState(true);
+
+  const loadProposalsList = async () => {
+    setIsLoading(true);
+    const newList = (await getProposalsList(panelName, offset, PAGE_LIMIT) || []) as DaoProposal[];
+    const futureList = await getProposalsList(panelName, offset + PAGE_LIMIT, PAGE_LIMIT) || []; // need to optimize
+    const preparedProposalList = await Promise.all(
+      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id))
+    );
+    setList(preparedProposalList as ProposalBaseInfo[]);
+    setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);
+    setIsLoading(false);
+  };
+
+  const handleNextProposals = async () => {
+    const newOffset = offset + PAGE_LIMIT;
+    const newList = (await getProposalsList(panelName, newOffset, PAGE_LIMIT) || []) as DaoProposal[];
+    const futureList = await getProposalsList(panelName, newOffset + PAGE_LIMIT, PAGE_LIMIT) || []; // need to optimize
+    const preparedProposalList = await Promise.all(
+      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id))
+    );
+    setList(oldList => [...oldList, ...preparedProposalList] as ProposalBaseInfo[]);
+    setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);
+    setOffset(newOffset);
+  };
 
   useEffect(() => {
-    setFilters(getDefaultFilters());
-    getProposals(type);
-  }, [type]);
+    loadProposalsList();
 
-  function getDefaultFilters () {
-    return { status: (query.get('status') || '') as ProposalFilterStatus };
+    return () => {
+      setList([]);
+    };
+  }, [panelName]);
+
+  if (isLoading) {
+    return (
+      <ListWrapper>
+        {fillArray(10).map((id) => (
+          <ProposalCardSkeleton key={id} />
+        ))}
+      </ListWrapper>
+    );
+  }
+
+  if (list.length === 0) {
+    return (
+      <ListEmptyStub>
+        <Illustration type="empty-list" />
+        <p className="text-lg font-semibold">{t('NO_PROPOSALS_FOUND')}</p>
+      </ListEmptyStub>
+    );
   }
 
   return (
-    <div className="proposals">
-      <ProposalsList type={type} status={filters.status} />
-    </div>
+    <>
+      <ListWrapper>
+        {list.map((proposal, index) => (
+          <ProposalCard
+            key={index}
+            proposal={proposal}
+          />
+        ))}
+      </ListWrapper>
+
+      {isPaginationAvailable && (
+        <ListNextContainer>
+          <Button
+            alwaysEnabled
+            onClick={handleNextProposals}
+          >
+            {t('SHOW_MORE')}
+          </Button>
+        </ListNextContainer>
+      )}
+    </>
   );
 }
 

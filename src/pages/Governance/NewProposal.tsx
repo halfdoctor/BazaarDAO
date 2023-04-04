@@ -1,44 +1,71 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Illustration } from '@q-dev/q-ui-kit';
+
+import LoadingSpinner from 'components/LoadingSpinner';
 import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
 import useDao from 'hooks/useDao';
 
-import { NewExpertProposal, NewQProposal } from './components/NewProposal';
+import NewProposalForm from './components/NewProposalForm';
+import { ListEmptyStub } from './components/Proposals/styles';
 
-import { RoutePaths } from 'constants/routes';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 function NewProposal () {
   const { t } = useTranslation();
+  const { loadExpertPanels, panels } = useExpertPanels();
   const { composeDaoLink } = useDao();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const tabs = [
-    {
-      id: 'q-proposal',
-      label: t('Q_PROPOSAL'),
-      link: composeDaoLink(RoutePaths.newQProposal)
-    },
-    {
-      id: 'expert-roposal',
-      label: t('EXPERT_PROPOSAL'),
-      link: composeDaoLink(RoutePaths.newExpertProposal)
-    },
-  ];
+  const tabs = useMemo(() => {
+    return panels.map((name, index) => ({
+      id: index,
+      label: name,
+      link: composeDaoLink(`/governance/panel-${index}/new`),
+    }));
+  }, [panels]);
+
+  const loadAllPanels = async () => {
+    setIsLoading(true);
+    await loadExpertPanels();
+    setIsLoading(false);
+  };
+
+  useEffect(() => { loadAllPanels(); }, []);
+
+  if (isLoading) {
+    return (
+      <LoadingSpinner />
+    );
+  }
+
+  if (!tabs.length) {
+    return (
+      <ListEmptyStub>
+        <Illustration type="empty-list" />
+        <p className="text-lg font-semibold">{t('NO_PANELS_FOUND')}</p>
+      </ListEmptyStub>
+    );
+  }
 
   return (
     <PageLayout title={t('NEW_PROPOSAL')}>
       <Tabs tabs={tabs} />
       <TabSwitch>
         <>
-          <TabRoute exact path={composeDaoLink(RoutePaths.newQProposal)}>
-            <NewQProposal />
-          </TabRoute>
-
-          <TabRoute exact path={composeDaoLink(RoutePaths.newExpertProposal)}>
-            <NewExpertProposal />
-          </TabRoute>
+          {tabs.map(({ id, label, link }) => (
+            <TabRoute
+              key={id}
+              exact
+              path={link}
+            >
+              <NewProposalForm panelName={label} />
+            </TabRoute>
+          ))}
         </>
       </TabSwitch>
     </PageLayout>
