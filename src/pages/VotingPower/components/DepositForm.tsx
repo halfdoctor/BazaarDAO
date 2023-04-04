@@ -40,7 +40,7 @@ function DepositForm () {
   const { t } = useTranslation();
   const { walletBalance, depositToVault } = useDaoVault();
   const { submitTransaction } = useTransaction();
-  const user = useUser();
+  const { address } = useUser();
   const { tokenInfo } = useDaoStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
 
@@ -55,21 +55,21 @@ function DepositForm () {
         ? approveSpendToken()
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
-          submitFn: () => depositToVault({ address: user.address, amount }),
+          submitFn: () => depositToVault({ address: address, amount }),
           onSuccess: () => form.reset(),
         });
     }
   });
 
   const updateMaxAmount = async () => {
-    const depositAmount = await getDAOVaultDepositAmount(walletBalance, tokenInfo);
+    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, tokenInfo);
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
 
   useEffect(() => {
     updateMaxAmount();
-  }, [walletBalance]);
+  }, [form.values.amount]);
 
   const isDepositApprovalNeeded = useMemo(() => {
     return checkIsApprovalNeeded(form.values.amount);

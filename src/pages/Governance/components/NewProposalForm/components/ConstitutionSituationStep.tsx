@@ -9,17 +9,15 @@ import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterForm from 'components/ParameterForm';
 
-import { useNewQProposalForm } from '../NewQProposal';
+import { useNewProposalForm } from '../NewProposalForm';
 
-import { CONTRACT_TYPES } from 'constants/contracts';
-
-function ParamsStep () {
+function ConstitutionSituationStep ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
-  const { values, goNext, goBack, onChange } = useNewQProposalForm();
+  const { values, goNext, goBack, onChange } = useNewProposalForm();
 
   const formArray = useFormArray<FormParameter>({
     minCount: 1,
-    maxCount: 30,
+    maxCount: 10,
     onSubmit: (forms) => {
       goNext({ params: forms });
     },
@@ -56,7 +54,7 @@ function ParamsStep () {
         >
           <ParameterForm
             key={form.id}
-            contract={CONTRACT_TYPES.constitution}
+            panelName={panelName}
             disabled={!values.isParamsChanged}
             onChange={form.onChange}
           />
@@ -75,4 +73,4 @@ function ParamsStep () {
   );
 }
 
-export default ParamsStep;
+export default ConstitutionSituationStep;

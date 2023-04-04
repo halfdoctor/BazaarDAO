@@ -6,7 +6,7 @@ import { AnimateSharedLayout, motion } from 'framer-motion';
 import { TabsContainer } from './styles';
 
 export type TabsType = {
-  id: string;
+  id: string | number;
   label: string;
   link: string;
   count?: number;
@@ -23,7 +23,7 @@ function Tabs ({ tabs, noAnimation, ...rest }: Props) {
   return (
     <TabsContainer {...rest}>
       <AnimateSharedLayout>
-        {tabs.map(({ id, label, link, count }) => (
+        {tabs.length && tabs.map(({ id, label, link, count }) => (
           <NavLink
             key={id}
             className="tab text-lg"

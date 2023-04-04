@@ -1,61 +1,60 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatAsset } from '@q-dev/utils';
-import { fromWei } from 'web3-utils';
 
-import useVoteDelegation from 'hooks/useVoteDelegation';
-import useVoterStatus from 'hooks/useVoterStatus';
+import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import { StatsContainer } from './styles';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useBaseVotingWeightInfo } from 'store/proposals/hooks';
-import { useUser } from 'store/user/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
+import { fromWeiWithDecimals } from 'utils/number';
 
 function VotingStats () {
   const { t, i18n } = useTranslation();
-  const { loadDelegationInfo } = useDaoVault();
-  const { baseVotingWeightInfo, getBaseVotingWeightInfo } = useBaseVotingWeightInfo();
+  const { vaultBalance, vaultTimeLock, loadWithdrawalAmount } = useDaoVault();
+  const { tokenInfo } = useDaoStore();
+  const { getAccountStatuses } = useDaoProposals();
+  const [voterStatus, setVoterStatus] = useState<string[]>([]);
 
-  const user = useUser();
-  const voterStatus = useVoterStatus();
-
-  const { ownWeight, lockedUntil } = baseVotingWeightInfo;
-  const delegationStatus = useVoteDelegation();
-
-  useEffect(() => {
-    getBaseVotingWeightInfo();
-    loadDelegationInfo(user.address);
-  }, []);
+  const loadAccountStatuses = async () => {
+    const response = await getAccountStatuses();
+    setVoterStatus(response?.accountGroupStatuses || []);
+  };
 
   const statsList = [
     {
       title: t('TOTAL_VOTING_WEIGHT'),
-      value: formatAsset(fromWei(ownWeight || '0'), 'Q'),
+      value: formatAsset(fromWeiWithDecimals(vaultBalance, tokenInfo.decimals), tokenInfo.symbol),
     },
     {
       title: t('VOTING_LOCKING_END'),
-      value: lockedUntil && lockedUntil !== '0'
+      value: vaultTimeLock && vaultTimeLock !== '0'
         ? (
           <>
-            <span>{formatDateDMY(unixToDate(lockedUntil), i18n.language)}</span>
-            <span className="text-md">{formatTimeGMT(unixToDate(lockedUntil), i18n.language)}</span>
+            <span>{formatDateDMY(unixToDate(vaultTimeLock), i18n.language)}</span>
+            <span className="text-md">{formatTimeGMT(unixToDate(vaultTimeLock), i18n.language)}</span>
           </>
         )
         : '–'
     },
     {
       title: t('VOTING_STATUS'),
-      value: <span className="text-lg font-semibold">{voterStatus}</span>
-    },
-    {
-      title: t('VOTE_DELEGATION'),
-      value: <span className="text-lg font-semibold">{delegationStatus}</span>
+      value: <span className="text-lg font-semibold stats-item-val--groups">{voterStatus.length ? voterStatus.join(', ') : '–'}</span>
     }
   ];
+
+  useEffect(() => {
+    loadWithdrawalAmount();
+    loadAccountStatuses();
+
+    return () => {
+      setVoterStatus([]);
+    };
+  }, []);
 
   return (
     <StatsContainer className="block">

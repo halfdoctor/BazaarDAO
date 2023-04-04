@@ -1,54 +1,53 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RouteComponentProps, useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 
 import { Icon } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
-import { ProposalContractType } from 'typings/contracts';
-import { Proposal as ProposalInterface, ProposalType } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
 import useDao from 'hooks/useDao';
+import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import ProposalLayout from './components/ProposalLayout';
 import ProposalSkeleton from './components/Proposals/components/ProposalSkeleton';
 
-import { useTransaction } from 'store/transaction/hooks';
-
-import { getProposal, getProposalTypeByContract } from 'contracts/helpers/voting';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
+import { captureError } from 'utils/errors';
 
-function Proposal ({ match }: RouteComponentProps<{
+interface ProposalParams {
   id: string;
-  contract: ProposalContractType;
-}>) {
-  const { t } = useTranslation();
+  panel: string;
+}
+
+function Proposal () {
   const history = useHistory();
-  const { pendingTransactions } = useTransaction();
+  const { t } = useTranslation();
   const { composeDaoLink } = useDao();
+  const { panels, loadExpertPanels } = useExpertPanels();
+  const { getProposalBaseInfo } = useDaoProposals();
+  const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
+  const { id, panel } = useParams<ProposalParams>();
 
-  const [proposal, setProposal] = useState<ProposalInterface | null>(null);
-  const type = getProposalTypeByContract(match.params.contract);
-
-  useInterval(loadProposal, 60_000);
-  useEffect(() => {
-    if (!pendingTransactions.length) {
-      setProposal(null);
-      loadProposal();
+  const loadProposal = async () => {
+    try {
+      await loadExpertPanels();
+      const pathPanelId = panel.split('panel-')[1];
+      const panelName = panels.find((_, index) => index === Number(pathPanelId)) || '';
+      const proposalBaseInfo = panelName && id ? await getProposalBaseInfo(panelName, id) : null;
+      if (!proposalBaseInfo) {
+        history.replace('/not-found');
+        return;
+      }
+      setProposal(proposalBaseInfo);
+    } catch (error) {
+      captureError(error);
     }
-  }, [pendingTransactions.length]);
-
-  async function loadProposal () {
-    const proposal = await getProposal(match.params.contract, match.params.id);
-    if (!proposal) {
-      history.replace('/not-found');
-      return;
-    }
-
-    setProposal(proposal);
-  }
+  };
 
   const handleBackClick = () => {
     const location = history.location as { state?: { from: string } };
@@ -56,14 +55,16 @@ function Proposal ({ match }: RouteComponentProps<{
       history.goBack();
       return;
     }
-
-    history.replace(composeDaoLink(RoutePaths.governance));
+    history.replace(panel
+      ? composeDaoLink(`${RoutePaths.governance}/${panel}`)
+      : composeDaoLink(RoutePaths.governance));
   };
 
-  const backTextMap: Record<ProposalType, string> = {
-    q: t('Q_PROPOSALS'),
-    expert: t('EXPERT_PROPOSALS'),
-  };
+  useEffect(() => {
+    loadProposal();
+  }, []);
+
+  useInterval(loadProposal, 60_000);
 
   return (
     <div className="proposal">
@@ -74,11 +75,11 @@ function Proposal ({ match }: RouteComponentProps<{
         onClick={handleBackClick}
       >
         <Icon name="arrow-left" />
-        <span>{backTextMap[type]}</span>
+        <span>{proposal?.relatedExpertPanel || t('GOVERNANCE')}</span>
       </Button>
 
       {proposal
-        ? <ProposalLayout type={type} proposal={proposal} />
+        ? <ProposalLayout proposal={proposal} />
         : <ProposalSkeleton />
       }
     </div>

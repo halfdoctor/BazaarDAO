@@ -1,23 +1,15 @@
-import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Proposal, ProposalType } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
 
-import ExpertDetails from './components/ExpertDetails';
-import QDetails from './components/QDetails';
+import BaseDetails from './components/BaseDetails';
 
 interface Props {
-  proposal: Proposal;
-  type: ProposalType;
+  proposal: ProposalBaseInfo;
 }
 
-function ProposalDetails ({ proposal, type }: Props) {
+function ProposalDetails ({ proposal }: Props) {
   const { t } = useTranslation();
-
-  const detailsByTypeMap: Record<ProposalType, ReactNode> = {
-    q: <QDetails proposal={proposal} />,
-    expert: <ExpertDetails proposal={proposal} />,
-  };
 
   return (
     <div className="block">
@@ -25,7 +17,7 @@ function ProposalDetails ({ proposal, type }: Props) {
 
       <div className="block__content">
         <div className="details-list single-column">
-          {detailsByTypeMap[type]}
+          <BaseDetails proposal={proposal} />
         </div>
       </div>
     </div>

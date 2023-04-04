@@ -3,6 +3,7 @@ import { positions, Provider as AlertProvider, transitions } from 'react-alert';
 
 import { useWeb3Context } from 'context/Web3ContextProvider';
 
+import ConnectWalletWarning from 'components/ConnectWalletWarning';
 import NetworkWarning from 'components/NetworkWarning';
 import Toast from 'components/Toast';
 import TransactionLoader from 'components/TransactionLoader';
@@ -42,8 +43,10 @@ function Layout ({ children }: Props) {
         gap: '12px',
       }}
     >
-      {isConnected && !isRightNetwork
-        ? <NetworkWarning />
+      {(!isConnected || !isRightNetwork) && isDaoPage
+        ? (isConnected
+          ? <NetworkWarning />
+          : <ConnectWalletWarning />)
         : (
           <AppContainer $wide={!isDaoPage}>
             {isDaoPage && (

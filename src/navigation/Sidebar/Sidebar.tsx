@@ -14,16 +14,12 @@ import SidebarLink from './components/SidebarLink/SidebarLink';
 import VersionModal from './components/VersionModal';
 import { SidebarContainer } from './styles';
 
-import { useProposals } from 'store/proposals/hooks';
-
 import { RoutePaths } from 'constants/routes';
 
 function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const { activeProposalsCount } = useProposals();
   const { composeDaoLink } = useDao();
-
   const [versionModalOpen, setVersionModalOpen] = useState(false);
 
   return (
@@ -57,7 +53,6 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
                 to={composeDaoLink('/governance')}
                 title={t('GOVERNANCE')}
                 icon="vote"
-                count={activeProposalsCount}
               />
               <SidebarLink
                 exact={false}

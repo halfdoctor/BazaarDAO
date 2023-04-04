@@ -1,4 +1,4 @@
-import { Classification, ParameterType } from '@q-dev/q-js-sdk';
+import { ParameterType } from '@q-dev/gdk-sdk';
 
 interface FormParameter {
   type: ParameterType;
@@ -7,28 +7,23 @@ interface FormParameter {
   isNew?: boolean;
 }
 
-interface FormDelegation {
-  address: string;
-  amount: string;
+interface ParameterKey {
+  name: string;
+  solidityType: string;
+  value: string;
 }
 
-type ExpertType = 'fees-incentives' | 'defi' | 'root-node';
+type GeneralSituationType = 'raise-topic' | 'create-voting' | 'remove-voting';
+type MembershipSituationType = 'add-member' | 'remove-member';
 
-interface QProposalForm {
-  type: 'constitution' | 'emergency' | 'general';
+interface NewProposalForm {
+  type: string;
+  panel: string;
+  generalSituationType: GeneralSituationType;
+  membershipSituationType: MembershipSituationType;
+  candidateAddress: string;
   hash: string;
-  classification: Classification;
   externalLink: string;
   isParamsChanged: boolean;
   params: FormParameter[];
 }
-
-interface ExpertProposalForm {
-  type: 'add-expert' | 'remove-expert' | 'parameter-vote';
-  panelType: ExpertType;
-  address: string;
-  externalLink: string;
-  params: FormParameter[];
-}
-
-type CreateProposalForm = QProposalForm | ExpertProposalForm;

@@ -1,25 +1,33 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Icon, Progress } from '@q-dev/q-ui-kit';
-import { formatNumber, formatPercent } from '@q-dev/utils';
-import { Proposal } from 'typings/proposals';
+import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
+import BigNumber from 'bignumber.js';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import { StyledProposalTurnout } from './styles';
 
-import { CONTRACTS_NAMES } from 'constants/contracts';
+import { useDaoStore } from 'store/dao/hooks';
 
-function ProposalTurnout ({ proposal }: { proposal: Proposal }) {
+import { fromWeiWithDecimals } from 'utils/number';
+import { singlePrecision } from 'utils/web3';
+
+function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
+  const { tokenInfo } = useDaoStore();
 
-  const isRootNodeContract = [
-    CONTRACTS_NAMES.emergencyUpdateVoting,
-  ].includes(proposal.contract);
+  const leftQuorum = useMemo(() => {
+    return BigNumber.max(
+      toBigNumber(proposal.requiredQuorum)
+        .minus(proposal.currentQuorum)
+        .integerValue(BigNumber.ROUND_CEIL)
+        .toNumber(), 0).toString();
+  }, [proposal]);
 
-  const leftQuorum = Math.max(
-    proposal.requiredQuorum - proposal.currentQuorum,
-    0
-  );
-  const totalVotes = Number(proposal.votesFor) + (Number(proposal.votesAgainst) || 0);
+  const totalVotes = useMemo(() => {
+    return toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toString();
+  }, [proposal]);
 
   return (
     <StyledProposalTurnout className="block">
@@ -28,11 +36,11 @@ function ProposalTurnout ({ proposal }: { proposal: Proposal }) {
       <div className="block__content">
         <div className="proposal-turnout__quorum">
           <p className="text-md">
-            {t('QUORUM', { quorum: formatPercent(proposal.currentQuorum) })}
+            {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum)) })}
           </p>
           <p className="text-md">
-            {leftQuorum || proposal.currentQuorum === 0
-              ? t('LEFT_QUORUM', { quorum: formatPercent(leftQuorum) })
+            {leftQuorum
+              ? t('LEFT_QUORUM', { quorum: formatPercent(singlePrecision(leftQuorum)) })
               : <Icon name="double-check" />
             }
           </p>
@@ -48,15 +56,15 @@ function ProposalTurnout ({ proposal }: { proposal: Proposal }) {
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('VOTED')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(totalVotes)}
+              {formatNumber(fromWeiWithDecimals(totalVotes, tokenInfo.decimals))}
             </p>
           </div>
 
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('DID_NOT_VOTE')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {isRootNodeContract
-                ? formatNumber(proposal.rootNodesNumber - totalVotes)
+              {!proposal.isVetoGroupExists
+                ? formatNumber(toBigNumber(proposal.vetoMembersCount).minus(totalVotes))
                 : '–'
               }
             </p>

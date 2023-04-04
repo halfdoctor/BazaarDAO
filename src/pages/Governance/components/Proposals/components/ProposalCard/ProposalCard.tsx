@@ -1,53 +1,96 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
-import { Icon, Progress, Tag } from '@q-dev/q-ui-kit';
+import { ProposalStatus } from '@q-dev/q-js-sdk';
+import { Icon, Progress, Tag, toBigNumber } from '@q-dev/q-ui-kit';
 import { formatPercent } from '@q-dev/utils';
-import { ProposalEvent } from 'typings/contracts';
-import { Proposal } from 'typings/proposals';
-
-import useProposalDetails from 'pages/Governance/hooks/useProposalDetails';
+import BigNumber from 'bignumber.js';
+import styled from 'styled-components';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import useDao from 'hooks/useDao';
 
 import ProposalCardSkeleton from '../ProposalCardSkeleton';
 import VotingPeriods from '../VotingPeriods';
 
-import { ProposalCardLink } from './styles';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
-import { getProposal } from 'contracts/helpers/voting';
+import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
-function ProposalCard ({ proposal }: { proposal: ProposalEvent }) {
+import { singlePrecision } from 'utils/web3';
+
+const ProposalCardLink = styled(Link)`
+background-color: ${({ theme }) => theme.colors.backgroundPrimary};
+transition: all 150ms ease-out;
+
+&:hover,
+&:focus-visible {
+  outline: none;
+  border-color: ${({ theme }) => theme.colors.borderMain};
+}
+
+.proposal-card__head {
+  display: flex;
+  justify-content: space-between;
+}
+
+.proposal-card__id {
+  display: flex;
+  gap: 8px;
+}
+
+.proposal-card__title {
+  margin-top: 12px;
+}
+
+.proposal-card__voting {
+  margin-top: 16px;
+}
+
+.proposal-card__quorum {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.proposal-card__progress {
+  margin-top: 8px;
+}
+
+.proposal-card__periods {
+  margin-top: 20px;
+}
+`;
+
+function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
+  const { panels } = useExpertPanels();
 
-  const [proposalInfo, setProposalInfo] = useState<Proposal | null>(null);
-  const { title, status, state } = useProposalDetails(proposalInfo);
+  const leftQuorum = useMemo(() => {
+    return BigNumber.max(
+      toBigNumber(proposal.requiredQuorum)
+        .minus(proposal.currentQuorum)
+        .integerValue(BigNumber.ROUND_CEIL)
+        .toNumber(),
+      0).toString();
+  }, [proposal]);
 
-  useEffect(() => {
-    loadProposal();
+  const status = useMemo(() => {
+    return t(statusMap[proposal.votingStatus || ProposalStatus.NONE]);
+  }, [proposal]);
 
-    return () => {
-      setProposalInfo(null);
-    };
-  }, []);
+  const panelNamePosition = useMemo(() => {
+    return panels.findIndex(item => item === proposal.relatedExpertPanel);
+  }, [proposal]);
 
-  async function loadProposal () {
-    const result = await getProposal(proposal.contract, proposal.id);
-    setProposalInfo(result);
-  }
-
-  const leftQuorum = Math.max(
-    Number(proposalInfo?.requiredQuorum) - Number(proposalInfo?.currentQuorum),
-    0
-  );
-
-  return proposalInfo
+  return proposal
     ? (
       <ProposalCardLink
         className="block"
         to={{
-          pathname: composeDaoLink(`/governance/proposal/${proposal.contract}/${proposal.id}`),
+          pathname: composeDaoLink(`/governance/proposal/panel-${panelNamePosition}/${proposal.id}`),
           state: { from: 'list' },
         }}
       >
@@ -57,24 +100,27 @@ function ProposalCard ({ proposal }: { proposal: ProposalEvent }) {
             <span>{proposal.id}</span>
           </p>
 
-          {proposalInfo.status && <Tag state={state}>{status}</Tag>}
+          {proposal.votingStatus &&
+            <Tag state={getStatusState(proposal.votingStatus)}>
+              {status}
+            </Tag>}
         </div>
 
         <h2
           className="proposal-card__title text-h2 ellipsis"
-          title={title}
+          title={proposal.relatedVotingSituation}
         >
-          {title}
+          {proposal.relatedVotingSituation}
         </h2>
 
         <div className="proposal-card__voting">
           <div className="proposal-card__quorum">
             <p className="text-md">
-              {t('QUORUM', { quorum: formatPercent(proposalInfo.currentQuorum) })}
+              {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum)) })}
             </p>
             <p className="text-md">
               {leftQuorum
-                ? t('LEFT_QUORUM', { quorum: formatPercent(leftQuorum) })
+                ? t('LEFT_QUORUM', { quorum: formatPercent(singlePrecision(leftQuorum)) })
                 : <Icon name="double-check" />
               }
             </p>
@@ -82,13 +128,13 @@ function ProposalCard ({ proposal }: { proposal: ProposalEvent }) {
 
           <Progress
             className="proposal-card__progress"
-            value={Number(proposalInfo.currentQuorum)}
-            max={Number(proposalInfo.requiredQuorum)}
+            value={Number(singlePrecision(proposal.currentQuorum))}
+            max={Number(singlePrecision(proposal.requiredQuorum))}
           />
 
           <VotingPeriods
             className="proposal-card__periods"
-            proposal={proposalInfo}
+            proposal={proposal}
           />
         </div>
       </ProposalCardLink>

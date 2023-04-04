@@ -1,20 +1,31 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
-import { formatNumber, formatPercent } from '@q-dev/utils';
+import { formatNumber, formatPercent, toBigNumber, unixToDate } from '@q-dev/utils';
 import { useTheme } from 'styled-components';
-import { Proposal } from 'typings/proposals';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import useEndTime from '../../hooks/useEndTime';
 
 import { StyledProposalVoting } from './styles';
 
-function ProposalVoting ({ proposal }: { proposal: Proposal }) {
+import { useDaoStore } from 'store/dao/hooks';
+
+import { fromWeiWithDecimals } from 'utils/number';
+import { singlePrecision } from 'utils/web3';
+
+function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const { tokenInfo } = useDaoStore();
 
-  const votingEndTime = useEndTime(new Date(proposal.votingEndTime * 1000));
-  const totalVotes = Number(proposal.votesFor) + Number(proposal.votesAgainst);
+  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
+
+  const totalVotes = useMemo(() => {
+    return toBigNumber(
+      proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber();
+  }, [proposal]);
 
   return (
     <StyledProposalVoting className="block">
@@ -33,13 +44,13 @@ function ProposalVoting ({ proposal }: { proposal: Proposal }) {
       <div className="block__content">
         <p className="proposal-voting__majority text-md">
           {t('MAJORITY_REQUIREMENT', {
-            majority: `>${formatPercent(proposal.requiredMajority)}`
+            majority: `>${formatPercent(singlePrecision(proposal.params.requiredMajority))}`
           })}
         </p>
 
         <Progress
           className="proposal-voting__progress"
-          value={Number(proposal.votesFor || 0)}
+          value={Number(proposal.counters.votedFor)}
           max={totalVotes}
           trackColor={colors.errorMain}
           valueColor={colors.successMain}
@@ -55,10 +66,10 @@ function ProposalVoting ({ proposal }: { proposal: Proposal }) {
               {t('YES')}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatPercent(proposal.votesFor / totalVotes * 100 || 0)}
+              {formatPercent(toBigNumber(proposal.counters.votedFor).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(proposal.votesFor)}
+              {formatNumber(fromWeiWithDecimals(proposal.counters.votedFor, tokenInfo.decimals))}
             </p>
           </div>
 
@@ -71,10 +82,10 @@ function ProposalVoting ({ proposal }: { proposal: Proposal }) {
               {t('NO')}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatPercent(proposal.votesAgainst / totalVotes * 100 || 0)}
+              {formatPercent(toBigNumber(proposal.counters.votedAgainst).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(proposal.votesAgainst)}
+              {formatNumber(fromWeiWithDecimals(proposal.counters.votedAgainst, tokenInfo.decimals))}
             </p>
           </div>
         </div>
