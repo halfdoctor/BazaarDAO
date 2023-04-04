@@ -1,4 +1,3 @@
-
 import { useTranslation } from 'react-i18next';
 
 import { ParameterType } from '@q-dev/gdk-sdk';
