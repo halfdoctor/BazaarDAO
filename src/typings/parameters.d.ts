@@ -1,8 +1,8 @@
-import { ParameterType } from '@q-dev/q-js-sdk/lib/contracts/BaseParametersInstance';
+import { ParameterType } from '@q-dev/gdk-sdk';
 
 export interface ParameterValue {
-  key: string;
+  name: string;
   value: string;
+  normalValue: string;
   type: ParameterType;
-  verifiedName?: string;
 }

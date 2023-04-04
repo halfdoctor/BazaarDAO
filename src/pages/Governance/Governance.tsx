@@ -71,7 +71,7 @@ function Governance () {
     <PageLayout
       title={t('GOVERNANCE')}
       action={(
-        <Link to={pathToNewProposalPath[pathname] || composeDaoLink(RoutePaths.newQProposal)}>
+        <Link to={pathToNewProposalPath[pathname] || composeDaoLink(RoutePaths.newProposal)}>
           <Button block>
             <Icon name="add" />
             <span>{t('CREATE_PROPOSAL')}</span>

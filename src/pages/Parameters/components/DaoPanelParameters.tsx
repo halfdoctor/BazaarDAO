@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 import ParametersBlock from './ParametersBlock';
 
-import { useParameters } from 'store/parameters/hooks';
+import { getParameters } from 'contracts/helpers/parameters-helper';
 
-import { getConstitutionInstance } from 'contracts/contract-instance';
+import { captureError } from 'utils/errors';
 
 interface Props {
   panel: string;
@@ -13,31 +13,33 @@ interface Props {
 
 function DaoPanelParameters ({ panel }: Props) {
   const { t } = useTranslation();
-  const {
-    constitutionParameters,
-    constitutionParametersLoading,
-    constitutionParametersError,
-    getConstitutionParameters
-  } = useParameters();
-
-  const [constitutionParametersAddress, setConstitutionParametersAddress] = useState('0x00');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [parameters, setParameters] = useState([]);
 
   useEffect(() => {
-    getConstitutionParameters();
-    getConstitutionInstance().then((contract) => setConstitutionParametersAddress(contract.address));
-
-    return () => {
-      setConstitutionParametersAddress('0x00');
-    };
+    loadParameters();
   }, []);
+
+  async function loadParameters () {
+    try {
+      setLoading(true);
+      const parameters = await getParameters(panel);
+      setParameters(parameters);
+    } catch (error) {
+      captureError(error);
+      setError(t('PANEL_PARAMETERS_LOADING_ERROR', { panel }));
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <ParametersBlock
-      title={t('Q_CONSTITUTION_PARAMETERS')}
-      subtitle={`(${constitutionParametersAddress})`}
-      parameters={constitutionParameters}
-      loading={constitutionParametersLoading}
-      errorMsg={constitutionParametersError}
+      title={t('PANEL_PARAMETERS', { panel })}
+      parameters={parameters}
+      loading={loading}
+      errorMsg={error}
     />
   );
 }

@@ -7,13 +7,16 @@ import { captureError } from 'utils/errors';
 
 export async function getParameters (
   panelName: string,
-  parameterType: ParameterType
+  parameterType?: ParameterType
 ) {
   try {
     if (!daoInstance) return;
     const panelParametersInstance = await daoInstance?.getParameterStorageInstance(panelName);
     const panelParameters = await panelParametersInstance.instance.methods.getDAOParameters().call();
-    const filteredParameters = filterParameter(panelParameters, parameterType);
+
+    const filteredParameters = parameterType
+      ? filterParameter(panelParameters, parameterType)
+      : panelParameters;
     const parametersNormalValue = getParametersValue(filteredParameters);
 
     return filteredParameters.map((item: ParameterKey, index: number) => {

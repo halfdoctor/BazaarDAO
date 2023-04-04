@@ -1,4 +1,5 @@
 
+import { ParameterType } from '@q-dev/gdk-sdk';
 import styled from 'styled-components';
 import { ParameterValue } from 'typings/parameters';
 
@@ -45,23 +46,23 @@ function ParametersTable ({ parameters }: Props) {
       <table>
         <tbody>
           {parameters.map((item, index) => (
-            <tr key={item.key + index}>
+            <tr key={item.name + index}>
               <td>
-                <span>{item.key}</span>
-                <CopyToClipboard value={item.key} />
+                <span>{item.name}</span>
+                <CopyToClipboard value={item.name} />
               </td>
               <td>
-                {item.type === 'Addr'
-                  ? <ExplorerAddress address={item.value} />
+                {item.type === ParameterType.ADDRESS
+                  ? <ExplorerAddress address={item.normalValue} />
                   : (
                     <>
-                      <span>{item.value}</span>
-                      <CopyToClipboard value={item.value} />
+                      <span>{item.normalValue}</span>
+                      <CopyToClipboard value={item.normalValue} />
                     </>
                   )
                 }
               </td>
-              <td>{item.type.toUpperCase()}</td>
+              <td>{item.type}</td>
             </tr>
           ))}
         </tbody>

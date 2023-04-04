@@ -25,17 +25,17 @@ function Parameters () {
   const { composeDaoLink } = useDao();
   const { panels } = useExpertPanels();
 
-  const panelTabs = panels.map((panel) => ({
+  const panelTabs = panels.map((panel, i) => ({
     id: panel,
     label: panel,
-    link: composeDaoLink(`/parameters/${panel}`).toLowerCase().replace(/ /g, '-')
+    link: composeDaoLink(`/parameters/panel-${i}`)
   }));
 
   const tabs = [
     {
       id: 'contract-registry',
       label: t('CONTRACT_REGISTRY'),
-      link: composeDaoLink(RoutePaths.qContractRegistry)
+      link: composeDaoLink(RoutePaths.contractRegistry)
     },
     ...panelTabs
   ];
@@ -63,10 +63,10 @@ function Parameters () {
       <TabSwitch>
         <>
           <Route exact path={composeDaoLink(RoutePaths.parameters)}>
-            <Redirect to={composeDaoLink(RoutePaths.qContractRegistry)} />
+            <Redirect to={composeDaoLink(RoutePaths.contractRegistry)} />
           </Route>
 
-          <TabRoute exact path={composeDaoLink(RoutePaths.qContractRegistry)}>
+          <TabRoute exact path={composeDaoLink(RoutePaths.contractRegistry)}>
             <LazyLoading>
               <DaoContractRegistry />
             </LazyLoading>
