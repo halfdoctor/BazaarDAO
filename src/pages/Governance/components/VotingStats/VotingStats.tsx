@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatAsset } from '@q-dev/utils';
-import { fromWei } from 'web3-utils';
 
 import { useDaoProposals } from 'hooks/useDaoProposals';
 
@@ -12,6 +11,7 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
+import { fromWeiWithDecimals } from 'utils/number';
 
 function VotingStats () {
   const { t, i18n } = useTranslation();
@@ -28,7 +28,7 @@ function VotingStats () {
   const statsList = [
     {
       title: t('TOTAL_VOTING_WEIGHT'),
-      value: formatAsset(fromWei(vaultBalance || '0'), tokenInfo.symbol),
+      value: formatAsset(fromWeiWithDecimals(vaultBalance, tokenInfo.decimals), tokenInfo.symbol),
     },
     {
       title: t('VOTING_LOCKING_END'),

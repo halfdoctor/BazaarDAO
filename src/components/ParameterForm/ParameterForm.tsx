@@ -67,7 +67,7 @@ function ParameterForm ({
 
     const parameters = filterParameter(keys, form.values.type as ParameterType, form.values.key.toString());
     if (!parameters.length) return;
-    setCurrentValue(parameters[0].value);
+    setCurrentValue(parameters[0].normalValue);
     form.fields.isNew.onChange(false);
 
     return () => {

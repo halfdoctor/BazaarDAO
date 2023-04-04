@@ -1,6 +1,7 @@
-import { filterParameter, ParameterType } from '@q-dev/gdk-sdk';
+import { filterParameter, getParametersValue, ParameterType } from '@q-dev/gdk-sdk';
 import { ContractRegistryUpgradeVotingInstance } from '@q-dev/q-js-sdk/lib/contracts/governance/ContractRegistryUpgradeVoting';
 import { ContractType } from 'typings/contracts';
+import { ParameterKey } from 'typings/forms';
 
 import { daoInstance, getInstance } from 'contracts/contract-instance';
 
@@ -14,7 +15,12 @@ export async function getParameters (
     if (!daoInstance) return;
     const panelParametersInstance = await daoInstance?.getParameterStorageInstance(panelName);
     const panelParameters = await panelParametersInstance.instance.methods.getDAOParameters().call();
-    return filterParameter(panelParameters, parameterType);
+    const filteredParameters = filterParameter(panelParameters, parameterType);
+    const parametersNormalValue = getParametersValue(filteredParameters);
+
+    return filteredParameters.map((item: ParameterKey, index: number) => {
+      return { ...item, normalValue: parametersNormalValue[index] };
+    });
   } catch (error) {
     captureError(error);
     return [];

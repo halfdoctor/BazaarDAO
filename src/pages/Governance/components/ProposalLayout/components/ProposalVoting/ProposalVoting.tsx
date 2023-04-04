@@ -4,25 +4,30 @@ import { useTranslation } from 'react-i18next';
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import { useTheme } from 'styled-components';
-import { DaoProposal } from 'typings/proposals';
-import { fromWei } from 'web3-utils';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import useEndTime from '../../hooks/useEndTime';
 
 import { StyledProposalVoting } from './styles';
 
+import { useDaoStore } from 'store/dao/hooks';
+
+import { fromWeiWithDecimals } from 'utils/number';
 import { singlePrecision } from 'utils/web3';
 
-function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
+function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const { tokenInfo } = useDaoStore();
 
   const votingEndTime = useEndTime(
     new Date(toBigNumber(proposal.params.votingEndTime).multipliedBy(1000).toNumber())
   );
 
-  const totalVotes = useMemo(() => toBigNumber(
-    proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber(), [proposal]);
+  const totalVotes = useMemo(() => {
+    return toBigNumber(
+      proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber();
+  }, [proposal]);
 
   return (
     <StyledProposalVoting className="block">
@@ -47,7 +52,7 @@ function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
 
         <Progress
           className="proposal-voting__progress"
-          value={Number(proposal.counters.votedFor || 0)}
+          value={Number(proposal.counters.votedFor)}
           max={totalVotes}
           trackColor={colors.errorMain}
           valueColor={colors.successMain}
@@ -66,7 +71,7 @@ function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
               {formatPercent(toBigNumber(proposal.counters.votedFor).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(fromWei(proposal.counters.votedFor))}
+              {formatNumber(fromWeiWithDecimals(proposal.counters.votedFor, tokenInfo.decimals))}
             </p>
           </div>
 
@@ -82,7 +87,7 @@ function ProposalVoting ({ proposal }: { proposal: DaoProposal }) {
               {formatPercent(toBigNumber(proposal.counters.votedAgainst).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(fromWei(proposal.counters.votedAgainst))}
+              {formatNumber(fromWeiWithDecimals(proposal.counters.votedAgainst, tokenInfo.decimals))}
             </p>
           </div>
         </div>

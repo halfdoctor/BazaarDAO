@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
 import { TimeLockInfoStruct } from 'typings/dao';
-import { fromWei, toWei } from 'web3-utils';
+import { toWei } from 'web3-utils';
 
 import {
   setLockedBalance,
@@ -18,6 +18,7 @@ import { getState, getUserAddress, useAppSelector } from 'store';
 import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
+import { fromWeiWithDecimals } from 'utils/number';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
@@ -29,14 +30,14 @@ export function useDaoVault () {
 
   async function loadWalletBalance () {
     try {
-      const { votingToken } = getState().dao;
+      const { votingToken, tokenInfo } = getState().dao;
       const userAddress = getUserAddress();
       const balance = votingToken
         ? votingToken === ETHEREUM_ADDRESS
           ? await window.web3.eth.getBalance(userAddress)
           : await getErc20Contract(votingToken).methods.balanceOf(userAddress).call()
         : '0';
-      dispatch(setWalletBalance(fromWei(balance)));
+      dispatch(setWalletBalance(fromWeiWithDecimals(balance, tokenInfo.decimals)));
     } catch (error) {
       captureError(error);
     }
@@ -44,13 +45,13 @@ export function useDaoVault () {
 
   async function loadVaultBalance (address?: string) {
     try {
-      const { votingToken } = getState().dao;
+      const { votingToken, tokenInfo } = getState().dao;
       if (!daoInstance || !votingToken) return;
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const balance = await daoVaultInstance.instance.methods
         .userTokenBalance(address || getUserAddress(), votingToken)
         .call();
-      dispatch(setVaultBalance(fromWei(balance)));
+      dispatch(setVaultBalance(fromWeiWithDecimals(balance, tokenInfo.decimals)));
     } catch (error) {
       captureError(error);
     }
@@ -58,13 +59,13 @@ export function useDaoVault () {
 
   async function loadWithdrawalAmount (address?: string) {
     try {
-      const { votingToken } = getState().dao;
+      const { votingToken, tokenInfo } = getState().dao;
       if (!daoInstance || !votingToken) return;
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
       const balance = await daoVaultInstance
         .getTimeLockInfo(address || getUserAddress(), votingToken) as TimeLockInfoStruct;
-      dispatch(setWithdrawalBalance(fromWei(balance.withdrawalAmount)));
+      dispatch(setWithdrawalBalance((fromWeiWithDecimals(balance.withdrawalAmount, tokenInfo.decimals))));
       dispatch(setLockedBalance(balance.lockedAmount));
       dispatch(setVaultTimeLock(balance.unlockTime));
     } catch (error) {

@@ -1667,10 +1667,10 @@
     bn.js "^5.2.1"
     web3 "^1.7.0"
 
-"@q-dev/q-ui-kit@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@q-dev/q-ui-kit/-/q-ui-kit-0.8.0.tgz#b8d94a49237781303dd1b6c2d369e41028ef524e"
-  integrity sha512-Nz8dtpTQZLsa/mkw1xa/abR29V+bwr58jEw28CEcGIxiHsULPnPoExnzPrMkUpGvKwasVH/ABXJIXVhYAu7PPA==
+"@q-dev/q-ui-kit@^0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@q-dev/q-ui-kit/-/q-ui-kit-0.8.1.tgz#c77eac20cbe336d235d9a7222ae91e350d0de21e"
+  integrity sha512-YU9cZ+ugvzQSvaH4sJoxNi0xGqixfdmw900ynCduSOzLFve1UaEfMrXIYl+oWa50GA1nvkPz4o4Ev8duQFg5/Q==
   dependencies:
     lodash "^4.17.21"
     react-datepicker "^4.8.0"

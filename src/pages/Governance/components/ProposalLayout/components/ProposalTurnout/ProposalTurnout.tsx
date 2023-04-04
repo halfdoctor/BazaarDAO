@@ -5,14 +5,17 @@ import { Icon, Progress } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
 import { ProposalBaseInfo } from 'typings/proposals';
-import { fromWei } from 'web3-utils';
 
 import { StyledProposalTurnout } from './styles';
 
+import { useDaoStore } from 'store/dao/hooks';
+
+import { fromWeiWithDecimals } from 'utils/number';
 import { singlePrecision } from 'utils/web3';
 
 function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
+  const { tokenInfo } = useDaoStore();
 
   const leftQuorum = useMemo(() => {
     return Math.max(
@@ -53,7 +56,7 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('VOTED')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(fromWei(totalVotes))}
+              {formatNumber(fromWeiWithDecimals(totalVotes, tokenInfo.decimals))}
             </p>
           </div>
 
