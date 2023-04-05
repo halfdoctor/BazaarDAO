@@ -20,4 +20,6 @@ COPY --from=builder /app/dist /app
 COPY ./config/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./config/nginx/conf.d/app.conf /etc/nginx/conf.d/app.conf
 
+# Fix: https://github.com/GoogleContainerTools/kaniko/issues/1278#issuecomment-693459315
+RUN test -e /var/run || ln -s /run /var/run
 RUN nginx -t
