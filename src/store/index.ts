@@ -7,7 +7,6 @@ import dao from './dao/reducer';
 import qVault from './dao-vault/reducer';
 import expertPanels from './expert-panels/reducer';
 import experts from './experts/reducer';
-import parameters from './parameters/reducer';
 import transaction from './transaction/reducer';
 import user from './user/reducer';
 
@@ -17,7 +16,6 @@ export const store = configureStore({
     qVault,
     transaction,
     experts,
-    parameters,
     dao,
     expertPanels,
     constitution

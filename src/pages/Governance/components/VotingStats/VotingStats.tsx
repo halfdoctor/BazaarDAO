@@ -11,7 +11,7 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
-import { fromWeiWithDecimals } from 'utils/number';
+import { fromWeiWithDecimals } from 'utils/numbers';
 
 function VotingStats () {
   const { t, i18n } = useTranslation();

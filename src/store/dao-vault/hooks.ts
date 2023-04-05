@@ -18,7 +18,7 @@ import { getState, getUserAddress, useAppSelector } from 'store';
 import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
-import { fromWeiWithDecimals } from 'utils/number';
+import { fromWeiWithDecimals } from 'utils/numbers';
 
 export function useDaoVault () {
   const dispatch = useDispatch();

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Form, useForm } from '@q-dev/form-hooks';
 import { filterParameter, ParameterType } from '@q-dev/gdk-sdk';
 import { RadioGroup, Select, Tip } from '@q-dev/q-ui-kit';
-import { FormParameter, ParameterKey } from 'typings/forms';
+import { FormParameter } from 'typings/forms';
+import { ParameterValue } from 'typings/parameters';
 
 import Input from 'components/Input';
 
@@ -27,7 +28,7 @@ function ParameterForm ({
 }: Props) {
   const { t } = useTranslation();
   const [currentValue, setCurrentValue] = useState('');
-  const [keys, setKeys] = useState<ParameterKey[]>([]);
+  const [keys, setKeys] = useState<ParameterValue[]>([]);
 
   const form = useForm({
     initialValues: {

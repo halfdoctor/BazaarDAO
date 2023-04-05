@@ -12,7 +12,7 @@ import { StyledProposalVoting } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
 
-import { fromWeiWithDecimals } from 'utils/number';
+import { fromWeiWithDecimals } from 'utils/numbers';
 import { singlePrecision } from 'utils/web3';
 
 function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
