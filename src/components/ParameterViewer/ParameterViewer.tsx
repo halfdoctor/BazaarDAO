@@ -1,9 +1,10 @@
 import { HTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ParameterType } from '@q-dev/q-js-sdk';
 import { Tip } from '@q-dev/q-ui-kit';
 import { FormParameter } from 'typings/forms';
+
+import useParameterTypes from 'hooks/useParameterTypes';
 
 import { ParameterViewerContainer } from './styles';
 
@@ -20,15 +21,7 @@ function ParameterViewer ({
   ...rest
 }: Props) {
   const { t } = useTranslation();
-
-  const parameterTypesMap: Record<ParameterType, string> = {
-    [ParameterType.NONE]: '–',
-    [ParameterType.ADDRESS]: 'ADDRESS',
-    [ParameterType.BOOL]: 'BOOLEAN',
-    [ParameterType.STRING]: 'STRING',
-    [ParameterType.UINT]: 'UINT',
-    [ParameterType.BYTE]: 'BYTE',
-  };
+  const { translateParameterType } = useParameterTypes();
 
   return (
     <ParameterViewerContainer $block={block} {...rest}>
@@ -54,7 +47,7 @@ function ParameterViewer ({
         <p className="text-lg break-word" title={parameter.value}>
           <span>{String(parameter.value)}</span>
           <span className="font-light color-secondary" style={{ marginLeft: '4px' }}>
-            {parameterTypesMap[parameter.type]}
+            {translateParameterType(parameter.type).toUpperCase()}
           </span>
         </p>
       </div>

@@ -51,7 +51,7 @@ function DaoAddressForm () {
     onSubmit: async (form) => {
       const isDaoExist = await searchDaoAddress(form.address);
       isDaoExist
-        ? history.push(`${form.address}/dashboard`)
+        ? history.push(`${form.address}/`)
         : alert.error(t('WRONG_DAO_ADDRESS'));
     }
   });

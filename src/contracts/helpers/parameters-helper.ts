@@ -1,21 +1,24 @@
 import { filterParameter, getParametersValue, ParameterType } from '@q-dev/gdk-sdk';
-import { ContractRegistryUpgradeVotingInstance } from '@q-dev/q-js-sdk/lib/contracts/governance/ContractRegistryUpgradeVoting';
-import { ContractType } from 'typings/contracts';
 import { ParameterKey } from 'typings/forms';
+import { ParameterValue } from 'typings/parameters';
 
-import { daoInstance, getInstance } from 'contracts/contract-instance';
+import { daoInstance } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
 
 export async function getParameters (
   panelName: string,
-  parameterType: ParameterType
-) {
+  parameterType?: ParameterType
+): Promise<ParameterValue[]> {
   try {
-    if (!daoInstance) return;
+    if (!daoInstance) return [];
+
     const panelParametersInstance = await daoInstance?.getParameterStorageInstance(panelName);
     const panelParameters = await panelParametersInstance.instance.methods.getDAOParameters().call();
-    const filteredParameters = filterParameter(panelParameters, parameterType);
+
+    const filteredParameters = parameterType
+      ? filterParameter(panelParameters, parameterType)
+      : panelParameters;
     const parametersNormalValue = getParametersValue(filteredParameters);
 
     return filteredParameters.map((item: ParameterKey, index: number) => {
@@ -27,9 +30,41 @@ export async function getParameters (
   }
 }
 
-export async function getContractOwner (type: ContractType) {
-  const contract = await getInstance(type)() as ContractRegistryUpgradeVotingInstance;
-  return 'owner' in contract.instance.methods
-    ? contract.instance.methods.owner().call()
-    : '';
+export async function getRegistryContracts (): Promise<ParameterValue[]> {
+  try {
+    if (!daoInstance) return [];
+
+    const { methods } = daoInstance.DAORegistryInstance.instance;
+    const panels = await methods.getPanels().call();
+
+    const contractKeyToMethodMap = {
+      'Permission Manager': methods.getPermissionManager(),
+      'Voting Factory': methods.getVotingFactory(),
+      'Voting Registry': methods.getVotingRegistry(),
+      'DAO Vault': methods.getDAOVault(),
+      ...panels.reduce((acc, panel) => ({
+        ...acc,
+        [`${panel} Voting`]: methods.getDAOVoting(panel),
+        [`${panel} Parameter Storage`]: methods.getDAOParameterStorage(panel),
+        [`${panel} Member Storage`]: methods.getDAOMemberStorage(panel),
+      }), {}),
+    };
+
+    const contractValues: ParameterValue[] = await Promise.all(
+      Object.entries(contractKeyToMethodMap)
+        .map(([name, method]) => method.call()
+          .then((value) => ({
+            name,
+            value,
+            normalValue: value,
+            solidityType: ParameterType.ADDRESS,
+          }))
+        )
+    );
+
+    return contractValues;
+  } catch (error) {
+    captureError(error);
+    return [];
+  }
 }

@@ -1,8 +1,8 @@
-import { ParameterType } from '@q-dev/q-js-sdk/lib/contracts/BaseParametersInstance';
+import { ParameterType } from '@q-dev/gdk-sdk';
 
-export interface ParameterValue {
-  key: string;
-  value: string;
-  type: ParameterType;
-  verifiedName?: string;
+import { ParameterKey } from './forms';
+
+export interface ParameterValue extends ParameterKey {
+  normalValue: string;
+  solidityType: ParameterType;
 }

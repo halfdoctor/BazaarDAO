@@ -7,7 +7,7 @@ import { TokenInfo } from 'store/dao/reducer';
 import { daoInstance } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
-import { toWeiWithDecimals } from 'utils/number';
+import { toWeiWithDecimals } from 'utils/numbers';
 
 const DEFAULT_GAS_PRICE = 50;
 
