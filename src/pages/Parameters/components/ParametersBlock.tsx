@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
-import { Illustration, Spinner } from '@q-dev/q-ui-kit';
+import { Spinner } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 import { ParameterValue } from 'typings/parameters';
+
+import EmptyListViewer from 'components/EmptyListViewer';
 
 import ParametersTable from './ParametersTable';
 
@@ -17,14 +19,6 @@ export const StyledWrapper = styled.div`
     display: flex;
     justify-content: center;
     margin: 24px auto;
-  }
-
-  .parameters-block__stub {
-    padding: 24px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
   }
 `;
 
@@ -57,14 +51,7 @@ function ParametersBlock ({
           </div>
         )
         : errorMsg || !parameters.length
-          ? (
-            <div className="parameters-block__stub">
-              <Illustration type="empty-list" />
-              <p className="text-lg font-semibold">
-                {errorMsg || t('NO_PARAMETERS')}
-              </p>
-            </div>
-          )
+          ? <EmptyListViewer message={errorMsg || t('NO_PARAMETERS')} />
           : <ParametersTable parameters={parameters} />
       }
     </StyledWrapper>

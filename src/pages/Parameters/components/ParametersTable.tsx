@@ -7,6 +7,8 @@ import { ParameterValue } from 'typings/parameters';
 import CopyToClipboard from 'components/CopyToClipboard';
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
 
+import useParameterTypes from 'hooks/useParameterTypes';
+
 export const TableWrapper = styled.div`
   overflow-x: auto;
   
@@ -44,14 +46,7 @@ interface Props {
 
 function ParametersTable ({ parameters }: Props) {
   const { t } = useTranslation();
-  const parameterTypeMap = {
-    [ParameterType.NONE]: t('NONE'),
-    [ParameterType.ADDRESS]: t('ADDRESS'),
-    [ParameterType.UINT256]: t('UINT'),
-    [ParameterType.STRING]: t('STRING'),
-    [ParameterType.BYTES]: t('BYTES'),
-    [ParameterType.BOOL]: t('BOOLEAN'),
-  };
+  const { translateParameterType } = useParameterTypes();
 
   return (
     <TableWrapper>
@@ -83,7 +78,7 @@ function ParametersTable ({ parameters }: Props) {
                 }
               </td>
               <td className="text-md">
-                {parameterTypeMap[item.solidityType] || item.solidityType}
+                {translateParameterType(item.solidityType)}
               </td>
             </tr>
           ))}

@@ -1329,5 +1329,6 @@
   "NO_SITUATIONS_FOUND": "No situations found",
   "PANEL_PARAMETERS": "{{panel}} Parameters",
   "PANEL_PARAMETERS_LOADING_ERROR": "Error while loading {{panel}} parameters",
-  "DAO_CONTRACT_REGISTRY_LOADING_ERROR": "Error while loading DAO contract registry"
+  "DAO_CONTRACT_REGISTRY_LOADING_ERROR": "Error while loading DAO contract registry",
+  "NO_DATA": "No data"
 }
