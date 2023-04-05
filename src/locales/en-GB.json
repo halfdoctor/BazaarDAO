@@ -1089,6 +1089,7 @@
   "VALIDATION_STRING_VALUE": "Invalid string value",
   "VALIDATION_BOOLEAN_VALUE": "Invalid boolean value",
   "VALIDATION_UINT_VALUE": "Invalid uint value",
+  "VALIDATION_NUMBER_VALUE": "Invalid number",
   "constitution.blockSubsidy": "Block subsidy",
   "constitution.blockInterval": "Block interval",
   "constitution.maxNRootNodes": "Maximal number of Root Nodes",
@@ -1267,6 +1268,7 @@
   "CREATE_PROPOSAL_TX": "Proposal create",
   "CAST_OBJECTION_TX": "Cast objection",
   "VOTE_TX": "Vote",
+  "MINT_TX": "Mint Token",
   "VETO_TX": "Veto",
   "EXECUTE_TX": "Execution",
   "RECALL_DECISION_TX": "Recall decision",
@@ -1330,5 +1332,11 @@
   "PANEL_PARAMETERS": "{{panel}} Parameters",
   "PANEL_PARAMETERS_LOADING_ERROR": "Error while loading {{panel}} parameters",
   "DAO_CONTRACT_REGISTRY_LOADING_ERROR": "Error while loading DAO contract registry",
-  "NO_DATA": "No data"
+  "NO_DATA": "No data",
+  "TOTAL_TOKEN_SUPPLY_CAP": "Total token supply cap:",
+  "MINTED_TOKENS": "Minted tokens:",
+  "AVAILABLE_TOKENS_FOR_MINT": "Available for minting:",
+  "MINT": "Mint",
+  "MINT_TOKENS": "Mint Tokens",
+  "MINTED_ALL_TOKEN": "Minted all tokens in the system"
 }

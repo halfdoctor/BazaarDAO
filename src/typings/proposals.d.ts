@@ -59,5 +59,9 @@ export interface ProposalVetoInfo {
   vetoMembersCount: string;
 }
 
+export interface TurnoutDetails {
+  totalVoteValue: string;
+}
+
 export type ProposalBaseInfo = DaoProposal & DaoProposalVotingInfo & UserProposalVotingInfo
-& ProposalVetoGroupInfo & ProposalVetoInfo;
+& ProposalVetoGroupInfo & ProposalVetoInfo & TurnoutDetails;

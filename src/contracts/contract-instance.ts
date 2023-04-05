@@ -1,5 +1,5 @@
 import { MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
-import ERC20 from '@q-dev/gdk-sdk/lib/abi/ERC20Upgradeable.json';
+import QRC20 from '@q-dev/gdk-sdk/lib/abi/QRC20.json';
 import { DAOInstance } from '@q-dev/gdk-sdk/lib/contracts/DAOInstance';
 import { ContractRegistryInstance } from '@q-dev/q-js-sdk';
 import { ContractType, ContractValue } from 'typings/contracts';
@@ -25,7 +25,7 @@ export const getDaoInstance = (address: string) => {
 };
 
 export const getErc20Contract = (address: string) => {
-  return new window.web3.eth.Contract(ERC20 as AbiItem[], address);
+  return new window.web3.eth.Contract(QRC20 as AbiItem[], address);
 };
 
 export function getInstance<T extends ContractType> (

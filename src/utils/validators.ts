@@ -152,3 +152,8 @@ export const futureDate: Validator = val => ({
   isValid: !val || new Date(val.toString()) > new Date(),
   message: i18n.t('VALIDATION_FUTURE_DATE')
 });
+
+export const number: Validator = val => ({
+  isValid: isNumber(Number(val)) && !isNaN(Number(val)),
+  message: i18n.t('VALIDATION_NUMBER_VALUE')
+});

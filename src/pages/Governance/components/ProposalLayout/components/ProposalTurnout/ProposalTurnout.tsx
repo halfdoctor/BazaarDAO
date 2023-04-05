@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { VotingType } from '@q-dev/gdk-sdk';
 import { Icon, Progress } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
@@ -28,6 +29,12 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const totalVotes = useMemo(() => {
     return toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toString();
   }, [proposal]);
+
+  const noVoteValue = useMemo(() => {
+    return proposal.params.votingType.toString() === VotingType.Restricted
+      ? toBigNumber(proposal.totalVoteValue).minus(proposal.vetoMembersCount)
+      : toBigNumber(proposal.totalVoteValue).minus(totalVotes);
+  }, []);
 
   return (
     <StyledProposalTurnout className="block">
@@ -63,10 +70,7 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('DID_NOT_VOTE')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {!proposal.isVetoGroupExists
-                ? formatNumber(toBigNumber(proposal.vetoMembersCount).minus(totalVotes))
-                : '–'
-              }
+              {formatNumber(fromWeiWithDecimals(noVoteValue.toString(), tokenInfo.decimals))}
             </p>
           </div>
         </div>

@@ -11,7 +11,6 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
-import { fromWeiWithDecimals } from 'utils/numbers';
 
 function VotingStats () {
   const { t, i18n } = useTranslation();
@@ -28,7 +27,7 @@ function VotingStats () {
   const statsList = [
     {
       title: t('TOTAL_VOTING_WEIGHT'),
-      value: formatAsset(fromWeiWithDecimals(vaultBalance, tokenInfo.decimals), tokenInfo.symbol),
+      value: formatAsset(vaultBalance, tokenInfo.symbol),
     },
     {
       title: t('VOTING_LOCKING_END'),

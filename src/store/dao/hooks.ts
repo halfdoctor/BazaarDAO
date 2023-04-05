@@ -21,7 +21,9 @@ const Q_TOKEN_INFO: TokenInfo = {
   isNative: true,
   allowance: '',
   address: ETHEREUM_ADDRESS,
-  totalSupply: '1000000000'
+  totalSupply: '1000000000',
+  totalSupplyCap: '1000000000',
+  owner: ''
 };
 
 export function useDaoStore () {
@@ -77,14 +79,18 @@ export function useDaoStore () {
 
   async function getErc20Info (tokenAddress: string) {
     const tokenContract = getErc20Contract(tokenAddress);
-    const [decimals, name, symbol, totalSupply, allowance] = await Promise.all([
+
+    const [decimals, name, symbol, totalSupply, owner, totalSupplyCap, allowance] = await Promise.all([
       tokenContract.methods.decimals().call(),
       tokenContract.methods.name().call(),
       tokenContract.methods.symbol().call(),
       tokenContract.methods.totalSupply().call(),
+      getTokenOwner(tokenContract),
+      getTotalSupplyCap(tokenContract),
       getAllowance(tokenContract),
     ]);
-    return { decimals, name, symbol, totalSupply, isNative: false, allowance } as TokenInfo;
+
+    return { decimals, name, symbol, totalSupply, totalSupplyCap, owner, isNative: false, allowance } as TokenInfo;
   }
 
   async function getAllowance (tokenContract: Contract) {
@@ -103,6 +109,33 @@ export function useDaoStore () {
     });
   }
 
+  // TODO: create separate hook with erc20 info
+  async function getTotalSupplyCap (tokenContract: Contract) {
+    try {
+      const totalSupplyCap = await tokenContract.methods.totalSupplyCap().call();
+      return totalSupplyCap;
+    } catch (error) {
+      return '0';
+    }
+  }
+
+  async function getTokenOwner (tokenContract: Contract) {
+    try {
+      const owner = await tokenContract.methods.owner().call();
+      return owner;
+    } catch (error) {
+      return '';
+    }
+  }
+  async function mintToken (address: string, amount: string) {
+    const { tokenInfo } = getState().dao;
+    if (!tokenInfo) return;
+    const tokenContract = getErc20Contract(tokenInfo.address);
+    return tokenContract.methods.mintTo(address, amount).send({
+      from: getUserAddress()
+    });
+  }
+
   return {
     daoAddress,
     votingToken,
@@ -112,5 +145,6 @@ export function useDaoStore () {
     loadDaoVotingToken: useCallback(loadDaoVotingToken, []),
     loadAllDaoInfo: useCallback(loadAllDaoInfo, []),
     approveToken: useCallback(approveToken, []),
+    mintToken: useCallback(mintToken, []),
   };
 }

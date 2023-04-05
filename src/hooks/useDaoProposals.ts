@@ -89,13 +89,10 @@ export function useDaoProposals () {
   async function getAccountStatuses () {
     try {
       if (!daoInstance) return;
-      const proposalAccountStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
+      const accountGroupStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
         getUserAddress()
       )) as string[];
-      const preparedAccountStatuses = proposalAccountStatuses.map((item) => {
-        return item.split('DAOGroup:')[1];
-      });
-      return { accountGroupStatuses: preparedAccountStatuses };
+      return { accountGroupStatuses };
     } catch (error) {
       captureError(error);
     }
@@ -114,21 +111,38 @@ export function useDaoProposals () {
     }
   }
 
+  async function getProposalTurnoutDetails (proposal: DaoProposal) {
+    try {
+      if (!daoInstance) return;
+
+      const proposalTotalParticipate = await daoInstance.getProposalTotalParticipate(
+        proposal.relatedExpertPanel,
+        Number(proposal.id)
+      );
+
+      return { totalVoteValue: proposalTotalParticipate };
+    } catch (error) {
+      captureError(error);
+    }
+  }
+
   async function getProposalBaseInfo (panelName: string, proposalId: string | number) {
     try {
       const proposal = (await getProposal(panelName, proposalId)) as DaoProposal;
       if (!proposal) return;
-      const [userVotingInfo, userVetoInfo, proposalInfo] = await Promise.all([
+      const [userVotingInfo, userVetoInfo, proposalInfo, totalVoteValue] = await Promise.all([
         getUserVotingStats(proposal),
         getProposalVetoStats(proposal),
-        getProposalVotingDetails(proposal)
+        getProposalVotingDetails(proposal),
+        getProposalTurnoutDetails(proposal)
       ]);
 
       return {
         ...proposal,
         ...userVotingInfo,
         ...userVetoInfo,
-        ...proposalInfo
+        ...proposalInfo,
+        ...totalVoteValue
       } as ProposalBaseInfo;
     } catch (error) {
       captureError(error);
