@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { NewProposalForm } from 'typings/forms';
 import {
   DaoProposal,
@@ -21,6 +20,7 @@ import {
   createParameterSituationProposal
 } from 'contracts/helpers/proposals-helper';
 
+import { PROPOSAL_STATUS } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 export function useDaoProposals () {
@@ -89,13 +89,10 @@ export function useDaoProposals () {
   async function getAccountStatuses () {
     try {
       if (!daoInstance) return;
-      const proposalAccountStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
+      const accountGroupStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
         getUserAddress()
       )) as string[];
-      const preparedAccountStatuses = proposalAccountStatuses.map((item) => {
-        return item.split('DAOGroup:')[1];
-      });
-      return { accountGroupStatuses: preparedAccountStatuses };
+      return accountGroupStatuses;
     } catch (error) {
       captureError(error);
     }
@@ -114,17 +111,32 @@ export function useDaoProposals () {
     }
   }
 
+  async function getProposalTurnoutDetails (proposal: DaoProposal) {
+    try {
+      if (!daoInstance) return;
+      const totalVoteValue = await daoInstance.getProposalTotalParticipate(
+        proposal.relatedExpertPanel,
+        Number(proposal.id)
+      );
+      return totalVoteValue;
+    } catch (error) {
+      captureError(error);
+    }
+  }
+
   async function getProposalBaseInfo (panelName: string, proposalId: string | number) {
     try {
       const proposal = (await getProposal(panelName, proposalId)) as DaoProposal;
       if (!proposal) return;
-      const [userVotingInfo, userVetoInfo, proposalInfo] = await Promise.all([
+      const [userVotingInfo, userVetoInfo, proposalInfo, totalVoteValue] = await Promise.all([
         getUserVotingStats(proposal),
         getProposalVetoStats(proposal),
-        getProposalVotingDetails(proposal)
+        getProposalVotingDetails(proposal),
+        getProposalTurnoutDetails(proposal)
       ]);
 
       return {
+        totalVoteValue,
         ...proposal,
         ...userVotingInfo,
         ...userVetoInfo,
@@ -175,7 +187,7 @@ export function useDaoProposals () {
     const votingInstance = await daoInstance.getVotingInstance(proposal.relatedExpertPanel);
     const userAddress = getUserAddress();
     const promiseStatus = await votingInstance.instance.methods.getProposalStatus(Number(proposal.id)).call();
-    return promiseStatus === ProposalStatus.PASSED && !proposal.executed
+    return promiseStatus === PROPOSAL_STATUS.passed && !proposal.executed
       ? votingInstance.executeProposal(Number(proposal.id), { from: userAddress })
       : undefined;
   }

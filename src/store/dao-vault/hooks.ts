@@ -15,7 +15,7 @@ import {
 
 import { getState, getUserAddress, useAppSelector } from 'store';
 
-import { daoInstance, getErc20Contract, getQVaultInstance, getVotingWeightProxyInstance } from 'contracts/contract-instance';
+import { daoInstance, getErc20Contract } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals } from 'utils/numbers';
@@ -100,22 +100,6 @@ export function useDaoVault () {
     return receipt;
   }
 
-  async function sendToVault ({ address, amount }: {
-    address: string;
-    amount: string;
-  }) {
-    const contract = await getQVaultInstance();
-    const receipt = await contract.transfer(address, toWei(amount));
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-        loadVaultBalance();
-      });
-
-    return receipt;
-  }
-
   async function withdrawFromVault ({ address, amount }: {
     address: string;
     amount: string;
@@ -133,91 +117,6 @@ export function useDaoVault () {
     return receipt;
   }
 
-  async function delegateStake ({ addresses, stakes }: {
-    addresses: string[];
-    stakes: string[];
-  }) {
-    const userAddress = getUserAddress();
-    const contract = await getQVaultInstance();
-    const receipt = await contract.delegateStake(addresses, stakes, { from: userAddress });
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-      });
-
-    return receipt;
-  }
-
-  async function lockAmount ({ address, amount }: {
-    address: string;
-    amount: string;
-  }) {
-    const contract = await getQVaultInstance();
-    const receipt = await contract.lock(toWei(amount), { from: address });
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-        loadVaultBalance();
-      });
-
-    return receipt;
-  }
-
-  async function unlockAmount ({ address, amount }: {
-    address: string;
-    amount: string;
-  }) {
-    const contract = await getQVaultInstance();
-    const receipt = await contract.unlock(toWei(amount), { from: address });
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-        loadVaultBalance();
-      });
-
-    return receipt;
-  }
-
-  async function claimStakeDelegatorReward () {
-    const userAddress = getUserAddress();
-    const contract = await getQVaultInstance();
-    const receipt = await contract.claimStakeDelegatorReward({ from: userAddress });
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-      });
-
-    return receipt;
-  }
-
-  async function announceNewVotingAgent (address: string) {
-    const contract = await getVotingWeightProxyInstance();
-    const receipt = await contract.announceNewVotingAgent(address);
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-      });
-
-    return receipt;
-  }
-
-  async function setNewVotingAgent () {
-    const contract = await getVotingWeightProxyInstance();
-    const receipt = await contract.setNewVotingAgent();
-
-    receipt.promiEvent
-      .once('receipt', () => {
-        loadWalletBalance();
-      });
-
-    return receipt;
-  }
-
   return {
     vaultBalance,
     walletBalance,
@@ -230,13 +129,5 @@ export function useDaoVault () {
     depositToVault: useCallback(depositToVault, []),
     withdrawFromVault: useCallback(withdrawFromVault, []),
     loadWithdrawalAmount: useCallback(loadWithdrawalAmount, []),
-
-    sendToVault: useCallback(sendToVault, []),
-    delegateStake: useCallback(delegateStake, []),
-    lockAmount: useCallback(lockAmount, []),
-    unlockAmount: useCallback(unlockAmount, []),
-    claimStakeDelegatorReward: useCallback(claimStakeDelegatorReward, []),
-    announceNewVotingAgent: useCallback(announceNewVotingAgent, []),
-    setNewVotingAgent: useCallback(setNewVotingAgent, []),
   };
 }

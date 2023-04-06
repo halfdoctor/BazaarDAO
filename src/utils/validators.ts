@@ -1,5 +1,5 @@
 import { getValidatorValue } from '@q-dev/form-hooks';
-import { ParameterType } from '@q-dev/q-js-sdk';
+import { ParameterType } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
 import i18n from 'i18next';
 import { isBoolean } from 'lodash';
@@ -137,7 +137,8 @@ export const parameterType: ValidatorFn<ParameterType> = type => (val, form) => 
         message: i18n.t('VALIDATION_STRING_VALUE')
       };
 
-    case ParameterType.UINT:
+    case ParameterType.BYTES:
+    case ParameterType.UINT256:
       return {
         isValid: !toBigNumber(String(val)).isNaN(),
         message: i18n.t('VALIDATION_UINT_VALUE')
@@ -151,4 +152,9 @@ export const parameterType: ValidatorFn<ParameterType> = type => (val, form) => 
 export const futureDate: Validator = val => ({
   isValid: !val || new Date(val.toString()) > new Date(),
   message: i18n.t('VALIDATION_FUTURE_DATE')
+});
+
+export const number: Validator = val => ({
+  isValid: isNumber(Number(val)) && !isNaN(Number(val)),
+  message: i18n.t('VALIDATION_NUMBER_VALUE')
 });

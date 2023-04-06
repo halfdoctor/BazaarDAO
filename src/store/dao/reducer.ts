@@ -8,6 +8,8 @@ export interface TokenInfo {
   isNative: boolean;
   address: string;
   totalSupply: string;
+  totalSupplyCap: string;
+  owner: string;
 };
 
 interface DAOState {
@@ -26,7 +28,9 @@ const initialState: DAOState = {
     decimals: 0,
     isNative: true,
     allowance: '0',
-    totalSupply: '0'
+    totalSupply: '0',
+    totalSupplyCap: '0',
+    owner: '',
   }
 };
 

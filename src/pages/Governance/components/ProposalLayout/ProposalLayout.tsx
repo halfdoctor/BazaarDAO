@@ -2,7 +2,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -17,12 +16,14 @@ import { ProposalLayoutContainer } from './styles';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
+import { PROPOSAL_STATUS } from 'constants/statuses';
+
 function ProposalLayout ({ proposal }: {
   proposal: ProposalBaseInfo;
 }) {
   const { t } = useTranslation();
   const status = useMemo(() => {
-    return t(statusMap[proposal.votingStatus || ProposalStatus.NONE]);
+    return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
   }, [proposal]);
 
   return (

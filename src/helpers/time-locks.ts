@@ -1,4 +1,5 @@
-import { TimeLockEntry } from '@q-dev/q-js-sdk';
+
+import { TimeLockEntry } from 'typings/dao';
 
 import { TimeLockStatus } from 'constants/statuses';
 import { unixToDate } from 'utils/date';

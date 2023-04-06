@@ -2,11 +2,11 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { isAddress } from 'web3-utils';
-
 import useNetworkConfig from './useNetworkConfig';
 
 import { getMasterDaoRegistryInstance } from 'contracts/contract-instance';
+
+import { isAddress } from 'utils/web3';
 
 function useDao () {
   const { pathname } = useLocation();

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -16,6 +15,7 @@ import VoteForm from './components/VoteForm';
 
 import { useTransaction } from 'store/transaction/hooks';
 
+import { PROPOSAL_STATUS } from 'constants/statuses';
 import { unixToDate } from 'utils/date';
 
 interface Props {
@@ -34,7 +34,7 @@ function ProposalActions ({ proposal, title }: Props) {
     <div style={{ display: 'flex', gap: '8px' }}>
       <ShareButton title={`#${proposal.id} ${title}`} url={window.location.href} />
 
-      {proposal.votingStatus === ProposalStatus.PENDING && (
+      {proposal.votingStatus === PROPOSAL_STATUS.pending && (
         <Button
           style={{ width: '160px' }}
           disabled={proposal.isUserVoted}
@@ -44,7 +44,7 @@ function ProposalActions ({ proposal, title }: Props) {
         </Button>
       )}
 
-      {proposal.votingStatus === ProposalStatus.ACCEPTED && (
+      {proposal.votingStatus === PROPOSAL_STATUS.accepted && (
         <Tooltip
           trigger={
             <Button
@@ -64,7 +64,7 @@ function ProposalActions ({ proposal, title }: Props) {
         </Tooltip>
       )}
 
-      {proposal.votingStatus === ProposalStatus.PASSED && (
+      {proposal.votingStatus === PROPOSAL_STATUS.passed && (
         <Button
           onClick={() => submitTransaction({
             successMessage: t('EXECUTE_TX'),

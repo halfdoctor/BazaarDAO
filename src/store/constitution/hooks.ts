@@ -10,7 +10,7 @@ import { setHash, setLastUpdate } from './reducer';
 
 import { getState, useAppSelector } from 'store';
 
-import { getDaoInstance } from 'contracts/contract-instance';
+import { daoInstance } from 'contracts/contract-instance';
 
 import { CONSTITUTION_HASH_PARAMETER_KEY } from 'constants/constitution';
 import { captureError } from 'utils/errors';
@@ -24,9 +24,7 @@ export function useConstitution () {
 
   async function loadConstitutionHash () {
     try {
-      const { daoAddress } = getState().dao;
-      const daoInstance = getDaoInstance(daoAddress);
-
+      if (!daoInstance) return;
       const parameterStorageInstance = await daoInstance.getParameterStorageInstance(DAO_MAIN_PANEL_NAME);
       const [, hash] = await parameterStorageInstance.instance.methods
         .getDAOParameter(CONSTITUTION_HASH_PARAMETER_KEY).call();

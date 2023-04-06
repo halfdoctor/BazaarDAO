@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useWeb3Context } from 'context/Web3ContextProvider';
 
@@ -15,6 +16,7 @@ import WalletDropdown from './components/WalletDropdown';
 import { StyledHeader } from './styles';
 
 function Header ({ onMenuClick }: { onMenuClick: () => void }) {
+  const { t } = useTranslation();
   const { isConnected } = useWeb3Context();
   const { isDaoPage } = useDao();
 
@@ -34,8 +36,7 @@ function Header ({ onMenuClick }: { onMenuClick: () => void }) {
                   />
 
                   <p className="header__logo-title text-h2">
-                    {/* TODO: translations */}
-                    DAO Dashboard
+                    {t('DAO_DASHBOARD')}
                   </p>
                 </div>
               )}

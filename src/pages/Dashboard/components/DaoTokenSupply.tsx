@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button, Dropdown, Icon } from '@q-dev/q-ui-kit';
-import { formatAsset } from '@q-dev/utils';
+import { Button, Dropdown, Icon, Modal } from '@q-dev/q-ui-kit';
+import { formatNumberCompact } from '@q-dev/utils';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
 
+import MintForm from './components/MintForm';
+
 import { useDaoStore } from 'store/dao/hooks';
+import { useUser } from 'store/user/hooks';
 
 import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals } from 'utils/numbers';
@@ -55,6 +58,9 @@ const StyledWrapper = styled.div`
   }
 
   .dao-token-supply__val {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     margin-top: 4px;
   }
 
@@ -68,7 +74,9 @@ const StyledWrapper = styled.div`
 function DaoTokenSupply () {
   const { t } = useTranslation();
   const { tokenInfo } = useDaoStore();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { address } = useUser();
 
   async function addTokenToWallet () {
     if (!window?.ethereum) return;
@@ -96,18 +104,18 @@ function DaoTokenSupply () {
 
         <Dropdown
           right
-          open={menuOpen}
+          open={isMenuOpen}
           trigger={(
             <Button
               icon
               className="dao-token-supply__menu-btn"
               look="ghost"
-              active={menuOpen}
+              active={isMenuOpen}
             >
               <Icon name="more-vertical" />
             </Button>
           )}
-          onToggle={setMenuOpen}
+          onToggle={setIsMenuOpen}
         >
           <div className="dao-token-supply__menu">
             <button
@@ -121,17 +129,38 @@ function DaoTokenSupply () {
               />
               <span>{t('ADD_TO_WALLET')}</span>
             </button>
+            {tokenInfo.owner === address && (
+              <button
+                className="dao-token-supply__menu-item text-md"
+                onClick={() => setIsModalOpen(true)}
+              >
+                <Icon name="coins" />
+                {t('MINT_TOKENS')}
+              </button>
+            )}
           </div>
         </Dropdown>
       </div>
 
-      <p className="dao-token-supply__val text-xl font-semibold">
-        {formatAsset(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals), tokenInfo.symbol)}
-      </p>
+      <div className="dao-token-supply__val">
+        <p className="text-xl font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals)}>
+          {formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals))}
+        </p>
+        <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+      </div>
+
       <div className="dao-token-supply__contract text-sm">
         <span className="font-light">{t('CONTRACT')}</span>
         <ExplorerAddress short address={tokenInfo.address} />
       </div>
+
+      <Modal
+        open={isModalOpen}
+        title={t('MINT')}
+        onClose={() => setIsModalOpen(false)}
+      >
+        <MintForm onSubmit={() => setIsModalOpen(false)} />
+      </Modal>
     </StyledWrapper>
   );
 }

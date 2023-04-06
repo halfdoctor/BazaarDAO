@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useAlert } from 'react-alert';
 import { useDispatch } from 'react-redux';
 
-import { SubmitTransactionResponse } from '@q-dev/q-js-sdk';
+import { SubmitTransactionResponse } from '@q-dev/gdk-sdk';
 import { t } from 'i18next';
 import uniqueId from 'lodash/uniqueId';
 

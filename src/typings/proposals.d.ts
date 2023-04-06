@@ -1,9 +1,9 @@
-import { ProposalStatus } from '@q-dev/q-js-sdk';
+import { PROPOSAL_STATUS } from 'constants/statuses';
 
 export type VotingType = 'vote' | 'veto';
 
 export interface DaoProposalVotingInfo {
-  votingStatus: ProposalStatus;
+  votingStatus: PROPOSAL_STATUS;
   votingStatus: string;
   requiredQuorum: string;
   currentQuorum: string;
@@ -59,5 +59,9 @@ export interface ProposalVetoInfo {
   vetoMembersCount: string;
 }
 
+export interface TurnoutDetails {
+  totalVoteValue: string;
+}
+
 export type ProposalBaseInfo = DaoProposal & DaoProposalVotingInfo & UserProposalVotingInfo
-& ProposalVetoGroupInfo & ProposalVetoInfo;
+& ProposalVetoGroupInfo & ProposalVetoInfo & TurnoutDetails;
