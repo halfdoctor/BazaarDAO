@@ -20,8 +20,8 @@ function VotingStats () {
   const [voterStatus, setVoterStatus] = useState<string[]>([]);
 
   const loadAccountStatuses = async () => {
-    const response = await getAccountStatuses();
-    setVoterStatus(response?.accountGroupStatuses || []);
+    const accountStatuses = await getAccountStatuses();
+    setVoterStatus(accountStatuses || []);
   };
 
   const statsList = [

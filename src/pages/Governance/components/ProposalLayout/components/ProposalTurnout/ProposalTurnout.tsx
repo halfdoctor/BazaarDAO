@@ -31,10 +31,13 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   }, [proposal]);
 
   const noVoteValue = useMemo(() => {
-    return proposal.params.votingType.toString() === VotingType.Restricted
-      ? toBigNumber(proposal.totalVoteValue).minus(proposal.vetoMembersCount)
-      : toBigNumber(proposal.totalVoteValue).minus(totalVotes);
-  }, []);
+    return toBigNumber(proposal.totalVoteValue)
+      .minus(proposal.params.votingType.toString() === VotingType.Restricted
+        ? proposal.vetoMembersCount
+        : totalVotes
+      )
+      .toString();
+  }, [proposal, totalVotes]);
 
   return (
     <StyledProposalTurnout className="block">
@@ -70,7 +73,7 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('DID_NOT_VOTE')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(fromWeiWithDecimals(noVoteValue.toString(), tokenInfo.decimals))}
+              {formatNumber(fromWeiWithDecimals(noVoteValue, tokenInfo.decimals))}
             </p>
           </div>
         </div>

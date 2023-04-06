@@ -115,6 +115,7 @@ export function useDaoStore () {
       const totalSupplyCap = await tokenContract.methods.totalSupplyCap().call();
       return totalSupplyCap;
     } catch (error) {
+      captureError(error);
       return '0';
     }
   }
@@ -124,6 +125,7 @@ export function useDaoStore () {
       const owner = await tokenContract.methods.owner().call();
       return owner;
     } catch (error) {
+      captureError(error);
       return '';
     }
   }

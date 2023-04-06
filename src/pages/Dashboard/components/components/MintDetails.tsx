@@ -1,4 +1,5 @@
 
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatNumberCompact } from '@q-dev/utils';
@@ -34,41 +35,41 @@ function MintDetails ({ isCanMint, availableMintValue }: Props) {
   const { t } = useTranslation();
   const { tokenInfo } = useDaoStore();
 
+  const mintDetailsList = useMemo(() => [
+    {
+      title: t('TOTAL_TOKEN_SUPPLY_CAP'),
+      amountTitle: fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals),
+      amount: formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals))
+    },
+    {
+      title: t('MINTED_TOKENS'),
+      amountTitle: fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals),
+      amount: formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals))
+    },
+    {
+      title: t('AVAILABLE_TOKENS_FOR_MINT'),
+      amountTitle: availableMintValue,
+      amount: formatNumberCompact(availableMintValue)
+    },
+  ], [availableMintValue, tokenInfo]);
+
   return (
     <MintDetailsWrapper>
-      <div className="mint-details__item">
-        <p className="text-md color-secondary">
-          {t('TOTAL_TOKEN_SUPPLY_CAP')}
-        </p>
-        <div className="mint-details__item-amount">
-          <p className="text-lg font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals)}>
-            {formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals))}
-          </p>
-          <p className="text-lg font-semibold">{tokenInfo.symbol}</p>
-        </div>
-      </div>
-      <div className="mint-details__item">
-        <p className="text-md color-secondary">
-          {t('MINTED_TOKENS')}
-        </p>
-        <div className="mint-details__item-amount">
-          <p className="text-lg font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals)}>
-            {formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals))}
-          </p>
-          <p className="text-lg font-semibold">{tokenInfo.symbol}</p>
-        </div>
-      </div>
-      <div className="mint-details__item">
-        <p className="text-md color-secondary">
-          {t('AVAILABLE_TOKENS_FOR_MINT')}
-        </p>
-        <div className="mint-details__item-amount">
-          <p className="text-lg font-semibold" title={availableMintValue}>
-            {formatNumberCompact(availableMintValue)}
-          </p>
-          <p className="text-lg font-semibold">{tokenInfo.symbol}</p>
-        </div>
-      </div>
+      {
+        mintDetailsList.map((item, index) => (
+          <div key={index} className="mint-details__item">
+            <p className="text-md color-secondary">
+              {item.title}
+            </p>
+            <div className="mint-details__item-amount">
+              <p className="text-lg font-semibold" title={item.amountTitle}>
+                {item.amount}
+              </p>
+              <p className="text-lg font-semibold">{tokenInfo.symbol}</p>
+            </div>
+          </div>
+        ))
+      }
 
       {!isCanMint && (
         <p className="mint-details__minted text-lg font-bold">{t('MINTED_ALL_TOKEN')}</p>

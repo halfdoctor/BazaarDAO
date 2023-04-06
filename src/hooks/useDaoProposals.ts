@@ -92,7 +92,7 @@ export function useDaoProposals () {
       const accountGroupStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
         getUserAddress()
       )) as string[];
-      return { accountGroupStatuses };
+      return accountGroupStatuses;
     } catch (error) {
       captureError(error);
     }
@@ -114,13 +114,11 @@ export function useDaoProposals () {
   async function getProposalTurnoutDetails (proposal: DaoProposal) {
     try {
       if (!daoInstance) return;
-
-      const proposalTotalParticipate = await daoInstance.getProposalTotalParticipate(
+      const totalVoteValue = await daoInstance.getProposalTotalParticipate(
         proposal.relatedExpertPanel,
         Number(proposal.id)
       );
-
-      return { totalVoteValue: proposalTotalParticipate };
+      return totalVoteValue;
     } catch (error) {
       captureError(error);
     }
@@ -138,11 +136,11 @@ export function useDaoProposals () {
       ]);
 
       return {
+        totalVoteValue,
         ...proposal,
         ...userVotingInfo,
         ...userVetoInfo,
-        ...proposalInfo,
-        ...totalVoteValue
+        ...proposalInfo
       } as ProposalBaseInfo;
     } catch (error) {
       captureError(error);

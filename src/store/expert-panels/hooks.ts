@@ -15,7 +15,7 @@ export function useExpertPanels () {
 
   async function loadExpertPanels () {
     try {
-      if (!daoInstance) return [];
+      if (!daoInstance) return;
       const expertPanels = await daoInstance.DAORegistryInstance.instance.methods.getPanels().call();
       dispatch(setPanels(expertPanels));
     } catch (error) {

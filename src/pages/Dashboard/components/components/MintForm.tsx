@@ -45,13 +45,15 @@ function MintForm ({ onSubmit }: Props) {
   const { loadAdditionalInfo } = useWeb3Context();
 
   const maxMintValue = useMemo(() => {
-    return fromWeiWithDecimals(
-      toBigNumber(tokenInfo.totalSupplyCap).minus(tokenInfo.totalSupply).toString(), tokenInfo.decimals);
+    const mintValue = toBigNumber(tokenInfo.totalSupplyCap).minus(tokenInfo.totalSupply);
+    return mintValue.isGreaterThan(0)
+      ? fromWeiWithDecimals(mintValue.toString(), tokenInfo.decimals)
+      : '0';
   }, [tokenInfo]);
 
   const isCanMint = useMemo(() => {
-    return toBigNumber(maxMintValue).isGreaterThan(0);
-  }, [tokenInfo]);
+    return Boolean(+maxMintValue);
+  }, [maxMintValue]);
 
   const form = useForm({
     initialValues: {
