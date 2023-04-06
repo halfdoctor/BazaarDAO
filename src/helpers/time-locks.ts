@@ -1,5 +1,5 @@
 
-import { TimeLockEntry } from 'typings/proposals';
+import { TimeLockEntry } from 'typings/dao';
 
 import { TimeLockStatus } from 'constants/statuses';
 import { unixToDate } from 'utils/date';

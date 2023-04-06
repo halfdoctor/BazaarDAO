@@ -26,7 +26,6 @@ export function useExpertPanels () {
   async function getPanelMembers (panelName: string) {
     try {
       if (!daoInstance) return [];
-
       const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
       return memberStorageInstance.instance.methods.getMembers().call();
     } catch (error) {

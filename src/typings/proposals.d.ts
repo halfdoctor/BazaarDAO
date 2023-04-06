@@ -1,12 +1,4 @@
-import BN from 'bn.js';
-
 import { PROPOSAL_STATUS } from 'constants/statuses';
-
-export interface TimeLockEntry {
-  amount: string;
-  releaseStart: number | string | BN;
-  releaseEnd: number | string | BN;
-}
 
 export type VotingType = 'vote' | 'veto';
 

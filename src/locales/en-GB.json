@@ -1338,5 +1338,6 @@
   "AVAILABLE_TOKENS_FOR_MINT": "Available for minting:",
   "MINT": "Mint",
   "MINT_TOKENS": "Mint Tokens",
-  "MINTED_ALL_TOKEN": "Minted all tokens in the system"
+  "MINTED_ALL_TOKEN": "Minted all tokens in the system",
+  "DAO_DASHBOARD": "DAO Dashboard"
 }
