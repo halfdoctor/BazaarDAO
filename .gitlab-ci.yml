@@ -40,9 +40,9 @@ stages:
 test:
   image: node:lts
   stage: test
-  only:
-    - merge_request
-    - master
+#  only:
+#    - merge_request
+#    - master
   script:
     - yarn config set '//gitlab.com/api/v4/packages/npm/:_authToken' $NPM_TOKEN
     - yarn --frozen-lockfile
@@ -54,8 +54,8 @@ build:
     name: "gcr.io/kaniko-project/executor:v1.3.0-debug"
     entrypoint: [""]
   stage: build
-  only:
-    - master
+#  only:
+#    - master
   tags:
     - "gitlab-org-docker"
   before_script:
@@ -80,8 +80,8 @@ publish-dev:
     name: "gcr.io/go-containerregistry/crane/debug:v0.11.0"
     entrypoint: [""]
   stage: "release"
-  only:
-    - master
+#  only:
+#    - master
   tags:
     - "gitlab-org-docker"
   before_script:
