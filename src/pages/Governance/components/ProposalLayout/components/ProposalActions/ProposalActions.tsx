@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -16,6 +15,7 @@ import VoteForm from './components/VoteForm';
 
 import { useTransaction } from 'store/transaction/hooks';
 
+import { ProposalStatus } from 'constants/statuses';
 import { unixToDate } from 'utils/date';
 
 interface Props {

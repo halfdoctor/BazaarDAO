@@ -2,7 +2,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -16,6 +15,8 @@ import ProposalVoting from './components/ProposalVoting';
 import { ProposalLayoutContainer } from './styles';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
+
+import { ProposalStatus } from 'constants/statuses';
 
 function ProposalLayout ({ proposal }: {
   proposal: ProposalBaseInfo;

@@ -18,3 +18,14 @@ export enum TimeLockStatus {
   unlocking = 'unlocking',
   unlocked = 'unlocked',
 }
+
+export enum ProposalStatus {
+  NONE = '0',
+  PENDING = '1',
+  REJECTED = '2',
+  ACCEPTED = '3',
+  PASSED = '4',
+  EXECUTED = '5',
+  OBSOLETE = '6',
+  EXPIRED = '7'
+}

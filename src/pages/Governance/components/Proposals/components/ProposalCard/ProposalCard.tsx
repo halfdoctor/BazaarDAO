@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { Icon, Progress, Tag, toBigNumber } from '@q-dev/q-ui-kit';
 import { formatPercent } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
@@ -18,6 +17,7 @@ import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
+import { ProposalStatus } from 'constants/statuses';
 import { singlePrecision } from 'utils/web3';
 
 const ProposalCardLink = styled(Link)`

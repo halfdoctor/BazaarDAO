@@ -1,6 +1,6 @@
 import { createContext, FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { BaseContractInstance } from '@q-dev/q-js-sdk/lib/contracts/BaseContractInstance';
+import { BaseContractInstance } from '@q-dev/gdk-sdk/lib/contracts/BaseContractInstance';
 import { useLocalStorage } from '@q-dev/react-hooks';
 import { useWeb3React } from '@web3-react/core';
 import { getWallet, WalletType } from 'connectors';
@@ -13,8 +13,6 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 import { useUser } from 'store/user/hooks';
-
-import { getContractRegistryInstance } from 'contracts/contract-instance';
 
 import { ZERO_ADDRESS } from 'constants/boundaries';
 import {
@@ -164,7 +162,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
         }
         setChainId(isHttpProvider ? selectedChainId : Number(chainId));
       }
-      getContractRegistryInstance();
+
       await loadAdditionalInfo();
       setLoadAppType(LOAD_TYPES.loaded);
 

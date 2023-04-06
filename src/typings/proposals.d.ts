@@ -1,4 +1,12 @@
-import { ProposalStatus } from '@q-dev/q-js-sdk';
+import BN from 'bn.js';
+
+import { ProposalStatus } from 'constants/statuses';
+
+export interface TimeLockEntry {
+  amount: string;
+  releaseStart: number | string | BN;
+  releaseEnd: number | string | BN;
+}
 
 export type VotingType = 'vote' | 'veto';
 

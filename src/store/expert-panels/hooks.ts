@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 
 import { setPanels } from './reducer';
 
-import { getState, useAppSelector } from 'store';
+import { useAppSelector } from 'store';
 
-import { getDaoInstance } from 'contracts/contract-instance';
+import { daoInstance } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
 
@@ -15,8 +15,7 @@ export function useExpertPanels () {
 
   async function loadExpertPanels () {
     try {
-      const { daoAddress } = getState().dao;
-      const daoInstance = getDaoInstance(daoAddress);
+      if (!daoInstance) return [];
       const expertPanels = await daoInstance.DAORegistryInstance.instance.methods.getPanels().call();
       dispatch(setPanels(expertPanels));
     } catch (error) {
@@ -26,12 +25,10 @@ export function useExpertPanels () {
 
   async function getPanelMembers (panelName: string) {
     try {
-      const { daoAddress } = getState().dao;
-      const daoInstance = getDaoInstance(daoAddress);
+      if (!daoInstance) return [];
 
       const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
-      const members = await memberStorageInstance.instance.methods.getMembers().call();
-      return members;
+      return memberStorageInstance.instance.methods.getMembers().call();
     } catch (error) {
       captureError(error);
       return [];

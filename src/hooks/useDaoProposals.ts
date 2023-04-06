@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { NewProposalForm } from 'typings/forms';
 import {
   DaoProposal,
@@ -21,6 +20,7 @@ import {
   createParameterSituationProposal
 } from 'contracts/helpers/proposals-helper';
 
+import { ProposalStatus } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 export function useDaoProposals () {

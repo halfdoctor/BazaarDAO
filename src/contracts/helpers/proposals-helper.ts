@@ -5,11 +5,12 @@ import {
   getParameter,
   ParameterType
 } from '@q-dev/gdk-sdk';
-import { ProposalStatus } from '@q-dev/q-js-sdk';
 import { TagState } from '@q-dev/q-ui-kit/dist/components/Tag';
 import { NewProposalForm } from 'typings/forms';
 
 import { daoInstance } from 'contracts/contract-instance';
+
+import { ProposalStatus } from 'constants/statuses';
 
 export async function createMembershipSituationProposal (form: NewProposalForm) {
   if (!daoInstance) return;
