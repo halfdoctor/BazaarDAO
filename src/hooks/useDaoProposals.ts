@@ -20,7 +20,7 @@ import {
   createParameterSituationProposal
 } from 'contracts/helpers/proposals-helper';
 
-import { ProposalStatus } from 'constants/statuses';
+import { PROPOSAL_STATUS } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 export function useDaoProposals () {
@@ -189,7 +189,7 @@ export function useDaoProposals () {
     const votingInstance = await daoInstance.getVotingInstance(proposal.relatedExpertPanel);
     const userAddress = getUserAddress();
     const promiseStatus = await votingInstance.instance.methods.getProposalStatus(Number(proposal.id)).call();
-    return promiseStatus === ProposalStatus.PASSED && !proposal.executed
+    return promiseStatus === PROPOSAL_STATUS.passed && !proposal.executed
       ? votingInstance.executeProposal(Number(proposal.id), { from: userAddress })
       : undefined;
   }

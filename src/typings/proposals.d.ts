@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 
-import { ProposalStatus } from 'constants/statuses';
+import { PROPOSAL_STATUS } from 'constants/statuses';
 
 export interface TimeLockEntry {
   amount: string;
@@ -11,7 +11,7 @@ export interface TimeLockEntry {
 export type VotingType = 'vote' | 'veto';
 
 export interface DaoProposalVotingInfo {
-  votingStatus: ProposalStatus;
+  votingStatus: PROPOSAL_STATUS;
   votingStatus: string;
   requiredQuorum: string;
   currentQuorum: string;

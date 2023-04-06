@@ -17,7 +17,7 @@ import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
-import { ProposalStatus } from 'constants/statuses';
+import { PROPOSAL_STATUS } from 'constants/statuses';
 import { singlePrecision } from 'utils/web3';
 
 const ProposalCardLink = styled(Link)`
@@ -78,7 +78,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   }, [proposal]);
 
   const status = useMemo(() => {
-    return t(statusMap[proposal.votingStatus || ProposalStatus.NONE]);
+    return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
   }, [proposal]);
 
   const panelNamePosition = useMemo(() => {

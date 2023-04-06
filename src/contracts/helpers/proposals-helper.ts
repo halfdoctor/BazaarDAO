@@ -10,7 +10,7 @@ import { NewProposalForm } from 'typings/forms';
 
 import { daoInstance } from 'contracts/contract-instance';
 
-import { ProposalStatus } from 'constants/statuses';
+import { PROPOSAL_STATUS } from 'constants/statuses';
 
 export async function createMembershipSituationProposal (form: NewProposalForm) {
   if (!daoInstance) return;
@@ -72,23 +72,23 @@ export async function createParameterSituationProposal (form: NewProposalForm) {
 
 export const getStatusState = (status: string): TagState => {
   switch (status) {
-    case ProposalStatus.PENDING:
+    case PROPOSAL_STATUS.pending:
       return 'pending';
-    case ProposalStatus.REJECTED:
-    case ProposalStatus.EXPIRED:
+    case PROPOSAL_STATUS.rejected:
+    case PROPOSAL_STATUS.expired:
       return 'rejected';
     default:
       return 'approved';
   }
 };
 
-export const statusMap: Record<ProposalStatus, string> = {
-  [ProposalStatus.ACCEPTED]: 'STATUS_ACCEPTED',
-  [ProposalStatus.EXECUTED]: 'STATUS_EXECUTED',
-  [ProposalStatus.EXPIRED]: 'STATUS_EXPIRED',
-  [ProposalStatus.NONE]: 'STATUS_NONE',
-  [ProposalStatus.PASSED]: 'STATUS_PASSED',
-  [ProposalStatus.PENDING]: 'STATUS_PENDING',
-  [ProposalStatus.REJECTED]: 'STATUS_REJECTED',
-  [ProposalStatus.OBSOLETE]: 'STATUS_OBSOLETE'
+export const statusMap: Record<PROPOSAL_STATUS, string> = {
+  [PROPOSAL_STATUS.accepted]: 'STATUS_ACCEPTED',
+  [PROPOSAL_STATUS.executed]: 'STATUS_EXECUTED',
+  [PROPOSAL_STATUS.expired]: 'STATUS_EXPIRED',
+  [PROPOSAL_STATUS.none]: 'STATUS_NONE',
+  [PROPOSAL_STATUS.passed]: 'STATUS_PASSED',
+  [PROPOSAL_STATUS.pending]: 'STATUS_PENDING',
+  [PROPOSAL_STATUS.rejected]: 'STATUS_REJECTED',
+  [PROPOSAL_STATUS.obsolete]: 'STATUS_OBSOLETE'
 };

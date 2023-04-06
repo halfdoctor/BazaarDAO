@@ -16,14 +16,14 @@ import { ProposalLayoutContainer } from './styles';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
-import { ProposalStatus } from 'constants/statuses';
+import { PROPOSAL_STATUS } from 'constants/statuses';
 
 function ProposalLayout ({ proposal }: {
   proposal: ProposalBaseInfo;
 }) {
   const { t } = useTranslation();
   const status = useMemo(() => {
-    return t(statusMap[proposal.votingStatus || ProposalStatus.NONE]);
+    return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
   }, [proposal]);
 
   return (
