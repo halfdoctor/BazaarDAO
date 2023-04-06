@@ -51,7 +51,7 @@ function MintDetails ({ isCanMint, availableMintValue }: Props) {
       amountTitle: availableMintValue,
       amount: formatNumberCompact(availableMintValue)
     },
-  ], [availableMintValue, tokenInfo]);
+  ], [availableMintValue, tokenInfo, t]);
 
   return (
     <MintDetailsWrapper>
