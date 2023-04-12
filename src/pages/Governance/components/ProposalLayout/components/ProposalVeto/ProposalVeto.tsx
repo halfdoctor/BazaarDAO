@@ -20,9 +20,8 @@ function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
     return toBigNumber(proposal.vetoMembersCount).minus(proposal.counters.vetoesCount).toNumber();
   }, [proposal]);
 
-  return !proposal.isVetoGroupExists
-    ? null
-    : (
+  return proposal.isVetoGroupExists && Number(proposal.vetoMembersCount)
+    ? (
       <StyledProposalVeto className="block">
         <div className="block__header">
           <h2 className="text-h2">{t('VETO')}</h2>
@@ -73,7 +72,8 @@ function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
           </div>
         </div>
       </StyledProposalVeto>
-    );
+    )
+    : null;
 }
 
 export default ProposalVeto;

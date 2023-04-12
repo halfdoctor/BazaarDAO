@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { setPanels } from './reducer';
 
-import { useAppSelector } from 'store';
+import { getUserAddress, useAppSelector } from 'store';
 
 import { daoInstance } from 'contracts/contract-instance';
 
@@ -34,9 +34,21 @@ export function useExpertPanels () {
     }
   }
 
+  async function checkIsUserMember (panelName: string) {
+    try {
+      if (!daoInstance) return false;
+      const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
+      return memberStorageInstance.instance.methods.isMember(getUserAddress()).call();
+    } catch (error) {
+      captureError(error);
+      return false;
+    }
+  }
+
   return {
     panels,
     loadExpertPanels: useCallback(loadExpertPanels, []),
-    getPanelMembers: useCallback(getPanelMembers, [])
+    getPanelMembers: useCallback(getPanelMembers, []),
+    checkIsUserMember: useCallback(checkIsUserMember, [])
   };
 }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -43,6 +44,7 @@ function DepositForm () {
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
+  const { loadAdditionalInfo } = useWeb3Context();
 
   const [maxAmount, setMaxAmount] = useState('0');
   const [canDeposit, setCanDeposit] = useState(false);
@@ -56,7 +58,10 @@ function DepositForm () {
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
           submitFn: () => depositToVault({ address: address, amount }),
-          onSuccess: () => form.reset(),
+          onSuccess: () => {
+            form.reset();
+            loadAdditionalInfo();
+          },
         });
     }
   });

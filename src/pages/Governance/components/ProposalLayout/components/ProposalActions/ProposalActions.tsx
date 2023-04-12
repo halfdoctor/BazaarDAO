@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
@@ -8,6 +8,7 @@ import Button from 'components/Button';
 import { ShareButton } from 'components/ShareButton';
 
 import { useDaoProposals } from 'hooks/useDaoProposals';
+import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
 
 import useEndTime from '../../hooks/useEndTime';
 
@@ -27,14 +28,26 @@ function ProposalActions ({ proposal, title }: Props) {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
   const { voteForProposal, executeProposal } = useDaoProposals();
+  const { checkIsUserCanVeto, checkIsUserCanVoting } = useProposalActionsInfo();
+  const [isUserCanVoting, setIsUserCanVoting] = useState(false);
+  const [isUserCanVeto, setIsUserCanVeto] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
+
+  const loadData = async () => {
+    setIsUserCanVoting(await checkIsUserCanVoting(proposal.relatedExpertPanel, proposal.relatedVotingSituation));
+    setIsUserCanVeto(await checkIsUserCanVeto(proposal.target));
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [proposal]);
 
   return (
     <div style={{ display: 'flex', gap: '8px' }}>
       <ShareButton title={`#${proposal.id} ${title}`} url={window.location.href} />
 
-      {proposal.votingStatus === PROPOSAL_STATUS.pending && (
+      {proposal.votingStatus === PROPOSAL_STATUS.pending && isUserCanVoting && (
         <Button
           style={{ width: '160px' }}
           disabled={proposal.isUserVoted}
@@ -44,7 +57,7 @@ function ProposalActions ({ proposal, title }: Props) {
         </Button>
       )}
 
-      {proposal.votingStatus === PROPOSAL_STATUS.accepted && (
+      {proposal.votingStatus === PROPOSAL_STATUS.accepted && isUserCanVeto && (
         <Tooltip
           trigger={
             <Button

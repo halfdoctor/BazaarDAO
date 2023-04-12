@@ -63,5 +63,17 @@ export interface TurnoutDetails {
   totalVoteValue: string;
 }
 
+export interface VotingSituationInfo {
+  votingPeriod: string;
+  vetoPeriod: string;
+  proposalExecutionPeriod: string;
+  requiredQuorum: string;
+  requiredMajority: string;
+  requiredVetoQuorum: string;
+  votingType: string;
+  votingTarget: string;
+  votingMinAmount: string;
+}
+
 export type ProposalBaseInfo = DaoProposal & DaoProposalVotingInfo & UserProposalVotingInfo
-& ProposalVetoGroupInfo & ProposalVetoInfo & TurnoutDetails;
+& ProposalVetoGroupInfo & ProposalVetoInfo & TurnoutDetails & VotingSituationInfo;

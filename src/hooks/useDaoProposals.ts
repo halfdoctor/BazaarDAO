@@ -7,6 +7,7 @@ import {
   DaoProposalVotingInfo,
   ProposalBaseInfo,
   ProposalVetoGroupInfo,
+  VotingSituationInfo,
   VotingType
 } from 'typings/proposals';
 
@@ -29,6 +30,18 @@ export function useDaoProposals () {
       if (!daoInstance) return;
       const votingInstance = await daoInstance.getVotingInstance(panelName);
       return votingInstance.instance.methods.getVotingSituations().call();
+    } catch (error) {
+      captureError(error);
+    }
+  }
+
+  async function getPanelSituationInfo (panelName: string, situation: string) {
+    try {
+      if (!daoInstance) return;
+      const votingInstance = await daoInstance.getVotingInstance(panelName);
+      const votingSituationInfo = await votingInstance.instance.methods
+        .getVotingSituationInfo(situation).call();
+      return votingSituationInfo as unknown as VotingSituationInfo; // fix
     } catch (error) {
       captureError(error);
     }
@@ -203,6 +216,7 @@ export function useDaoProposals () {
     getUserVotingStats: useCallback(getUserVotingStats, []),
     getProposalVetoStats: useCallback(getProposalVetoStats, []),
     getProposalBaseInfo: useCallback(getProposalBaseInfo, []),
-    getAccountStatuses: useCallback(getAccountStatuses, [])
+    getAccountStatuses: useCallback(getAccountStatuses, []),
+    getPanelSituationInfo: useCallback(getPanelSituationInfo, [])
   };
 }

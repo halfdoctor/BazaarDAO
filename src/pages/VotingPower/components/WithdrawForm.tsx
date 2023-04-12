@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -37,6 +38,7 @@ function WithdrawForm () {
   const { withdrawFromVault, withdrawalBalance } = useDaoVault();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
+  const { loadAdditionalInfo } = useWeb3Context();
 
   const form = useForm({
     initialValues: { amount: '' },
@@ -45,7 +47,10 @@ function WithdrawForm () {
       submitTransaction({
         successMessage: t('WITHDRAW_FROM_VAULT_TX'),
         submitFn: async () => withdrawFromVault({ amount, address: address }),
-        onSuccess: () => form.reset(),
+        onSuccess: async () => {
+          form.reset();
+          await loadAdditionalInfo();
+        },
       });
     }
   });
