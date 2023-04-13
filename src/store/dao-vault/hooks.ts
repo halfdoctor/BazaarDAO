@@ -65,7 +65,7 @@ export function useDaoVault () {
       const balance = await daoVaultInstance
         .getTimeLockInfo(address || getUserAddress(), votingToken) as TimeLockInfoStruct;
       dispatch(setWithdrawalBalance((fromWeiWithDecimals(balance.withdrawalAmount, tokenInfo.decimals))));
-      dispatch(setLockedBalance(balance.lockedAmount));
+      dispatch(setLockedBalance(fromWeiWithDecimals(balance.lockedAmount, tokenInfo.decimals)));
       dispatch(setVaultTimeLock(balance.unlockTime));
     } catch (error) {
       captureError(error);

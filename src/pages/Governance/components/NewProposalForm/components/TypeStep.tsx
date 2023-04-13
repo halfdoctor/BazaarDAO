@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
@@ -7,6 +7,7 @@ import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
 
 import { FormStep } from 'components/MultiStepForm';
 
+import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
 import useProposalSteps from 'hooks/useProposalSteps';
 
 import { useNewProposalForm } from '../NewProposalForm';
@@ -17,6 +18,8 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
   const { t } = useTranslation();
   const { goNext, onChange } = useNewProposalForm();
   const { proposalSteps } = useProposalSteps();
+  const { checkIsUserCanCreateProposal } = useProposalActionsInfo();
+  const [isUserCanCreateProposal, setIsUserCanCreateProposal] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -42,9 +45,18 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
     });
   }, [situations]);
 
+  const loadPermissions = async () => {
+    const isCanCreateProposal = await checkIsUserCanCreateProposal(panelName, form.values.type);
+    setIsUserCanCreateProposal(isCanCreateProposal);
+  };
+
+  useEffect(() => {
+    loadPermissions();
+  }, [form.values.type, panelName]);
+
   return (
     <FormStep
-      disabled={!form.isValid}
+      disabled={!form.isValid || !isUserCanCreateProposal}
       onNext={form.submit}
     >
       <RadioGroup

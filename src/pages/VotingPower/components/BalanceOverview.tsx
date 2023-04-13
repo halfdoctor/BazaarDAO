@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { media } from '@q-dev/q-ui-kit';
 import { useAnimateNumber, useInterval } from '@q-dev/react-hooks';
-import { unixToDate } from '@q-dev/utils';
+import { formatNumberCompact, unixToDate } from '@q-dev/utils';
 import styled from 'styled-components';
 
 import { useDaoStore } from 'store/dao/hooks';
@@ -49,9 +49,9 @@ function BalanceOverview () {
     loadWithdrawalAmount
   } = useDaoVault();
   const { tokenInfo } = useDaoStore();
-  const userQVBalanceRef = useAnimateNumber(vaultBalance, '');
-  const userLockedBalanceRef = useAnimateNumber(lockedBalance, '');
-  const userAccountBalanceRef = useAnimateNumber(walletBalance, '');
+  const userQVBalanceRef = useAnimateNumber(vaultBalance, '', formatNumberCompact);
+  const userLockedBalanceRef = useAnimateNumber(lockedBalance, '', formatNumberCompact);
+  const userAccountBalanceRef = useAnimateNumber(walletBalance, '', formatNumberCompact);
 
   useEffect(() => {
     loadWalletBalance();
@@ -69,21 +69,33 @@ function BalanceOverview () {
         <div>
           <p className="text-md color-secondary">{t('VOTING_POWER')}</p>
           <div className="balance-overview__params-value-wrapper">
-            <p ref={userQVBalanceRef} className="text-xl font-semibold">0</p>
+            <p
+              ref={userQVBalanceRef}
+              title={vaultBalance}
+              className="text-xl font-semibold"
+            >0</p>
             <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
           </div>
         </div>
         <div>
           <p className="text-md color-secondary">{t('TOKEN_ADDRESS_BALANCE', { token: tokenInfo.symbol })}</p>
           <div className="balance-overview__params-value-wrapper">
-            <p ref={userAccountBalanceRef} className="text-xl font-semibold">0</p>
+            <p
+              ref={userAccountBalanceRef}
+              title={walletBalance}
+              className="text-xl font-semibold"
+            >0</p>
             <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
           </div>
         </div>
         <div>
           <p className="text-md color-secondary">{t('LOCKED_TOKENS', { symbol: tokenInfo.symbol })}</p>
           <div className="balance-overview__params-value-wrapper">
-            <p ref={userLockedBalanceRef} className="text-xl font-semibold">0</p>
+            <p
+              ref={userLockedBalanceRef}
+              title={lockedBalance}
+              className="text-xl font-semibold"
+            >0</p>
             <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
           </div>
         </div>

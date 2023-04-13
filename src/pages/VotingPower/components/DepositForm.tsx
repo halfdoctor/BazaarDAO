@@ -38,7 +38,7 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault } = useDaoVault();
+  const { walletBalance, depositToVault, loadAllBalances } = useDaoVault();
   const { submitTransaction } = useTransaction();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
@@ -56,7 +56,10 @@ function DepositForm () {
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
           submitFn: () => depositToVault({ address: address, amount }),
-          onSuccess: () => form.reset(),
+          onSuccess: () => {
+            form.reset();
+            loadAllBalances();
+          },
         });
     }
   });

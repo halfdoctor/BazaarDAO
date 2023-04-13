@@ -34,7 +34,7 @@ const StyledForm = styled.form`
 function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { withdrawFromVault, withdrawalBalance } = useDaoVault();
+  const { withdrawFromVault, withdrawalBalance, loadAllBalances } = useDaoVault();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
 
@@ -45,7 +45,10 @@ function WithdrawForm () {
       submitTransaction({
         successMessage: t('WITHDRAW_FROM_VAULT_TX'),
         submitFn: async () => withdrawFromVault({ amount, address: address }),
-        onSuccess: () => form.reset(),
+        onSuccess: async () => {
+          form.reset();
+          await loadAllBalances();
+        },
       });
     }
   });

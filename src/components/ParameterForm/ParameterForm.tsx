@@ -78,15 +78,6 @@ function ParameterForm ({
 
   return (
     <ParameterFormContainer>
-      <Select
-        {...form.fields.key}
-        combobox
-        label={t('PARAMETER_KEY')}
-        placeholder={t('KEY')}
-        options={keys.map((key) => ({ label: key.name, value: key.name }))}
-        disabled={disabled}
-      />
-
       <RadioGroup
         {...form.fields.type}
         label={t('PARAMETER_TYPE')}
@@ -99,6 +90,15 @@ function ParameterForm ({
           { value: ParameterType.BYTES, label: t('BYTES') },
           { value: ParameterType.BOOL, label: t('BOOLEAN') },
         ]}
+      />
+
+      <Select
+        {...form.fields.key}
+        combobox
+        label={t('PARAMETER_KEY')}
+        placeholder={t('KEY')}
+        options={keys.map((key) => ({ label: key.name, value: key.name }))}
+        disabled={disabled}
       />
 
       {currentValue && (

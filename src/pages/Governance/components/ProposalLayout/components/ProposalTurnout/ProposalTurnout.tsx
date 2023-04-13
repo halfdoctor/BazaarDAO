@@ -26,6 +26,10 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
         .toNumber(), 0).toString();
   }, [proposal]);
 
+  const isRestrictedVote = useMemo(() => {
+    return proposal.params.votingType.toString() === VotingType.Restricted;
+  }, [proposal]);
+
   const totalVotes = useMemo(() => {
     return toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toString();
   }, [proposal]);
@@ -66,14 +70,14 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('VOTED')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(fromWeiWithDecimals(totalVotes, tokenInfo.decimals))}
+              {formatNumber(isRestrictedVote ? totalVotes : fromWeiWithDecimals(totalVotes, tokenInfo.decimals))}
             </p>
           </div>
 
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('DID_NOT_VOTE')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(fromWeiWithDecimals(noVoteValue, tokenInfo.decimals))}
+              {formatNumber(isRestrictedVote ? noVoteValue : fromWeiWithDecimals(noVoteValue, tokenInfo.decimals))}
             </p>
           </div>
         </div>

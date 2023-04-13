@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { VotingType } from '@q-dev/gdk-sdk';
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber, unixToDate } from '@q-dev/utils';
 import { useTheme } from 'styled-components';
@@ -19,8 +20,11 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { tokenInfo } = useDaoStore();
-
   const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
+
+  const isRestrictedVote = useMemo(() => {
+    return proposal.params.votingType.toString() === VotingType.Restricted;
+  }, [proposal]);
 
   const totalVotes = useMemo(() => {
     return toBigNumber(
@@ -69,7 +73,9 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
               {formatPercent(toBigNumber(proposal.counters.votedFor).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(fromWeiWithDecimals(proposal.counters.votedFor, tokenInfo.decimals))}
+              {formatNumber(isRestrictedVote
+                ? proposal.counters.votedFor
+                : fromWeiWithDecimals(proposal.counters.votedFor, tokenInfo.decimals))}
             </p>
           </div>
 
@@ -85,7 +91,9 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
               {formatPercent(toBigNumber(proposal.counters.votedAgainst).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatNumber(fromWeiWithDecimals(proposal.counters.votedAgainst, tokenInfo.decimals))}
+              {formatNumber(isRestrictedVote
+                ? proposal.counters.votedAgainst
+                : fromWeiWithDecimals(proposal.counters.votedAgainst, tokenInfo.decimals))}
             </p>
           </div>
         </div>

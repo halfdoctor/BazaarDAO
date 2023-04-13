@@ -34,16 +34,6 @@ function GeneralSituationStep () {
       value: 'raise-topic',
       label: t('RAISE_SOME_TOPIC')
     },
-    {
-      value: 'create-voting',
-      label: t('CREATE_VOTING_SITUATION'),
-      disabled: true,
-    },
-    {
-      value: 'remove-voting',
-      label: t('REMOVE_VOTING_SITUATION'),
-      disabled: true,
-    },
   ];
 
   return (

@@ -37,6 +37,6 @@ export function useExpertPanels () {
   return {
     panels,
     loadExpertPanels: useCallback(loadExpertPanels, []),
-    getPanelMembers: useCallback(getPanelMembers, [])
+    getPanelMembers: useCallback(getPanelMembers, []),
   };
 }

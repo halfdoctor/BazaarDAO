@@ -144,7 +144,7 @@ function DaoTokenSupply () {
 
       <div className="dao-token-supply__val">
         <p className="text-xl font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals)}>
-          {formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals))}
+          {formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals))}
         </p>
         <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
       </div>
