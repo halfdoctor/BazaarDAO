@@ -45,12 +45,13 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
     });
   }, [situations]);
 
-  const loadData = async () => {
-    setIsUserCanCreateProposal(await checkIsUserCanCreateProposal(panelName, form.values.type));
+  const loadPermissions = async () => {
+    const isCanCreateProposal = await checkIsUserCanCreateProposal(panelName, form.values.type);
+    setIsUserCanCreateProposal(isCanCreateProposal);
   };
 
   useEffect(() => {
-    loadData();
+    loadPermissions();
   }, [form.values.type, situations, panelName]);
 
   return (

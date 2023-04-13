@@ -8,7 +8,6 @@ import { useDaoProposals } from './useDaoProposals';
 
 import { getUserAddress } from 'store';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 
@@ -17,8 +16,17 @@ import { captureError } from 'utils/errors';
 function useProposalActionsInfo () {
   const { vaultBalance } = useDaoVault();
   const { getPanelSituationInfo } = useDaoProposals();
-  const { checkIsUserMember } = useExpertPanels();
 
+  async function checkIsUserMember (panelName: string) {
+    try {
+      if (!daoInstance) return false;
+      const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
+      return memberStorageInstance.instance.methods.isMember(getUserAddress()).call();
+    } catch (error) {
+      captureError(error);
+      return false;
+    }
+  }
   async function checkIsUserCanVeto (target: string) {
     try {
       if (!daoInstance) return false;
@@ -31,7 +39,7 @@ function useProposalActionsInfo () {
       return false;
     }
   }
-  const checkIsUserCanCreateProposal = async (panelName: string, situation: string) => {
+  async function checkIsUserCanCreateProposal (panelName: string, situation: string) {
     try {
       const situationInfo = await getPanelSituationInfo(panelName, situation);
       if (!situationInfo) return false;
@@ -45,7 +53,7 @@ function useProposalActionsInfo () {
     }
   };
 
-  const checkIsUserCanVoting = async (panelName: string, situation: string) => {
+  async function checkIsUserCanVoting (panelName: string, situation: string) {
     try {
       const situationInfo = await getPanelSituationInfo(panelName, situation);
       if (!situationInfo) return false;
@@ -63,6 +71,7 @@ function useProposalActionsInfo () {
     checkIsUserCanVeto: useCallback(checkIsUserCanVeto, []),
     checkIsUserCanCreateProposal: useCallback(checkIsUserCanCreateProposal, []),
     checkIsUserCanVoting: useCallback(checkIsUserCanVoting, []),
+    checkIsUserMember: useCallback(checkIsUserMember, [])
   };
 }
 

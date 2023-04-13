@@ -34,13 +34,16 @@ function ProposalActions ({ proposal, title }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
 
-  const loadData = async () => {
-    setIsUserCanVoting(await checkIsUserCanVoting(proposal.relatedExpertPanel, proposal.relatedVotingSituation));
-    setIsUserCanVeto(await checkIsUserCanVeto(proposal.target));
+  const loadPermissions = async () => {
+    const [isCanVoting, isCanVeto] = await Promise.all([
+      checkIsUserCanVoting(proposal.relatedExpertPanel, proposal.relatedVotingSituation),
+      checkIsUserCanVeto(proposal.target)]);
+    setIsUserCanVoting(isCanVoting);
+    setIsUserCanVeto(isCanVeto);
   };
 
   useEffect(() => {
-    loadData();
+    loadPermissions();
   }, [proposal]);
 
   return (

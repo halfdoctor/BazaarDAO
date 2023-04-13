@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -35,10 +34,9 @@ const StyledForm = styled.form`
 function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { withdrawFromVault, withdrawalBalance } = useDaoVault();
+  const { withdrawFromVault, withdrawalBalance, loadAllBalances } = useDaoVault();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
-  const { loadAdditionalInfo } = useWeb3Context();
 
   const form = useForm({
     initialValues: { amount: '' },
@@ -49,7 +47,7 @@ function WithdrawForm () {
         submitFn: async () => withdrawFromVault({ amount, address: address }),
         onSuccess: async () => {
           form.reset();
-          await loadAdditionalInfo();
+          await loadAllBalances();
         },
       });
     }

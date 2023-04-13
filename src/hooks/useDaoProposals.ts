@@ -41,7 +41,7 @@ export function useDaoProposals () {
       const votingInstance = await daoInstance.getVotingInstance(panelName);
       const votingSituationInfo = await votingInstance.instance.methods
         .getVotingSituationInfo(situation).call();
-      return votingSituationInfo as unknown as VotingSituationInfo; // fix
+      return votingSituationInfo as unknown as VotingSituationInfo; // TODO: remove unknown type
     } catch (error) {
       captureError(error);
     }

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -39,12 +38,11 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault } = useDaoVault();
+  const { walletBalance, depositToVault, loadAllBalances } = useDaoVault();
   const { submitTransaction } = useTransaction();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
-  const { loadAdditionalInfo } = useWeb3Context();
 
   const [maxAmount, setMaxAmount] = useState('0');
   const [canDeposit, setCanDeposit] = useState(false);
@@ -60,7 +58,7 @@ function DepositForm () {
           submitFn: () => depositToVault({ address: address, amount }),
           onSuccess: () => {
             form.reset();
-            loadAdditionalInfo();
+            loadAllBalances();
           },
         });
     }
