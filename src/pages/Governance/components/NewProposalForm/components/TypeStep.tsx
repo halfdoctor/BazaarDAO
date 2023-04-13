@@ -52,7 +52,7 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
 
   useEffect(() => {
     loadPermissions();
-  }, [form.values.type, situations, panelName]);
+  }, [form.values.type, panelName]);
 
   return (
     <FormStep

@@ -37,7 +37,8 @@ function ProposalActions ({ proposal, title }: Props) {
   const loadPermissions = async () => {
     const [isCanVoting, isCanVeto] = await Promise.all([
       checkIsUserCanVoting(proposal.relatedExpertPanel, proposal.relatedVotingSituation),
-      checkIsUserCanVeto(proposal.target)]);
+      checkIsUserCanVeto(proposal.target)
+    ]);
     setIsUserCanVoting(isCanVoting);
     setIsUserCanVeto(isCanVeto);
   };
