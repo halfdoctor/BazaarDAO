@@ -67,6 +67,7 @@
   "START_DATE": "Start Date",
   "END_DATE": "End Date",
   "AMOUNT": "Amount",
+  "NFT_ID": "NFT ID",
   "SAVING_ASSET": "Saving asset",
   "INTEREST_RATE": "Interest rate (p.a.)",
   "VAULT_ID": "Vault ID",
@@ -1090,6 +1091,7 @@
   "VALIDATION_BOOLEAN_VALUE": "Invalid boolean value",
   "VALIDATION_UINT_VALUE": "Invalid uint value",
   "VALIDATION_NUMBER_VALUE": "Invalid number",
+  "VALIDATION_INTEGER_NUMBER_VALUE": "Invalid integer number",
   "constitution.blockSubsidy": "Block subsidy",
   "constitution.blockInterval": "Block interval",
   "constitution.maxNRootNodes": "Maximal number of Root Nodes",
@@ -1339,5 +1341,9 @@
   "MINT": "Mint",
   "MINT_TOKENS": "Mint Tokens",
   "MINTED_ALL_TOKEN": "Minted all tokens in the system",
-  "DAO_DASHBOARD": "DAO Dashboard"
+  "DAO_DASHBOARD": "DAO Dashboard",
+  "TOKEN_URI": "Token URI",
+  "TOKEN_URI_PLACEHOLDER": "Input Token URI",
+  "NEW_NFT_ID": "New NFT ID",
+  "NEW_NFT_ID_PLACEHOLDER": "Input integer ID"
 }

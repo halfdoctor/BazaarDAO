@@ -2,30 +2,34 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
+import { fillArray } from '@q-dev/utils';
 import { TimeLockInfoStruct } from 'typings/dao';
-import { toWei } from 'web3-utils';
 
 import {
   setLockedBalance,
   setVaultBalance,
   setVaultTimeLock,
   setWalletBalance,
-  setWithdrawalBalance
+  setWalletNftsList,
+  setWithdrawalBalance,
+  setWithdrawalNftsList
 } from './reducer';
 
 import { getState, getUserAddress, useAppSelector } from 'store';
 
-import { daoInstance, getErc20Contract } from 'contracts/contract-instance';
+import { daoInstance, getErc20Contract, getErc721Contract } from 'contracts/contract-instance';
 
 import { captureError } from 'utils/errors';
-import { fromWeiWithDecimals } from 'utils/numbers';
+import { fromWeiWithDecimals, toWeiWithDecimals } from 'utils/numbers';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
   const vaultBalance = useAppSelector(({ qVault }) => qVault.vaultBalance);
   const walletBalance = useAppSelector(({ qVault }) => qVault.walletBalance);
+  const walletNftsList = useAppSelector(({ qVault }) => qVault.walletNftsList);
   const lockedBalance = useAppSelector(({ qVault }) => qVault.lockedBalance);
   const withdrawalBalance = useAppSelector(({ qVault }) => qVault.withdrawalBalance);
+  const withdrawalNftsList = useAppSelector(({ qVault }) => qVault.withdrawalNftsList);
   const vaultTimeLock = useAppSelector(({ qVault }) => qVault.vaultTimeLock);
 
   async function loadWalletBalance () {
@@ -34,11 +38,14 @@ export function useDaoVault () {
       const balance = tokenInfo.address
         ? tokenInfo.address === ETHEREUM_ADDRESS
           ? await window.web3.eth.getBalance(getUserAddress())
-          : await getErc20Contract(tokenInfo.address).methods.balanceOf(getUserAddress()).call()
+          : tokenInfo.isErc721
+            ? await getErc721Contract(tokenInfo.address).methods.balanceOf(getUserAddress()).call()
+            : await getErc20Contract(tokenInfo.address).methods.balanceOf(getUserAddress()).call()
         : '0';
       dispatch(setWalletBalance(fromWeiWithDecimals(balance, tokenInfo.decimals)));
     } catch (error) {
       captureError(error);
+      dispatch(setWalletBalance('0'));
     }
   }
 
@@ -47,9 +54,12 @@ export function useDaoVault () {
       const { votingToken, tokenInfo } = getState().dao;
       if (!daoInstance || !votingToken) return;
       const daoVaultInstance = await daoInstance.getVaultInstance();
-      const balance = await daoVaultInstance.instance.methods
-        .userTokenBalance(address || getUserAddress(), votingToken)
-        .call();
+      const balance = tokenInfo.isErc721
+        ? await daoVaultInstance.instance.methods.getUserVotingPower(address || getUserAddress(), votingToken)
+          .call()
+        : await daoVaultInstance.instance.methods
+          .userTokenBalance(address || getUserAddress(), votingToken)
+          .call();
       dispatch(setVaultBalance(fromWeiWithDecimals(balance, tokenInfo.decimals)));
     } catch (error) {
       captureError(error);
@@ -65,8 +75,36 @@ export function useDaoVault () {
       const balance = await daoVaultInstance
         .getTimeLockInfo(address || getUserAddress(), votingToken) as TimeLockInfoStruct;
       dispatch(setWithdrawalBalance((fromWeiWithDecimals(balance.withdrawalAmount, tokenInfo.decimals))));
-      dispatch(setLockedBalance(fromWeiWithDecimals(balance.lockedAmount, tokenInfo.decimals)));
+      dispatch(setLockedBalance(tokenInfo.isErc721 && Number(balance.unlockTime)
+        ? '1'
+        : fromWeiWithDecimals(balance.lockedAmount, tokenInfo.decimals)));
       dispatch(setVaultTimeLock(balance.unlockTime));
+    } catch (error) {
+      captureError(error);
+    }
+  }
+
+  async function loadVaultNftsList (address?: string) {
+    try {
+      const { tokenInfo } = getState().dao;
+      if (!daoInstance || !tokenInfo.address || !tokenInfo.isErc721) return;
+      const daoVaultInstance = await daoInstance.getVaultInstance();
+      const withdrawalNftsList = await daoVaultInstance.instance.methods
+        .getUserNFTs(address || getUserAddress(), tokenInfo.address).call();
+      dispatch(setWithdrawalNftsList(withdrawalNftsList));
+    } catch (error) {
+      captureError(error);
+    }
+  }
+  async function loadWalletNftsList (address?: string) {
+    try {
+      const { tokenInfo } = getState().dao;
+      const { walletBalance } = getState().qVault;
+      if (!daoInstance || !tokenInfo.address || !tokenInfo.isErc721) return;
+      const tokenContract = getErc721Contract(tokenInfo.address);
+      const walletNftsList = await Promise.all(fillArray(Number(walletBalance))
+        .map(item => tokenContract.methods.tokenOfOwnerByIndex(address || getUserAddress(), item).call()));
+      dispatch(setWalletNftsList(walletNftsList));
     } catch (error) {
       captureError(error);
     }
@@ -78,18 +116,37 @@ export function useDaoVault () {
         loadWalletBalance(),
         loadVaultBalance(),
         loadWithdrawalAmount(),
+        loadVaultNftsList(),
+        loadWalletNftsList()
       ]);
     } catch (error) {
       captureError(error);
     }
   }
 
-  async function depositToVault ({ address, amount }: { address: string; amount: string }) {
+  async function depositToVault ({ address, amount, erc721Id }: {
+    address: string;
+    amount?: string;
+    erc721Id?: string; }) {
     if (!daoInstance) return;
     const { tokenInfo } = getState().dao;
     const daoVaultInstance = await daoInstance.getVaultInstance();
-    const receipt = await daoVaultInstance.deposit(tokenInfo.address, toWei(amount),
-      { from: address, ...(tokenInfo.isNative ? { value: toWei(amount) } : {}) });
+    const receipt = tokenInfo.isErc721 && erc721Id
+      ? await daoVaultInstance.depositNFT(
+        tokenInfo.address,
+        erc721Id,
+        { from: address }
+      )
+      : await daoVaultInstance.deposit(
+        tokenInfo.address,
+        toWeiWithDecimals(amount || '0', tokenInfo.decimals),
+        {
+          from: address,
+          ...(tokenInfo.isNative
+            ? { value: toWeiWithDecimals(amount || '0', tokenInfo.decimals), }
+            : {})
+        }
+      );
 
     receipt.promiEvent
       .once('receipt', () => {
@@ -100,14 +157,22 @@ export function useDaoVault () {
     return receipt;
   }
 
-  async function withdrawFromVault ({ address, amount }: {
+  async function withdrawFromVault ({ address, amount, erc721Id }: {
     address: string;
-    amount: string;
+    amount?: string;
+    erc721Id?: string;
   }) {
     if (!daoInstance) return;
-    const { votingToken } = getState().dao;
+    const { votingToken, tokenInfo } = getState().dao;
     const daoVaultInstance = await daoInstance.getVaultInstance();
-    const receipt = await daoVaultInstance.withdraw(votingToken, toWei(amount), { from: address });
+    const receipt = tokenInfo.isErc721 && erc721Id
+      ? await daoVaultInstance.withdrawNFT(votingToken, erc721Id, { from: address })
+      : await daoVaultInstance.withdraw(
+        votingToken,
+        toWeiWithDecimals(amount || '0', tokenInfo.decimals),
+        { from: address }
+      );
+
     receipt.promiEvent
       .once('receipt', () => {
         loadWalletBalance();
@@ -123,11 +188,15 @@ export function useDaoVault () {
     vaultTimeLock,
     lockedBalance,
     withdrawalBalance,
+    walletNftsList,
+    withdrawalNftsList,
+
     loadWalletBalance: useCallback(loadWalletBalance, []),
     loadVaultBalance: useCallback(loadVaultBalance, []),
     loadAllBalances: useCallback(loadAllBalances, []),
     depositToVault: useCallback(depositToVault, []),
     withdrawFromVault: useCallback(withdrawFromVault, []),
+    loadVaultNftsList: useCallback(loadVaultNftsList, []),
     loadWithdrawalAmount: useCallback(loadWithdrawalAmount, []),
   };
 }

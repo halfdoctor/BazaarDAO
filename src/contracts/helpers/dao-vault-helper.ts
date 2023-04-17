@@ -1,5 +1,5 @@
 import { toBigNumber } from '@q-dev/utils';
-import { fromWei, toWei } from 'web3-utils';
+import { fromWei } from 'web3-utils';
 
 import { getUserAddress } from 'store';
 import { TokenInfo } from 'store/dao/reducer';
@@ -13,14 +13,51 @@ const DEFAULT_GAS_PRICE = 50;
 
 export async function getDAOVaultDepositAmount (amount: string, balance: string, token: TokenInfo) {
   try {
-    if (!daoInstance) {
-      return { balance: '0', canDeposit: false }; ;
+    if (token.isNative) {
+      return getSpendAmountForNativeToken(amount, balance, token.address);
     }
-    const userAddress = getUserAddress();
-    const balanceInWei = toWeiWithDecimals(balance, token.decimals);
-    const amountInWei = toWeiWithDecimals(amount, token.decimals);
-    const qBalance = await window.web3.eth.getBalance(userAddress);
+
+    if (token.isErc721) {
+      return getSpendAmountForErc721(amount, balance, token);
+    }
+
+    return getSpendAmountForErc20(amount, balance, token);
+  } catch (error) {
+    captureError(error);
+    return { balance: '0', canDeposit: false }; ;
+  }
+}
+
+export async function getSpendAmountForErc721 (amount: string, balance: string, token: TokenInfo) {
+  try {
+    if (!daoInstance) {
+      return { balance: '0', canDeposit: false };
+    }
     const daoVaultInstance = await daoInstance.getVaultInstance();
+    const qBalance = await window.web3.eth.getBalance(getUserAddress());
+    if (!token.isErc721Approved || !amount) return { balance, canDeposit: true };
+    const gasLimit = await daoVaultInstance.instance.methods
+      .depositNFT(token.address, amount)
+      .estimateGas({ from: getUserAddress() });
+
+    return {
+      balance,
+      canDeposit: checkIsCanDeposit(qBalance, gasLimit)
+    };
+  } catch (error) {
+    captureError(error);
+    return { balance: '0', canDeposit: false }; ;
+  }
+}
+
+export async function getSpendAmountForErc20 (amount: string, balance: string, token: TokenInfo) {
+  try {
+    if (!daoInstance) {
+      return { balance: '0', canDeposit: false };
+    }
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    const amountInWei = toWeiWithDecimals(amount, token.decimals);
+    const qBalance = await window.web3.eth.getBalance(getUserAddress());
 
     if (
       toBigNumber(token.allowance).isLessThanOrEqualTo(0) ||
@@ -30,17 +67,41 @@ export async function getDAOVaultDepositAmount (amount: string, balance: string,
 
     const gasLimit = await daoVaultInstance.instance.methods
       .deposit(token.address, amountInWei)
-      .estimateGas({ ...(token.isNative ? { value: amountInWei } : {}), from: userAddress });
+      .estimateGas({ from: getUserAddress() });
 
-    const gas = fromWei(toBigNumber(gasLimit).multipliedBy(DEFAULT_GAS_PRICE).toString(), 'gwei');
-
-    const result = token.isNative
-      ? toBigNumber(balanceInWei).minus(toWei(gas)).toString(10)
-      : toBigNumber(balanceInWei).toString(10);
-
-    return { balance: fromWei(result), canDeposit: toBigNumber(qBalance).comparedTo(toWei(gas)) === 1 };
+    return {
+      balance,
+      canDeposit: checkIsCanDeposit(qBalance, gasLimit)
+    };
   } catch (error) {
     captureError(error);
     return { balance: '0', canDeposit: false }; ;
   }
+}
+
+export async function getSpendAmountForNativeToken (amount: string, balance: string, address: string) {
+  try {
+    if (!daoInstance) { return { balance: '0', canDeposit: false }; }
+
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    const amountInWei = fromWei(amount);
+
+    const gasLimit = await daoVaultInstance.instance.methods
+      .deposit(address, amountInWei)
+      .estimateGas({ value: amountInWei, from: getUserAddress() });
+
+    const gas = toBigNumber(gasLimit).multipliedBy(DEFAULT_GAS_PRICE);
+
+    return {
+      balance: fromWei(toBigNumber(balance).minus(gas).toString()),
+      canDeposit: checkIsCanDeposit(balance, gasLimit)
+    };
+  } catch (error) {
+    captureError(error);
+    return { balance: '0', canDeposit: false };
+  }
+}
+
+export function checkIsCanDeposit (balance: string, gasLimit: number) {
+  return toBigNumber(balance).isGreaterThan(toBigNumber(gasLimit).multipliedBy(DEFAULT_GAS_PRICE));
 }

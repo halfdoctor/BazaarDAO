@@ -158,3 +158,8 @@ export const number: Validator = val => ({
   isValid: isNumber(Number(val)) && !isNaN(Number(val)),
   message: i18n.t('VALIDATION_NUMBER_VALUE')
 });
+
+export const integer: Validator = val => ({
+  isValid: Number.isInteger(Number(val)),
+  message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
+});
