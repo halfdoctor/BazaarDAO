@@ -2,8 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface QVaultState {
   walletBalance: string;
+  walletNftsList: string[];
   vaultBalance: string;
   withdrawalBalance: string;
+  withdrawalNftsList: string[];
   lockedBalance: string;
   deposit: number;
   vaultTimeLock: string;
@@ -11,9 +13,11 @@ interface QVaultState {
 
 const initialState: QVaultState = {
   walletBalance: '0',
+  walletNftsList: [],
   vaultBalance: '0',
   deposit: 0,
   withdrawalBalance: '0',
+  withdrawalNftsList: [],
   lockedBalance: '0',
   vaultTimeLock: '0',
 };
@@ -38,6 +42,14 @@ const qVaultSlice = createSlice({
       state.withdrawalBalance = payload;
     },
 
+    setWithdrawalNftsList (state, { payload }: PayloadAction<string[]>) {
+      state.withdrawalNftsList = payload;
+    },
+
+    setWalletNftsList (state, { payload }: PayloadAction<string[]>) {
+      state.walletNftsList = payload;
+    },
+
     setLockedBalance (state, { payload }: PayloadAction<string>) {
       state.lockedBalance = payload;
     },
@@ -49,6 +61,8 @@ export const {
   setWalletBalance,
   setVaultTimeLock,
   setWithdrawalBalance,
-  setLockedBalance
+  setWithdrawalNftsList,
+  setLockedBalance,
+  setWalletNftsList
 } = qVaultSlice.actions;
 export default qVaultSlice.reducer;

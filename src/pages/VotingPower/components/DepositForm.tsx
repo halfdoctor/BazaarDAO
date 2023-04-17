@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
-import { media } from '@q-dev/q-ui-kit';
+import { media, Select } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
 import styled from 'styled-components';
 
@@ -38,7 +38,7 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault, loadAllBalances } = useDaoVault();
+  const { walletBalance, depositToVault, loadAllBalances, walletNftsList } = useDaoVault();
   const { submitTransaction } = useTransaction();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
@@ -48,14 +48,20 @@ function DepositForm () {
   const [canDeposit, setCanDeposit] = useState(false);
 
   const form = useForm({
-    initialValues: { amount: '' },
-    validators: { amount: [required, amount(maxAmount)] },
-    onSubmit: ({ amount }) => {
+    initialValues: {
+      amount: '',
+      id: ''
+    },
+    validators: {
+      amount: tokenInfo.isErc721 ? [] : [required, amount(maxAmount)],
+      id: tokenInfo.isErc721 ? [required] : []
+    },
+    onSubmit: ({ amount, id }) => {
       isDepositApprovalNeeded
         ? approveSpendToken()
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
-          submitFn: () => depositToVault({ address: address, amount }),
+          submitFn: () => depositToVault({ address: address, amount, erc721Id: id }),
           onSuccess: () => {
             form.reset();
             loadAllBalances();
@@ -72,11 +78,11 @@ function DepositForm () {
 
   useEffect(() => {
     updateMaxAmount();
-  }, [form.values.amount]);
+  }, [form.values.amount, tokenInfo, walletBalance]);
 
   const isDepositApprovalNeeded = useMemo(() => {
-    return checkIsApprovalNeeded(form.values.amount);
-  }, [form.values.amount]);
+    return tokenInfo.isErc721 ? !tokenInfo.isErc721Approved : checkIsApprovalNeeded(form.values.amount);
+  }, [form.values.amount, tokenInfo]);
 
   return (
     <StyledForm
@@ -87,18 +93,27 @@ function DepositForm () {
       <p className="text-md color-secondary">{t('FROM_WALLET_TO_VAULT')}</p>
 
       <div className="transfer-form-main">
-        <Input
-          {...form.fields.amount}
-          type="number"
-          label={t('AMOUNT')}
-          prefix={tokenInfo.symbol}
-          hint={Number(maxAmount) > 0 && form.values.amount === maxAmount && !canDeposit
-            ? t('WARNING_NO_Q_LEFT')
-            : t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo.symbol) })
-          }
-          max={maxAmount}
-          placeholder="0.0"
-        />
+        {
+          tokenInfo.isErc721
+            ? <Select
+              {...form.fields.id}
+              label={t('NFT_ID')}
+              options={walletNftsList.map(item => ({ value: item, label: item }))}
+              hint={t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
+              placeholder={t('NFT_ID')}
+            />
+            : <Input
+              {...form.fields.amount}
+              type="number"
+              label={t('AMOUNT')}
+              prefix={tokenInfo.symbol}
+              hint={Number(maxAmount) > 0 && form.values.amount === maxAmount && !canDeposit
+                ? t('WARNING_NO_Q_LEFT')
+                : t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo.symbol) })
+              }
+              max={maxAmount}
+              placeholder="0.0"
+            />}
 
         <Button
           className="transfer-form-action"

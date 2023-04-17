@@ -1,5 +1,6 @@
 import { MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
 import QRC20 from '@q-dev/gdk-sdk/lib/abi/QRC20.json';
+import QRC721 from '@q-dev/gdk-sdk/lib/abi/QRC721.json';
 import { DAOInstance } from '@q-dev/gdk-sdk/lib/contracts/DAOInstance';
 import { AbiItem } from 'web3-utils';
 
@@ -13,6 +14,10 @@ export const getDaoInstance = (address: string) => {
 
 export const getErc20Contract = (address: string) => {
   return new window.web3.eth.Contract(QRC20 as AbiItem[], address);
+};
+
+export const getErc721Contract = (address: string) => {
+  return new window.web3.eth.Contract(QRC721 as AbiItem[], address);
 };
 
 export const getMasterDaoRegistryInstance = (masterDaoFactoryAddress: string) => {

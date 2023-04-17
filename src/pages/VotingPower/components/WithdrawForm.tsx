@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
-import { media } from '@q-dev/q-ui-kit';
+import { media, Select } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
 import styled from 'styled-components';
 
@@ -34,17 +34,23 @@ const StyledForm = styled.form`
 function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { withdrawFromVault, withdrawalBalance, loadAllBalances } = useDaoVault();
+  const { withdrawFromVault, withdrawalBalance, loadAllBalances, withdrawalNftsList } = useDaoVault();
   const { address } = useUser();
   const { tokenInfo } = useDaoStore();
 
   const form = useForm({
-    initialValues: { amount: '' },
-    validators: { amount: [required, amount(withdrawalBalance)] },
-    onSubmit: ({ amount }) => {
+    initialValues: {
+      amount: '',
+      id: ''
+    },
+    validators: {
+      amount: tokenInfo.isErc721 ? [] : [required, amount(withdrawalBalance)],
+      id: tokenInfo.isErc721 ? [required] : []
+    },
+    onSubmit: ({ amount, id }) => {
       submitTransaction({
         successMessage: t('WITHDRAW_FROM_VAULT_TX'),
-        submitFn: async () => withdrawFromVault({ amount, address: address }),
+        submitFn: async () => withdrawFromVault({ amount, address, erc721Id: id }),
         onSuccess: async () => {
           form.reset();
           await loadAllBalances();
@@ -62,16 +68,24 @@ function WithdrawForm () {
       <p className="text-md color-secondary">{t('FROM_VAULT_TO_WALLET')}</p>
 
       <div className="withdraw-form-main">
-        <Input
-          {...form.fields.amount}
-          type="number"
-          label={t('AMOUNT')}
-          prefix={tokenInfo.symbol}
-          max={String(withdrawalBalance)}
-          placeholder="0.0"
-          hint={t('AVAILABLE_TO_WITHDRAW', { amount: formatAsset(withdrawalBalance, tokenInfo.symbol) })}
-        />
-
+        {tokenInfo.isErc721
+          ? <Select
+            {...form.fields.id}
+            label={t('NFT_ID')}
+            options={withdrawalNftsList.map(item => ({ value: item, label: item }))}
+            hint={t('AVAILABLE_TO_WITHDRAW', { amount: withdrawalNftsList.length })}
+            placeholder={t('NFT_ID')}
+          />
+          : <Input
+            {...form.fields.amount}
+            type="number"
+            label={t('AMOUNT')}
+            prefix={tokenInfo.symbol}
+            max={String(withdrawalBalance)}
+            placeholder="0.0"
+            hint={t('AVAILABLE_TO_WITHDRAW', { amount: formatAsset(withdrawalBalance, tokenInfo.symbol) })}
+          />
+        }
         <Button
           type="submit"
           className="withdraw-form-action"
