@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useAlert } from 'react-alert';
 import { useDispatch } from 'react-redux';
 
-import { SubmitTransactionResponse } from '@q-dev/gdk-sdk';
+import { ContractTransaction } from 'ethers';
 import { t } from 'i18next';
 import uniqueId from 'lodash/uniqueId';
 
@@ -33,7 +33,7 @@ export function useTransaction () {
     onConfirm = () => {},
     onError = () => {},
   }: {
-    submitFn: () => Promise<SubmitTransactionResponse | void | undefined>;
+    submitFn: () => Promise<ContractTransaction | void | undefined>;
     successMessage?: string;
     isClosedModal?: boolean;
     onSuccess?: () => void;
@@ -52,15 +52,10 @@ export function useTransaction () {
 
     try {
       const submitResponse = await submitFn();
-
-      if (submitResponse?.promiEvent) {
-        submitResponse.promiEvent
-          .once('transactionHash', (txHash: string) => {
-            updateTransaction(transaction.id, { hash: txHash, status: 'sending' });
-            onConfirm();
-          });
-
-        await submitResponse.promiEvent;
+      if (submitResponse?.wait) {
+        updateTransaction(transaction.id, { hash: submitResponse.hash, status: 'sending' });
+        onConfirm();
+        await submitResponse.wait();
       }
       onSuccess();
       updateTransaction(transaction.id, { status: 'success' });

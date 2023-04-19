@@ -14,6 +14,7 @@ import { PROPOSAL_STATUS } from 'constants/statuses';
 
 export async function createMembershipSituationProposal (form: NewProposalForm) {
   if (!daoInstance) return;
+  const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
   const votingParams: CreateVotingParameters = {
     remark: form.externalLink,
     situation: DefaultVotingSituations.MembershipSituation,
@@ -23,22 +24,24 @@ export async function createMembershipSituationProposal (form: NewProposalForm) 
       form.candidateAddress
     )
   };
-  return daoInstance.createVoting(form.panel, votingParams);
+  return daoInstance.createVoting(votingInstance, votingParams);
 }
 
 export async function createGeneralSituationProposal (form: NewProposalForm) {
   if (!daoInstance) return;
 
+  const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
   const votingParams: CreateVotingParameters = {
     remark: form.externalLink,
     situation: DefaultVotingSituations.GeneralSituation,
     callData: '0x'
   };
-  return daoInstance.createVoting(form.panel, votingParams);
+  return daoInstance.createVoting(votingInstance, votingParams);
 }
 
 export async function createConstitutionProposal (form: NewProposalForm) {
   if (!daoInstance) return;
+  const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
     remark: form.externalLink,
@@ -50,11 +53,12 @@ export async function createConstitutionProposal (form: NewProposalForm) {
       })
     ])
   };
-  return daoInstance.createVoting(form.panel, votingParams);
+  return daoInstance.createVoting(votingInstance, votingParams);
 }
 
 export async function createParameterSituationProposal (form: NewProposalForm) {
   if (!daoInstance) return;
+  const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
     remark: form.externalLink,
@@ -67,10 +71,10 @@ export async function createParameterSituationProposal (form: NewProposalForm) {
       })
     )
   };
-  return daoInstance.createVoting(form.panel, votingParams);
+  return daoInstance.createVoting(votingInstance, votingParams);
 }
 
-export const getStatusState = (status: string): TagState => {
+export const getStatusState = (status: PROPOSAL_STATUS): TagState => {
   switch (status) {
     case PROPOSAL_STATUS.pending:
       return 'pending';

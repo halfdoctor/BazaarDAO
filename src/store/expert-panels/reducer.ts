@@ -1,22 +1,27 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ExpertPanelsState {
-  panels: string[];
+  expertPanels: string[];
+  allPanels: string[];
 }
 
 const initialState: ExpertPanelsState = {
-  panels: []
+  expertPanels: [],
+  allPanels: [],
 };
 
 const expertPanelsSlice = createSlice({
   name: 'expertPanels',
   initialState,
   reducers: {
-    setPanels: (state, { payload }: PayloadAction<string[]>) => {
-      state.panels = payload;
+    setExpertPanels: (state, { payload }: PayloadAction<string[]>) => {
+      state.expertPanels = payload;
+    },
+    setAllPanels: (state, { payload }: PayloadAction<string[]>) => {
+      state.allPanels = payload;
     }
   }
 });
 
-export const { setPanels } = expertPanelsSlice.actions;
+export const { setExpertPanels, setAllPanels } = expertPanelsSlice.actions;
 export default expertPanelsSlice.reducer;

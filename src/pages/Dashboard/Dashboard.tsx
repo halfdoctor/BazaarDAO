@@ -51,7 +51,7 @@ export const StyledWrapper = styled.div`
 function Dashboard () {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { panels } = useExpertPanels();
+  const { expertPanels } = useExpertPanels();
 
   return (
     <PageLayout
@@ -73,7 +73,7 @@ function Dashboard () {
         </div>
 
         <div className="dashboard__panels">
-          {panels.map((panel, index) => (
+          {expertPanels.map((panel, index) => (
             <ExpertPanelBlock key={index} name={panel} />
           ))}
         </div>

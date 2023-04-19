@@ -23,9 +23,9 @@ const DaoPanelParameters = lazy(() => import('./components/DaoPanelParameters'))
 function Parameters () {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { panels } = useExpertPanels();
+  const { allPanels } = useExpertPanels();
 
-  const panelTabs = panels.map((panel, i) => ({
+  const panelTabs = allPanels.map((panel, i) => ({
     id: panel,
     label: panel,
     link: composeDaoLink(`/parameters/panel-${i}`)

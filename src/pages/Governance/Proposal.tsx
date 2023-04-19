@@ -28,7 +28,7 @@ function Proposal () {
   const history = useHistory();
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { panels, loadExpertPanels } = useExpertPanels();
+  const { allPanels, loadExpertPanels } = useExpertPanels();
   const { getProposalBaseInfo } = useDaoProposals();
   const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
   const { id, panel } = useParams<ProposalParams>();
@@ -37,7 +37,7 @@ function Proposal () {
     try {
       await loadExpertPanels();
       const pathPanelId = panel.split('panel-')[1];
-      const panelName = panels.find((_, index) => index === Number(pathPanelId)) || '';
+      const panelName = allPanels.find((_, index) => index === Number(pathPanelId)) || '';
       const proposalBaseInfo = panelName && id ? await getProposalBaseInfo(panelName, id) : null;
       if (!proposalBaseInfo) {
         history.replace('/not-found');

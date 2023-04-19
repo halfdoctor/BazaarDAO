@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+import { EMPTY_TOKEN_INFO } from './hooks';
+
 // TODO: create different token type
 export interface TokenInfo {
   name: string;
@@ -24,18 +26,7 @@ interface DAOState {
 const initialState: DAOState = {
   daoAddress: '',
   votingToken: '',
-  tokenInfo: {
-    name: '',
-    symbol: '',
-    address: '',
-    decimals: 0,
-    isNative: true,
-    isErc721: false,
-    allowance: '0',
-    totalSupply: '0',
-    totalSupplyCap: '0',
-    owner: '',
-  }
+  tokenInfo: EMPTY_TOKEN_INFO
 };
 
 const expertsSlice = createSlice({

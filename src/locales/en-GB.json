@@ -123,6 +123,7 @@
   "NODE_INFO": "Node Info",
   "MAIN": "Main",
   "MODULES": "Modules",
+  "DAO_CLIENT": "DAO client",
   "Q_CLIENT": "Q client",
   "CONNECT_WALLET": "Connect wallet",
   "DARK_THEME": "Dark theme",

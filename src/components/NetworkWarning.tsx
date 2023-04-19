@@ -5,6 +5,11 @@ import styled from 'styled-components';
 
 import Button from 'components/Button';
 
+import useNetworkConfig from 'hooks/useNetworkConfig';
+
+import { connectorParametersMap } from 'constants/config';
+import { captureError } from 'utils';
+
 export const StyledWrapper = styled.div`
   position: fixed;
   z-index: 10000;
@@ -28,7 +33,18 @@ export const StyledWrapper = styled.div`
 
 function NetworkWarning () {
   const { t } = useTranslation();
-  const { switchNetwork } = useWeb3Context();
+  const { currentProvider } = useWeb3Context();
+  const { chainId } = useNetworkConfig();
+
+  const handleSwitch = async () => {
+    if (!currentProvider) return;
+    try {
+      const qNetwork = connectorParametersMap[chainId];
+      await currentProvider.switchNetwork(qNetwork.chainId, qNetwork);
+    } catch (error) {
+      captureError(error);
+    }
+  };
 
   return (
     <StyledWrapper className="block">
@@ -41,7 +57,7 @@ function NetworkWarning () {
       <Button
         alwaysEnabled
         className="network-warning__button"
-        onClick={() => switchNetwork()}
+        onClick={() => handleSwitch()}
       >
         {t('SWITCH_TO_Q')}
       </Button>

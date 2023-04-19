@@ -1,263 +1,97 @@
 import { createContext, FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { BaseContractInstance } from '@q-dev/gdk-sdk/lib/contracts/BaseContractInstance';
 import { useLocalStorage } from '@q-dev/react-hooks';
-import { useWeb3React } from '@web3-react/core';
-import { getWallet, WalletType } from 'connectors';
 import { motion } from 'framer-motion';
-import Web3 from 'web3';
+
+import { UseProvider, useProvider, useWeb3 } from 'hooks';
 
 import { Wrap } from './styles';
 
-import { useDaoStore } from 'store/dao/hooks';
-import { useDaoVault } from 'store/dao-vault/hooks';
-import { useExpertPanels } from 'store/expert-panels/hooks';
-import { useUser } from 'store/user/hooks';
-
-import { ZERO_ADDRESS } from 'constants/boundaries';
-import {
-  chainIdToNetworkMap,
-  connectorParametersMap,
-  networkConfigsMap,
-  ORIGIN_NETWORK_NAME
-} from 'constants/config';
+import { chainIdToNetworkMap, networkConfigsMap, ORIGIN_NETWORK_NAME } from 'constants/config';
+import { PROVIDERS } from 'constants/providers';
 import { LOAD_TYPES } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
-const { ethereum } = window;
-
 export type Web3Data = {
-  connectWallet: (wallet: WalletType, reload: boolean) => Promise<void>;
-  loadAdditionalInfo: () => Promise<void>;
-  disconnectWallet: () => void;
-  error: unknown;
-  loading: boolean;
-  setError: (error: unknown) => void;
-  chainId: number | undefined;
-  switchNetwork: (chainId?: number, reload?: boolean) => Promise<void>;
-  switchNetworkError: boolean | null;
-  success: boolean;
-  setSwitchNetworkError: (err: boolean | null) => void;
-  setLoadAppType: (state: string) => void;
-  isConnected: boolean;
+  currentProvider: UseProvider;
   isRightNetwork: boolean;
+  setLoadAppType: (state: string) => void;
+  connect: (provider: PROVIDERS) => Promise<void>;
+  disconnect: () => void;
 };
 
 export const Web3Context = createContext({} as Web3Data);
 
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const { setAddress, setChainId, address } = useUser();
-  const { loadAllBalances } = useDaoVault();
-  const { loadAllDaoInfo } = useDaoStore();
-  const { loadExpertPanels } = useExpertPanels();
+  const web3 = useWeb3();
+  const metamaskProvider = useProvider();
+  const defaultProvider = useProvider();
+  const [loadAppType, setLoadAppType] = useState(LOAD_TYPES.loading);
+  const [selectedProvider, setSelectedProvider] = useLocalStorage<undefined | PROVIDERS>('selectedProvider', undefined);
 
-  const networkConfig = networkConfigsMap[ORIGIN_NETWORK_NAME];
-  const { connector, chainId, isActive } = useWeb3React();
-
-  const [loadAppType, setLoadAppType] = useState<string>(LOAD_TYPES.loading);
-  const [selectedRpc, setSelectedRpc] = useLocalStorage('selectedRpc', networkConfig.rpcUrl);
-  const [selectedWallet, setSelectedWallet] = useLocalStorage<undefined | WalletType>('selectedWallet', undefined);
-  const [selectedChainId, setSelectedChainId] = useLocalStorage('selectedChainId', networkConfig.chainId);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<unknown>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [switchNetworkError, setSwitchNetworkError] = useState<boolean | null>(null);
-
-  const isConnected = useMemo(
-    () => Boolean(address !== ZERO_ADDRESS && isActive),
-    [address, isActive]);
-  const isRightNetwork = useMemo(() => Boolean(chainId && chainIdToNetworkMap[chainId]), [chainId]);
-
-  const loadAdditionalInfo = async () => {
-    await loadAllDaoInfo();
-    await Promise.allSettled([
-      loadAllBalances(),
-      loadExpertPanels()
-    ]);
-  };
-
-  const cleanConnectorStorage = useCallback(() => {
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:version');
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:session:id');
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:session:secret');
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:session:linked');
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:AppVersion');
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:Addresses');
-    localStorage.removeItem('-walletlink:https://www.walletlink.org:walletUsername');
-    localStorage.removeItem('walletconnect');
-    localStorage.removeItem('selectedRpc');
-    localStorage.removeItem('selectedChainId');
-    localStorage.removeItem('selectedWallet');
-  }, []);
-
-  const disconnectWallet = useCallback(async () => {
-    try {
-      setLoadAppType(LOAD_TYPES.loading);
-      setSelectedWallet(undefined);
-      cleanConnectorStorage();
-      connector.deactivate ? await connector.deactivate() : await connector.resetState();
-      if (connector && 'close' in connector) {
-        // @ts-expect-error close can be returned by wallet
-        await connector.close();
-      }
-    } catch (error) {
-      setError(error);
-      captureError(error);
-    } finally {
-      window.location.reload();
-    }
-  }, [connector]);
-
-  const connectWallet = useCallback(
-    async (walletType: WalletType, reload = false) => {
-      try {
-        setLoading(true);
-        const wallet = getWallet(walletType);
-        await wallet.activate();
-        setSelectedWallet(walletType);
-
-        if (reload && !isRightNetwork) {
-          await providerSwitchNetwork(selectedChainId);
-        }
-
-        setSuccess(true);
-        if (reload) {
-          setTimeout(() => window.location.reload(), 500);
-        }
-      } catch (error) {
-        setError(error);
-        captureError(error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [disconnectWallet, connector, isRightNetwork]
+  const providers = useMemo(
+    () => [metamaskProvider, defaultProvider],
+    [metamaskProvider, defaultProvider],
   );
 
-  const initConnection = useCallback(async () => {
+  const currentProvider = useMemo(() => {
+    const selectProvider = providers.find(el => el?.selectedProvider === selectedProvider && el.selectedAddress);
+    return selectProvider || defaultProvider;
+  }, [metamaskProvider, defaultProvider, selectedProvider]);
+
+  const isRightNetwork = useMemo(() => Boolean(currentProvider?.chainId &&
+    chainIdToNetworkMap[currentProvider?.chainId]), [currentProvider]);
+
+  const initWeb3Providers = useCallback(async () => {
     try {
-      const httpProvider = new Web3(new Web3.providers.HttpProvider(selectedRpc));
-      if (!ethereum) {
-        // user without wallet
-        window.web3 = httpProvider;
-        setChainId(selectedChainId);
-      } else {
-        const provider = getProvider(selectedWallet);
-        const chainId = await getChainId(provider);
-        const web3 = new Web3(provider);
-        const accounts = await web3.eth.getAccounts();
-        const network = chainIdToNetworkMap[chainId];
-        const isHttpProvider = !network || !accounts.length || !selectedWallet;
-        window.web3 = isHttpProvider
-          ? httpProvider
-          : web3;
-
-        if (selectedWallet && accounts.length) {
-          setAddress(accounts[0]);
-          await connectWallet(selectedWallet, false);
-          setSelectedChainId(Number(chainId));
-        }
-        if (network) {
-          BaseContractInstance.DEFAULT_GASBUFFER = networkConfigsMap[network].gasBuffer;
-        }
-        setChainId(isHttpProvider ? selectedChainId : Number(chainId));
-      }
-
-      await loadAdditionalInfo();
-      setLoadAppType(LOAD_TYPES.loaded);
-
-      if (selectedWallet) {
-        ethereum?.on('accountsChanged', async (e) => {
-          if (e.length) {
-            setLoadAppType(LOAD_TYPES.loading);
-            window.location.reload();
-          } else {
-            await disconnectWallet();
-          }
-        });
-        ethereum?.on('chainChanged', () => {
-          setLoadAppType(LOAD_TYPES.loading);
-          window.location.reload();
-        });
-      }
+      await web3.init();
     } catch (error) {
       captureError(error);
       setLoadAppType(LOAD_TYPES.initError);
     }
-  }, [ethereum]);
+  }, [web3]);
 
-  const getProvider = (selectedWallet = WalletType.INJECTED) => {
-    if (!ethereum.providers?.length) {
-      return ethereum;
-    }
-
-    let provider;
-    switch (selectedWallet) {
-      case WalletType.COINBASE:
-        provider = ethereum.providers.find(
-          ({ isCoinbaseWallet, isCoinbaseBrowser }) => isCoinbaseWallet || isCoinbaseBrowser
-        );
-        break;
-      case WalletType.INJECTED:
-        provider = ethereum.providers.find(({ isMetaMask }) => isMetaMask);
-        break;
-      default:
-        provider = ethereum.providers[0];
-    }
-
-    if (provider) {
-      ethereum.setSelectedProvider(provider);
-    }
-    return provider || ethereum.providers[0];
-  };
-
-  const getChainId = async (provider: typeof ethereum) => {
-    /* Fix issue with first Metamask launch. */
-    const timeout = setTimeout(() => window.location.reload(), 5000);
-    const chainId = await provider.request({ method: 'net_version' });
-    clearTimeout(timeout);
-    return chainId;
-  };
-
-  const providerSwitchNetwork = async (newChainId: number) => {
+  const initProviderWrappers = useCallback(() => {
+    setLoadAppType(LOAD_TYPES.loading);
     try {
-      await connector.activate(connectorParametersMap[newChainId]);
-    } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((error as any)?.code === -32603) {
-        await connector.provider?.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            ...connectorParametersMap[newChainId],
-            chainId: `0x${connectorParametersMap[newChainId].chainId}`
-          }]
-        });
+      const metamaskBrowserProvider = web3.providers.find(
+        (el: { name: PROVIDERS }) => el.name === PROVIDERS.metamask,
+      );
+      if (metamaskBrowserProvider) {
+        metamaskProvider.init(metamaskBrowserProvider);
       }
-      setSwitchNetworkError(true);
+      defaultProvider.init({ name: PROVIDERS.default, instance: networkConfigsMap[ORIGIN_NETWORK_NAME].rpcUrl });
+    } catch (error) {
+      captureError(error);
+      return setLoadAppType(LOAD_TYPES.initError);
     }
-    setSelectedChainId(newChainId);
+    setLoadAppType(LOAD_TYPES.loaded);
+  }, [web3.providers]);
+
+  const connect = async (provider: PROVIDERS) => {
+    setSelectedProvider(provider);
+    await initProviderWrappers();
+    const foundedProvider = providers.find(item => item.selectedProvider === provider);
+    if (foundedProvider && !foundedProvider.isConnected) {
+      await foundedProvider.connect();
+    }
   };
 
-  const switchNetwork = useCallback(
-    async (newChainId = networkConfig.chainId) => {
-      try {
-        if (!ethereum || !isConnected) {
-          setSelectedChainId(newChainId);
-          setSelectedRpc(connectorParametersMap[newChainId].rpcUrls[0]);
-          setTimeout(() => window.location.reload(), 500);
-        } else {
-          await providerSwitchNetwork(newChainId);
-        }
-      } catch (error) {
-        setError(error);
-      }
-    },
-    [connector, chainId, isConnected]
-  );
+  const disconnect = () => {
+    const filteredProviders = providers.filter(item => item.selectedProvider !== currentProvider.selectedProvider);
+    setSelectedProvider(filteredProviders[0].selectedProvider);
+    currentProvider.disconnect();
+  };
 
   useEffect(() => {
-    initConnection();
+    initWeb3Providers();
   }, []);
+
+  useEffect(() => {
+    initProviderWrappers();
+  }, [
+    web3.providers,
+  ]);
 
   switch (loadAppType) {
     case LOAD_TYPES.initError:
@@ -273,20 +107,11 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
       return (
         <Web3Context.Provider
           value={{
-            connectWallet,
-            disconnectWallet,
-            loading,
-            chainId,
-            success,
-            error,
-            setError,
-            switchNetwork,
-            switchNetworkError,
-            setSwitchNetworkError,
-            isConnected,
+            currentProvider,
             isRightNetwork,
-            loadAdditionalInfo,
             setLoadAppType,
+            connect,
+            disconnect
           }}
         >
           {children}

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { DAO_MAIN_PANEL_NAME } from '@q-dev/gdk-sdk';
+import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import axios from 'axios';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
@@ -25,9 +25,8 @@ export function useConstitution () {
   async function loadConstitutionHash () {
     try {
       if (!daoInstance) return;
-      const parameterStorageInstance = await daoInstance.getParameterStorageInstance(DAO_MAIN_PANEL_NAME);
-      const [, hash] = await parameterStorageInstance.instance.methods
-        .getDAOParameter(CONSTITUTION_HASH_PARAMETER_KEY).call();
+      const parameterStorageInstance = await daoInstance.getParameterStorageInstance(DAO_RESERVED_NAME);
+      const [, hash] = await parameterStorageInstance.instance.getDAOParameter(CONSTITUTION_HASH_PARAMETER_KEY);
       dispatch(setHash(hash));
     } catch (error) {
       captureError(error);

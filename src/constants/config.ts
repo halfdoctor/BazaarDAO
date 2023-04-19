@@ -1,4 +1,5 @@
-import Web3 from 'web3';
+import { utils } from 'ethers';
+import { Chain } from 'typings';
 
 export type NetworkName = 'mainnet' | 'testnet' | 'devnet';
 
@@ -18,18 +19,6 @@ interface NetworkConfig {
   masterDaoRegistryAddress: string;
 }
 
-interface ConnectorParams {
-  chainId: string;
-  chainName: string;
-  rpcUrls: string[];
-  blockExplorerUrls: string[];
-  nativeCurrency: {
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-}
-
 export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
   mainnet: {
     chainId: 35441,
@@ -44,7 +33,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.q.org',
     constitutionUrl: 'https://constitution.q.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0xC6d709Bf493D31dc625b2a3C6bb6f6A0Ff1489C1',
+    masterDaoRegistryAddress: '0x78869d0957DDf534163a04dDF8Ec3D3E82006E92',
   },
   testnet: {
     chainId: 35443,
@@ -59,7 +48,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qtestnet.org',
     gasBuffer: 2,
-    masterDaoRegistryAddress: '0xBDC93a661668Ba45849aF7f2a21E216b8c66e4b0',
+    masterDaoRegistryAddress: '0x6f38b4BCC0a9eea5FeA883A2c9F196B9f77e2Fce',
   },
   devnet: {
     chainId: 35442,
@@ -74,7 +63,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qdevnet.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0xD1c05Bd8C2d4fcac40927E676dfAbA37bDBa26A5',
+    masterDaoRegistryAddress: '0x9CFeE6E148B1a9D67d562a0b77fF39C0C11EDE84',
   },
 };
 
@@ -87,7 +76,7 @@ export const chainIdToNetworkMap: { [key: string]: NetworkName } = {
 export const connectorParametersMap = Object.values(networkConfigsMap)
   .reduce((acc, config) => {
     acc[config.chainId] = {
-      chainId: Web3.utils.toHex(config.chainId).replace('0x', ''),
+      chainId: utils.hexlify(config.chainId),
       chainName: config.name,
       rpcUrls: [config.rpcUrl],
       blockExplorerUrls: [config.explorerUrl],
@@ -99,13 +88,14 @@ export const connectorParametersMap = Object.values(networkConfigsMap)
       },
     };
     return acc;
-  }, {} as { [key: string]: ConnectorParams });
+  }, {} as { [key: string]: Chain });
 
 const originToNetworkMap: { [key: string]: NetworkName } = {
   'https://hq.q.org': 'mainnet',
   'https://hq.qtestnet.org': 'testnet',
   'https://hq.qdevnet.org': 'devnet',
   'http://localhost:3000': 'devnet',
+  'http://localhost:3001': 'devnet',
 };
 
 export const ORIGIN_NETWORK_NAME: NetworkName = originToNetworkMap[window.location.origin] || 'testnet';

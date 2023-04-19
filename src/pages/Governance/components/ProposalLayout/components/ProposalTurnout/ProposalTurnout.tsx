@@ -5,6 +5,7 @@ import { VotingType } from '@q-dev/gdk-sdk';
 import { Icon, Progress } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
+import { singlePrecision } from 'helpers';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import { StyledProposalTurnout } from './styles';
@@ -12,7 +13,6 @@ import { StyledProposalTurnout } from './styles';
 import { useDaoStore } from 'store/dao/hooks';
 
 import { fromWeiWithDecimals } from 'utils/numbers';
-import { singlePrecision } from 'utils/web3';
 
 function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
@@ -20,23 +20,24 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
 
   const leftQuorum = useMemo(() => {
     return BigNumber.max(
-      toBigNumber(proposal.requiredQuorum)
-        .minus(proposal.currentQuorum)
+      toBigNumber(proposal.requiredQuorum.toString())
+        .minus(proposal.currentQuorum.toString())
         .integerValue(BigNumber.ROUND_CEIL)
         .toNumber(), 0).toString();
   }, [proposal]);
 
   const isRestrictedVote = useMemo(() => {
-    return proposal.params.votingType.toString() === VotingType.Restricted;
+    return proposal.params.votingType === VotingType.Restricted;
   }, [proposal]);
 
   const totalVotes = useMemo(() => {
-    return toBigNumber(proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toString();
+    return toBigNumber(proposal.counters.votedFor.toString())
+      .plus(proposal.counters.votedAgainst.toString()).toString();
   }, [proposal]);
 
   const noVoteValue = useMemo(() => {
     return toBigNumber(proposal.totalVoteValue)
-      .minus(proposal.params.votingType.toString() === VotingType.Restricted
+      .minus(proposal.params.votingType === VotingType.Restricted
         ? proposal.vetoMembersCount
         : totalVotes
       )
@@ -50,7 +51,7 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
       <div className="block__content">
         <div className="proposal-turnout__quorum">
           <p className="text-md">
-            {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum)) })}
+            {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum.toString())) })}
           </p>
           <p className="text-md">
             {leftQuorum

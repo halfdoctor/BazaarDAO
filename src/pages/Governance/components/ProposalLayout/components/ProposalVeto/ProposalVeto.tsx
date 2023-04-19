@@ -3,21 +3,20 @@ import { useTranslation } from 'react-i18next';
 
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber, unixToDate } from '@q-dev/utils';
+import { singlePrecision } from 'helpers';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import useEndTime from '../../hooks/useEndTime';
 
 import { StyledProposalVeto } from './styles';
 
-import { singlePrecision } from 'utils/web3';
-
 function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
 
-  const vetoEndTime = useEndTime(unixToDate(proposal.params.vetoEndTime));
+  const vetoEndTime = useEndTime(unixToDate(proposal.params.vetoEndTime.toString()));
 
   const noVoteCount = useMemo(() => {
-    return toBigNumber(proposal.vetoMembersCount).minus(proposal.counters.vetoesCount).toNumber();
+    return toBigNumber(proposal.vetoMembersCount).minus(proposal.counters.vetoesCount.toString()).toNumber();
   }, [proposal]);
 
   return proposal.isVetoGroupExists && Number(proposal.vetoMembersCount)
@@ -38,7 +37,7 @@ function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
         <div className="block__content">
           <p className="text-md">
             {t('THRESHOLD', {
-              threshold: formatPercent(singlePrecision(proposal.params.requiredVetoQuorum)),
+              threshold: formatPercent(singlePrecision(proposal.params.requiredVetoQuorum.toString())),
             })}
           </p>
 
@@ -52,11 +51,11 @@ function ProposalVeto ({ proposal }: { proposal: ProposalBaseInfo }) {
             <div className="proposal-veto__vote">
               <p className="text-md">{t('OBJECTION')}</p>
               <p className="text-md proposal-veto__vote-val">
-                {formatPercent(toBigNumber(proposal.counters.vetoesCount)
+                {formatPercent(toBigNumber(proposal.counters.vetoesCount.toString())
                   .div(proposal.vetoMembersCount).multipliedBy(100))}
               </p>
               <p className="text-md proposal-veto__vote-val">
-                {formatNumber(proposal.counters.vetoesCount)}
+                {formatNumber(proposal.counters.vetoesCount.toString())}
               </p>
             </div>
 

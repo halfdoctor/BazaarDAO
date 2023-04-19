@@ -1,17 +1,15 @@
 import { useCallback } from 'react';
 
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { NewProposalForm } from 'typings/forms';
 import {
   DaoProposal,
   DaoProposalVotingInfo,
   ProposalBaseInfo,
   ProposalVetoGroupInfo,
-  VotingSituationInfo,
-  VotingType
+  VotingActionType
 } from 'typings/proposals';
-
-import { getUserAddress } from 'store';
 
 import { daoInstance } from 'contracts/contract-instance';
 import {
@@ -25,11 +23,13 @@ import { PROPOSAL_STATUS } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 export function useDaoProposals () {
+  const { currentProvider } = useWeb3Context();
+
   async function getPanelSituations (panelName: string) {
     try {
       if (!daoInstance) return;
-      const votingInstance = await daoInstance.getVotingInstance(panelName);
-      return votingInstance.instance.methods.getVotingSituations().call();
+      const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
+      return votingInstance.instance.getVotingSituations();
     } catch (error) {
       captureError(error);
     }
@@ -38,10 +38,9 @@ export function useDaoProposals () {
   async function getPanelSituationInfo (panelName: string, situation: string) {
     try {
       if (!daoInstance) return;
-      const votingInstance = await daoInstance.getVotingInstance(panelName);
-      const votingSituationInfo = await votingInstance.instance.methods
-        .getVotingSituationInfo(situation).call();
-      return votingSituationInfo as unknown as VotingSituationInfo; // TODO: remove unknown type
+      const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
+      const votingSituationInfo = await votingInstance.instance.getVotingSituationInfo(situation);
+      return votingSituationInfo;
     } catch (error) {
       captureError(error);
     }
@@ -50,7 +49,7 @@ export function useDaoProposals () {
   async function getProposalsList (panelName: string, offset: number, limit: number) {
     try {
       if (!daoInstance) return;
-      const votingInstance = await daoInstance.getVotingInstance(panelName);
+      const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
       return votingInstance.getProposalList(offset, limit);
     } catch (error) {
       captureError(error);
@@ -60,7 +59,7 @@ export function useDaoProposals () {
   async function getProposal (panelName: string, proposalId: string | number) {
     try {
       if (!daoInstance) return;
-      const votingInstance = await daoInstance.getVotingInstance(panelName);
+      const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
       return votingInstance.getProposal(Number(proposalId));
     } catch (error) {
       captureError(error);
@@ -69,14 +68,12 @@ export function useDaoProposals () {
 
   async function getUserVotingStats (proposal: DaoProposal) {
     try {
-      if (!daoInstance) return;
-      const votingInstance = await daoInstance.getVotingInstance(proposal.relatedExpertPanel);
-      const isUserVoted = await votingInstance.instance.methods
-        .hasUserVoted(Number(proposal.id), getUserAddress())
-        .call();
-      const isUserVetoed = await votingInstance.instance.methods
-        .hasExpertVetoed(Number(proposal.id), getUserAddress())
-        .call();
+      if (!daoInstance || !currentProvider.selectedAddress) return { isUserVoted: false, isUserVetoed: false };
+      const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+      const isUserVoted = await votingInstance.instance
+        .hasUserVoted(Number(proposal.id), currentProvider.selectedAddress);
+      const isUserVetoed = await votingInstance.instance
+        .hasUserVetoed(Number(proposal.id), currentProvider.selectedAddress);
       return { isUserVoted, isUserVetoed };
     } catch (error) {
       captureError(error);
@@ -89,11 +86,10 @@ export function useDaoProposals () {
       const permissionManagerInstance = await daoInstance.getPermissionManagerInstance();
       const isVetoGroupExists = await permissionManagerInstance.isVetoGroupExists(proposal.target);
       const vetoMembersCount = isVetoGroupExists
-        ? await permissionManagerInstance.instance.methods.getVetoMembersCount(proposal.target).call()
+        ? (await permissionManagerInstance.instance.getVetoMembersCount(proposal.target)).toString()
         : '0';
-      const vetoGroupInfo = (await permissionManagerInstance.instance.methods
-        .getVetoGroupInfo(proposal.target)
-        .call()) as ProposalVetoGroupInfo;
+      const vetoGroupInfo = (await permissionManagerInstance.instance
+        .getVetoGroupInfo(proposal.target)) as ProposalVetoGroupInfo;
       return { isVetoGroupExists, vetoMembersCount, vetoGroupInfo };
     } catch (error) {
       captureError(error);
@@ -101,9 +97,9 @@ export function useDaoProposals () {
   }
   async function getAccountStatuses () {
     try {
-      if (!daoInstance) return;
+      if (!daoInstance || !currentProvider.selectedAddress) return [];
       const accountGroupStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
-        getUserAddress()
+        currentProvider.selectedAddress
       )) as string[];
       return accountGroupStatuses;
     } catch (error) {
@@ -115,9 +111,9 @@ export function useDaoProposals () {
     try {
       if (!daoInstance) return;
 
-      const votingInstance = await daoInstance.getVotingInstance(proposal.relatedExpertPanel);
-      const proposalVotingStats = await votingInstance.getProposalVotingStats(Number(proposal.id));
-      const proposalStatus = await votingInstance.instance.methods.getProposalStatus(proposal.id).call();
+      const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+      const proposalVotingStats = await votingInstance.getProposalVotingStats(Number(proposal.id.toString()));
+      const proposalStatus = await votingInstance.instance.getProposalStatus(proposal.id.toString());
       return { ...proposalVotingStats, votingStatus: proposalStatus } as DaoProposalVotingInfo;
     } catch (error) {
       captureError(error);
@@ -129,9 +125,9 @@ export function useDaoProposals () {
       if (!daoInstance) return;
       const totalVoteValue = await daoInstance.getProposalTotalParticipate(
         proposal.relatedExpertPanel,
-        Number(proposal.id)
+        Number(proposal.id.toString())
       );
-      return totalVoteValue;
+      return totalVoteValue.toString();
     } catch (error) {
       captureError(error);
     }
@@ -179,12 +175,12 @@ export function useDaoProposals () {
     isVotedFor
   }: {
     proposal: DaoProposal;
-    type: VotingType;
+    type: VotingActionType;
     isVotedFor?: boolean;
   }) {
     if (!daoInstance) return;
-    const votingInstance = await daoInstance.getVotingInstance(proposal.relatedExpertPanel);
-    const userAddress = getUserAddress();
+    const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+    const userAddress = currentProvider.selectedAddress;
 
     if (type === 'vote') {
       return isVotedFor
@@ -197,9 +193,9 @@ export function useDaoProposals () {
 
   async function executeProposal (proposal: DaoProposal) {
     if (!daoInstance) return;
-    const votingInstance = await daoInstance.getVotingInstance(proposal.relatedExpertPanel);
-    const userAddress = getUserAddress();
-    const promiseStatus = await votingInstance.instance.methods.getProposalStatus(Number(proposal.id)).call();
+    const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+    const userAddress = currentProvider.selectedAddress;
+    const promiseStatus = await votingInstance.instance.getProposalStatus(Number(proposal.id));
     return promiseStatus === PROPOSAL_STATUS.passed && !proposal.executed
       ? votingInstance.executeProposal(Number(proposal.id), { from: userAddress })
       : undefined;
