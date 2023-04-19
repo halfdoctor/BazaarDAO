@@ -24,8 +24,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 function VotingPeriods ({ proposal, ...rest }: Props) {
   const { t, i18n } = useTranslation();
-  const votingEndTime = unixToDate(proposal.params.votingEndTime).getTime();
-  const vetoEndTime = unixToDate(proposal.params.vetoEndTime).getTime();
+  const votingEndTime = unixToDate(proposal.params.votingEndTime.toString()).getTime();
+  const vetoEndTime = unixToDate(proposal.params.vetoEndTime.toString()).getTime();
 
   const votingText = votingEndTime > Date.now()
     ? t('VOTING_ENDS')

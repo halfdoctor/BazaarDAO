@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ConnectionInfo, Web3Adapter } from '@q-dev/gdk-sdk';
 import { Modal } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
 
@@ -22,30 +21,12 @@ interface Props {
 
 function VersionModal ({ open, onClose }: Props) {
   const { t, i18n } = useTranslation();
-  const { rpcUrl } = useNetworkConfig();
-  const web3Adapter = new Web3Adapter(window.web3);
-
+  const { rpcUrl, chainId } = useNetworkConfig();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(null);
 
   useInterval(() => {
     setCurrentDate(new Date());
   }, 50000);
-
-  async function loadConnectionInfo () {
-    const info = await web3Adapter?.getConnectionInfo();
-    setConnectionInfo(info);
-  }
-
-  useEffect(() => {
-    if (web3Adapter) {
-      loadConnectionInfo();
-    }
-
-    return () => {
-      setConnectionInfo(null);
-    };
-  }, []);
 
   const versionGroups = [
     {
@@ -65,17 +46,17 @@ function VersionModal ({ open, onClose }: Props) {
       title: t('MODULES'),
       items: [
         {
-          name: 'Web3.js',
-          value: web3Adapter?.web3.version,
+          name: 'ethers',
+          value: packageJson.dependencies.ethers,
         },
         {
-          name: 'Q.js SDK',
-          value: web3Adapter?.SDK_VERSION,
+          name: 'Q.GDK SDK',
+          value: packageJson.dependencies['@q-dev/gdk-sdk'],
         },
       ],
     },
     {
-      title: t('Q_CLIENT'),
+      title: t('DAO_CLIENT'),
       items: [
         {
           name: 'RPC URL',
@@ -83,11 +64,7 @@ function VersionModal ({ open, onClose }: Props) {
         },
         {
           name: t('NETWORK') + ' ID',
-          value: connectionInfo?.networkId,
-        },
-        {
-          name: t('NODE_INFO'),
-          value: connectionInfo?.nodeInfo,
+          value: chainId,
         },
       ],
     },
@@ -108,10 +85,12 @@ function VersionModal ({ open, onClose }: Props) {
               {group.items.map((item) => (
                 <div key={item.name}>
                   <p className="text-md font-light">{item.name}</p>
-                  <div className="text-md">
-                    <span>{item.value}</span>
-                    <CopyToClipboard value={item.name + '-' + item.value} />
-                  </div>
+                  {item.value
+                    ? <div className="text-md">
+                      <span>{item.value}</span>
+                      <CopyToClipboard value={item.name + '-' + item.value} />
+                    </div>
+                    : <span className="text-md">{t('NO_INFO')}</span>}
                 </div>
               ))}
             </div>

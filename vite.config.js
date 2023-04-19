@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => {
         contracts: path.resolve(__dirname, './src/contracts'),
         utils: path.resolve(__dirname, './src/utils'),
         helpers: path.resolve(__dirname, './src/helpers'),
+        errors: path.resolve(__dirname, './src/errors'),
         hooks: path.resolve(__dirname, './src/hooks'),
         json: path.resolve(__dirname, './src/json'),
         navigation: path.resolve(__dirname, './src/navigation'),
@@ -57,7 +58,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            web3: ['web3/dist/web3.min.js'],
             q_gdk_sdk: ['@q-dev/gdk-sdk'],
             q_ui_kit: ['@q-dev/q-ui-kit'],
           }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media, Select } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -11,7 +12,6 @@ import Input from 'components/Input';
 import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
-import { useUser } from 'store/user/hooks';
 
 import { amount, required } from 'utils/validators';
 
@@ -35,7 +35,7 @@ function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
   const { withdrawFromVault, withdrawalBalance, loadAllBalances, withdrawalNftsList } = useDaoVault();
-  const { address } = useUser();
+  const { currentProvider } = useWeb3Context();
   const { tokenInfo } = useDaoStore();
 
   const form = useForm({
@@ -50,7 +50,9 @@ function WithdrawForm () {
     onSubmit: ({ amount, id }) => {
       submitTransaction({
         successMessage: t('WITHDRAW_FROM_VAULT_TX'),
-        submitFn: async () => withdrawFromVault({ amount, address, erc721Id: id }),
+        submitFn: async () => withdrawFromVault(
+          { amount, address: currentProvider?.selectedAddress, erc721Id: id }
+        ),
         onSuccess: async () => {
           form.reset();
           await loadAllBalances();
@@ -72,7 +74,7 @@ function WithdrawForm () {
           ? <Select
             {...form.fields.id}
             label={t('NFT_ID')}
-            options={withdrawalNftsList.map(item => ({ value: item, label: item }))}
+            options={withdrawalNftsList.map((item: string) => ({ value: item, label: item }))}
             hint={t('AVAILABLE_TO_WITHDRAW', { amount: withdrawalNftsList.length })}
             placeholder={t('NFT_ID')}
           />

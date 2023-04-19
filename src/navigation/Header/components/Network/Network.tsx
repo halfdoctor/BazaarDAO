@@ -1,21 +1,17 @@
-import { useEffect, useState } from 'react';
 import { useAlert } from 'react-alert';
 import { useTranslation } from 'react-i18next';
 
 import { SegmentedButton } from '@q-dev/q-ui-kit';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 
-import { useUser } from 'store/user/hooks';
-
-import { networkConfigsMap } from 'constants/config';
+import { connectorParametersMap, networkConfigsMap } from 'constants/config';
+import { captureError } from 'utils';
 
 function Network () {
-  const { switchNetwork, switchNetworkError, setSwitchNetworkError } = useWeb3Context();
+  const { currentProvider } = useWeb3Context();
   const { t } = useTranslation();
   const alert = useAlert();
 
-  const { chainId } = useUser();
-  const [currentNetwork, setCurrentNetwork] = useState(chainId);
   const isDevnet = ![
     networkConfigsMap.mainnet.dAppUrl,
     networkConfigsMap.testnet.dAppUrl,
@@ -27,21 +23,19 @@ function Network () {
     ...(isDevnet ? [{ value: 35442, label: t('DEVNET') }] : []),
   ];
 
-  useEffect(() => {
-    if (switchNetworkError) {
+  const handleChangeNetwork = async (chainId: number) => {
+    if (!currentProvider) return;
+    try {
+      const chainInfo = connectorParametersMap[chainId];
+      await currentProvider.switchNetwork(chainId, chainInfo);
+    } catch (error) {
+      captureError(error);
       alert.error(t('SWITCH_NETWORK_ERROR'));
-      setCurrentNetwork(chainId);
-      setSwitchNetworkError(false);
     }
-  }, [switchNetworkError]);
-
-  const handleChangeNetwork = (chainId: number) => {
-    setCurrentNetwork(chainId);
-    switchNetwork(chainId);
   };
 
   return <SegmentedButton
-    value={currentNetwork}
+    value={Number(currentProvider?.chainId)}
     options={networkOptions}
     onChange={handleChangeNetwork}
   />;

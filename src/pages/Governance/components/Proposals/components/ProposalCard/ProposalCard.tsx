@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Icon, Progress, Tag, toBigNumber } from '@q-dev/q-ui-kit';
 import { formatPercent } from '@q-dev/utils';
 import BigNumber from 'bignumber.js';
+import { singlePrecision } from 'helpers';
 import styled from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -18,7 +19,6 @@ import { useExpertPanels } from 'store/expert-panels/hooks';
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
-import { singlePrecision } from 'utils/web3';
 
 const ProposalCardLink = styled(Link)`
 background-color: ${({ theme }) => theme.colors.backgroundPrimary};
@@ -66,12 +66,12 @@ transition: all 150ms ease-out;
 function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDao();
-  const { panels } = useExpertPanels();
+  const { allPanels } = useExpertPanels();
 
   const leftQuorum = useMemo(() => {
     return BigNumber.max(
-      toBigNumber(proposal.requiredQuorum)
-        .minus(proposal.currentQuorum)
+      toBigNumber(proposal.requiredQuorum.toString())
+        .minus(proposal.currentQuorum.toString())
         .integerValue(BigNumber.ROUND_CEIL)
         .toNumber(),
       0).toString();
@@ -82,7 +82,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   }, [proposal]);
 
   const panelNamePosition = useMemo(() => {
-    return panels.findIndex(item => item === proposal.relatedExpertPanel);
+    return allPanels.findIndex((item: string) => item === proposal.relatedExpertPanel);
   }, [proposal]);
 
   return proposal
@@ -90,14 +90,14 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
       <ProposalCardLink
         className="block"
         to={{
-          pathname: composeDaoLink(`/governance/proposal/panel-${panelNamePosition}/${proposal.id}`),
+          pathname: composeDaoLink(`/governance/proposal/panel-${panelNamePosition}/${proposal.id.toString()}`),
           state: { from: 'list' },
         }}
       >
         <div className="proposal-card__head">
           <p className="proposal-card__id text-md">
             <span className="font-light">{t('PROPOSAL_ID')}</span>
-            <span>{proposal.id}</span>
+            <span>{proposal.id.toString()}</span>
           </p>
 
           {proposal.votingStatus &&
@@ -116,7 +116,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
         <div className="proposal-card__voting">
           <div className="proposal-card__quorum">
             <p className="text-md">
-              {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum)) })}
+              {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum.toString())) })}
             </p>
             <p className="text-md">
               {leftQuorum
@@ -128,8 +128,8 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
 
           <Progress
             className="proposal-card__progress"
-            value={Number(singlePrecision(proposal.currentQuorum))}
-            max={Number(singlePrecision(proposal.requiredQuorum))}
+            value={Number(singlePrecision(proposal.currentQuorum.toString()))}
+            max={Number(singlePrecision(proposal.requiredQuorum.toString()))}
           />
 
           <VotingPeriods

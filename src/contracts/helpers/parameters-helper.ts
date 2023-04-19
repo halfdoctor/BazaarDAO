@@ -1,4 +1,4 @@
-import { filterParameter, getParametersValue, ParameterType } from '@q-dev/gdk-sdk';
+import { DAO_RESERVED_NAME, filterParameter, getParametersValue, ParameterType } from '@q-dev/gdk-sdk';
 import { ParameterKey } from 'typings/forms';
 import { ParameterValue } from 'typings/parameters';
 
@@ -14,7 +14,7 @@ export async function getParameters (
     if (!daoInstance) return [];
 
     const panelParametersInstance = await daoInstance?.getParameterStorageInstance(panelName);
-    const panelParameters = await panelParametersInstance.instance.methods.getDAOParameters().call();
+    const panelParameters = await panelParametersInstance.instance.getDAOParameters();
 
     const filteredParameters = parameterType
       ? filterParameter(panelParameters, parameterType)
@@ -34,26 +34,26 @@ export async function getRegistryContracts (): Promise<ParameterValue[]> {
   try {
     if (!daoInstance) return [];
 
-    const { methods } = daoInstance.DAORegistryInstance.instance;
-    const panels = await methods.getPanels().call();
+    const { instance } = daoInstance.DAORegistryInstance;
+    const panels = await instance.getPanels();
 
     const contractKeyToMethodMap = {
-      'Permission Manager': methods.getPermissionManager(),
-      'Voting Factory': methods.getVotingFactory(),
-      'Voting Registry': methods.getVotingRegistry(),
-      'DAO Vault': methods.getDAOVault(),
+      'Permission Manager': instance.getPermissionManager(),
+      'Voting Factory': instance.getVotingFactory(),
+      'Voting Registry': instance.getVotingRegistry(),
+      'DAO Vault': instance.getDAOVault(),
       ...panels.reduce((acc, panel) => ({
         ...acc,
-        [`${panel} Voting`]: methods.getDAOVoting(panel),
-        [`${panel} Parameter Storage`]: methods.getDAOParameterStorage(panel),
-        [`${panel} Member Storage`]: methods.getDAOMemberStorage(panel),
+        [`${panel} Voting`]: panel === DAO_RESERVED_NAME ? instance.getGeneralDAOVoting(panel) : instance.getExpertsDAOVoting(panel),
+        [`${panel} Parameter Storage`]: instance.getDAOParameterStorage(panel),
+        [`${panel} Member Storage`]: panel === DAO_RESERVED_NAME ? undefined : instance.getDAOMemberStorage(panel),
       }), {}),
     };
 
     const contractValues: ParameterValue[] = await Promise.all(
       Object.entries(contractKeyToMethodMap)
-        .map(([name, method]) => method.call()
-          .then((value) => ({
+        .map(([name, method]) => method
+          ?.then((value) => ({
             name,
             value,
             normalValue: value,

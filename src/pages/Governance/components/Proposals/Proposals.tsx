@@ -28,7 +28,7 @@ function Proposals ({ panelName }: { panelName: string }) {
     const newList = (await getProposalsList(panelName, offset, PAGE_LIMIT) || []) as DaoProposal[];
     const futureList = await getProposalsList(panelName, offset + PAGE_LIMIT, PAGE_LIMIT) || []; // need to optimize
     const preparedProposalList = await Promise.all(
-      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id))
+      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id.toString()))
     );
     setList(preparedProposalList as ProposalBaseInfo[]);
     setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);
@@ -40,7 +40,7 @@ function Proposals ({ panelName }: { panelName: string }) {
     const newList = (await getProposalsList(panelName, newOffset, PAGE_LIMIT) || []) as DaoProposal[];
     const futureList = await getProposalsList(panelName, newOffset + PAGE_LIMIT, PAGE_LIMIT) || []; // need to optimize
     const preparedProposalList = await Promise.all(
-      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id))
+      newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id.toString()))
     );
     setList(oldList => [...oldList, ...preparedProposalList] as ProposalBaseInfo[]);
     setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);

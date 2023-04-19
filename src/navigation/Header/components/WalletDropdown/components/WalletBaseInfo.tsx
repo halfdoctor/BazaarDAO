@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Icon } from '@q-dev/q-ui-kit';
-import { useWeb3Context } from 'context/Web3ContextProvider';
+import { useWeb3Context } from 'context/Web3ContextProvider/Web3ContextProvider';
 import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
-
-import { useUser } from 'store/user/hooks';
 
 const WalletBaseInfoWrapper = styled.div`
    .wallet-base-info__address-button {
@@ -35,13 +33,12 @@ interface Props {
 
 function WalletBaseInfo ({ onClick }: Props) {
   const { t } = useTranslation();
-  const { disconnectWallet } = useWeb3Context();
-  const user = useUser();
-
+  const { currentProvider, disconnect } = useWeb3Context();
   const [isCopied, setIsCopied] = useState(false);
 
   function copyAddress () {
-    copy(user.address);
+    if (!currentProvider) return;
+    copy(currentProvider.selectedAddress);
     setIsCopied(true);
 
     setTimeout(() => {
@@ -71,7 +68,7 @@ function WalletBaseInfo ({ onClick }: Props) {
       <button
         type="button"
         className="wallet-base-info__address-button text-lg color-primary"
-        onClick={disconnectWallet}
+        onClick={() => disconnect()}
       >
         <Icon name="sign-out" />
         <span>{t('DISCONNECT_WALLET')}</span>

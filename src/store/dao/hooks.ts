@@ -1,22 +1,24 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { DAO_MAIN_PANEL_NAME, ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
-import IERC165 from '@q-dev/gdk-sdk/lib/abi/IERC165.json';
-import { Contract } from 'web3-eth-contract';
-import { AbiItem, } from 'web3-utils';
+import { DAO_RESERVED_NAME, ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
+import { useWeb3Context } from 'context/Web3ContextProvider';
+import { isAddress } from 'helpers';
+import { approveErc20, getAllowanceErc20, getErc20ContractInstance, getErc20ContractSigner, loadDetailsErc20 } from 'helpers/erc-20';
+import { getErc165ContractInstance, getIsSupportedInterface } from 'helpers/erc-165';
+import { getErc721ContractInstance, getErc721ContractSigner, getIsApprovedForAllErc721, loadDetailsErc721, setApprovalForAllErc721 } from 'helpers/erc-721';
 
 import { setDaoAddress, setTokenInfo, setVotingToken, TokenInfo } from './reducer';
 
-import { getState, getUserAddress, useAppSelector } from 'store';
+import { getState, useAppSelector } from 'store';
 
-import { daoInstance, getDaoInstance, getErc20Contract, getErc721Contract } from 'contracts/contract-instance';
+import { daoInstance, getDaoInstance } from 'contracts/contract-instance';
 
 import { ERC_721_INTERFACE_ID, MAX_APPROVE_AMOUNT } from 'constants/boundaries';
+import { PROVIDERS } from 'constants/providers';
 import { captureError } from 'utils/errors';
-import { isAddress } from 'utils/web3';
 
-const Q_TOKEN_INFO: TokenInfo = {
+export const Q_TOKEN_INFO: TokenInfo = {
   name: 'Q',
   symbol: 'Q',
   decimals: 18,
@@ -27,9 +29,23 @@ const Q_TOKEN_INFO: TokenInfo = {
   totalSupplyCap: '1000000000',
   owner: ''
 };
+export const EMPTY_TOKEN_INFO: TokenInfo = {
+  name: '',
+  symbol: '',
+  address: '',
+  decimals: 0,
+  isNative: true,
+  isErc721: false,
+  allowance: '0',
+  totalSupply: '0',
+  totalSupplyCap: '0',
+  owner: '',
+};
 
 export function useDaoStore () {
   const dispatch = useDispatch();
+  const { currentProvider } = useWeb3Context();
+
   const daoAddress = useAppSelector(({ dao }) => dao.daoAddress);
   const votingToken = useAppSelector(({ dao }) => dao.votingToken);
   const tokenInfo = useAppSelector(({ dao }) => dao.tokenInfo);
@@ -46,9 +62,11 @@ export function useDaoStore () {
   async function loadDaoVotingToken () {
     try {
       const { daoAddress } = getState().dao;
-      if (!daoAddress) return;
-      const daoInstance = getDaoInstance(daoAddress);
-      const votingToken = await daoInstance.getPanelVotingTokenAddress(DAO_MAIN_PANEL_NAME);
+      if (!daoAddress || !currentProvider?.currentProvider) return;
+      const daoInstance = currentProvider.selectedProvider === PROVIDERS.default || !currentProvider?.currentSigner
+        ? getDaoInstance(daoAddress, currentProvider.currentProvider)
+        : getDaoInstance(daoAddress, currentProvider.currentSigner);
+      const votingToken = await daoInstance.getPanelVotingTokenAddress(DAO_RESERVED_NAME);
       dispatch(setVotingToken(votingToken));
     } catch (error) {
       captureError(error);
@@ -65,35 +83,46 @@ export function useDaoStore () {
     }
   }
 
+  async function supportsInterface () {
+    try {
+      const { votingToken } = getState().dao;
+      if (!votingToken || !currentProvider.currentProvider) return;
+      getErc165ContractInstance(votingToken, currentProvider.currentProvider);
+      const isTest = await getIsSupportedInterface(ERC_721_INTERFACE_ID);
+      return isTest;
+    } catch (_) {
+      return false;
+    }
+  };
+
   async function getTokenInfo () {
     try {
       const { votingToken } = getState().dao;
       if (!votingToken) return;
       const isNativeToken = votingToken === ETHEREUM_ADDRESS;
-      const isErc721 = await checkIsErc721Contract(votingToken);
-      const tokenInfo: TokenInfo = isNativeToken
+      const isErc721 = await supportsInterface();
+      const tokenInfo = isNativeToken
         ? Q_TOKEN_INFO
         : isErc721
           ? await getErc721Info(votingToken)
           : await getErc20Info(votingToken);
-      dispatch(setTokenInfo({ ...tokenInfo }));
+      dispatch(setTokenInfo(tokenInfo || EMPTY_TOKEN_INFO));
     } catch (error) {
       captureError(error);
     }
   }
 
   async function getErc20Info (tokenAddress: string) {
-    const tokenContract = getErc20Contract(tokenAddress);
-
-    const [decimals, name, symbol, totalSupply, owner, totalSupplyCap, allowance] = await Promise.all([
-      tokenContract.methods.decimals().call(),
-      tokenContract.methods.name().call(),
-      tokenContract.methods.symbol().call(),
-      tokenContract.methods.totalSupply().call(),
-      getTokenOwner(tokenContract),
-      getTotalSupplyCap(tokenContract),
-      getAllowance(tokenContract),
-    ]);
+    if (!daoInstance || !currentProvider?.currentProvider) return;
+    getErc20ContractInstance(tokenAddress, currentProvider.currentProvider);
+    if (currentProvider?.currentSigner) {
+      getErc20ContractSigner(tokenAddress, currentProvider.currentSigner);
+    }
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    const details = await loadDetailsErc20(currentProvider);
+    const allowance = await getAllowanceErc20(currentProvider.selectedAddress, daoVaultInstance.address);
+    if (!details) return;
+    const { decimals, name, symbol, totalSupply, owner, totalSupplyCap } = details;
 
     return {
       decimals,
@@ -103,21 +132,22 @@ export function useDaoStore () {
       totalSupplyCap,
       owner,
       isNative: false,
-      allowance,
-      address: tokenAddress
+      allowance: allowance,
+      address: tokenAddress,
     };
   }
 
   async function getErc721Info (tokenAddress: string) {
-    const tokenContract = getErc721Contract(tokenAddress);
-    const [name, symbol, totalSupply, owner, totalSupplyCap, isApprovedForAll] = await Promise.all([
-      tokenContract.methods.name().call(),
-      tokenContract.methods.symbol().call(),
-      tokenContract.methods.totalSupply().call(),
-      getTokenOwner(tokenContract),
-      getTotalSupplyCap(tokenContract),
-      getIsApprovedForAll(tokenContract),
-    ]);
+    if (!daoInstance || !currentProvider?.currentProvider) return;
+    getErc721ContractInstance(tokenAddress, currentProvider.currentProvider);
+    if (currentProvider?.currentSigner) {
+      getErc721ContractSigner(tokenAddress, currentProvider.currentSigner);
+    }
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    const details = await loadDetailsErc721(currentProvider);
+    const isApprovedForAll = await getIsApprovedForAllErc721(daoVaultInstance.address, currentProvider.selectedAddress);
+    if (!details) return;
+    const { name, symbol, totalSupply, owner, totalSupplyCap } = details;
 
     return {
       decimals: 0,
@@ -134,78 +164,13 @@ export function useDaoStore () {
     };
   }
 
-  async function getAllowance (tokenContract: Contract) {
-    if (!daoInstance) return;
-    const daoVaultInstance = await daoInstance.getVaultInstance();
-    return tokenContract.methods.allowance(getUserAddress(), daoVaultInstance.address).call();
-  }
-
-  async function getIsApprovedForAll (tokenContract: Contract) {
-    if (!daoInstance) return;
-    const daoVaultInstance = await daoInstance.getVaultInstance();
-    return tokenContract.methods.isApprovedForAll(getUserAddress(), daoVaultInstance.address).call();
-  }
-
   async function approveToken () {
     const { votingToken, tokenInfo } = getState().dao;
     if (!votingToken || !daoInstance) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
-    const tokenContract = tokenInfo.isErc721 ? getErc721Contract(votingToken) : getErc20Contract(votingToken);
     return tokenInfo.isErc721
-      ? tokenContract.methods.setApprovalForAll(daoVaultInstance.address, true).send({
-        from: getUserAddress()
-      })
-      : tokenContract.methods.approve(daoVaultInstance.address, MAX_APPROVE_AMOUNT).send({
-        from: getUserAddress()
-      });
-  }
-
-  // TODO: create separate hook with erc20 info
-  async function getTotalSupplyCap (tokenContract: Contract) {
-    try {
-      const totalSupplyCap = await tokenContract.methods.totalSupplyCap().call();
-      return totalSupplyCap;
-    } catch (error) {
-      captureError(error);
-      return '0';
-    }
-  }
-
-  async function getTokenOwner (tokenContract: Contract) {
-    try {
-      const owner = await tokenContract.methods.owner().call();
-      return owner;
-    } catch (error) {
-      captureError(error);
-      return '';
-    }
-  }
-  async function mintErc20Token (address: string, amount: string) {
-    const { tokenInfo } = getState().dao;
-    if (!tokenInfo) return;
-    const tokenContract = getErc20Contract(tokenInfo.address);
-    return tokenContract.methods.mintTo(address, amount).send({
-      from: getUserAddress()
-    });
-  }
-  async function mintErc721Token (address: string, amount: string | number, tokenURI: string) {
-    const { tokenInfo } = getState().dao;
-    if (!tokenInfo) return;
-    const tokenContract = getErc721Contract(tokenInfo.address);
-    return tokenContract.methods.mintTo(address, Number(amount), tokenURI).send({
-      from: getUserAddress()
-    });
-  }
-
-  async function checkIsErc721Contract (contract: string) {
-    try {
-      const myContract = new window.web3.eth.Contract(IERC165 as AbiItem[], contract);
-      const isErc721Interface = await myContract.methods.supportsInterface(ERC_721_INTERFACE_ID).call();
-      return isErc721Interface;
-    } catch (error) {
-      captureError(error);
-      return false;
-    }
+      ? setApprovalForAllErc721(daoVaultInstance.address, true)
+      : approveErc20(daoVaultInstance.address, MAX_APPROVE_AMOUNT, currentProvider.selectedAddress);
   }
 
   return {
@@ -213,11 +178,8 @@ export function useDaoStore () {
     votingToken,
     tokenInfo,
 
-    setDaoAddress: useCallback(setNewDaoAddress, []),
-    loadDaoVotingToken: useCallback(loadDaoVotingToken, []),
-    loadAllDaoInfo: useCallback(loadAllDaoInfo, []),
-    approveToken: useCallback(approveToken, []),
-    mintErc20Token: useCallback(mintErc20Token, []),
-    mintErc721Token: useCallback(mintErc721Token, []),
+    loadDaoVotingToken: useCallback(loadDaoVotingToken, [currentProvider, daoInstance]),
+    loadAllDaoInfo: useCallback(loadAllDaoInfo, [currentProvider, daoInstance]),
+    approveToken: useCallback(approveToken, [currentProvider, daoInstance]),
   };
 }

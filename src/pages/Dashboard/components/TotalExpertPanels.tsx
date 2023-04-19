@@ -23,7 +23,7 @@ const StyledWrapper = styled.div`
 
 function TotalExpertPanels () {
   const { t } = useTranslation();
-  const { panels } = useExpertPanels();
+  const { expertPanels } = useExpertPanels();
   // TODO: get from contract
   const activeProposalsCount = 0;
 
@@ -32,7 +32,7 @@ function TotalExpertPanels () {
       <div>
         <h2 className="text-lg">{t('TOTAL_EXPERT_PANELS')}</h2>
         <p className="total-expert-panels__val text-xl font-semibold">
-          {panels.length}
+          {expertPanels.length}
         </p>
         <p className="total-expert-panels__proposals text-sm">
           <span className="font-light">{t('ACTIVE_PROPOSALS_COUNT')}</span>

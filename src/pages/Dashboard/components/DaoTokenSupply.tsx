@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button, Dropdown, Icon, Modal } from '@q-dev/q-ui-kit';
 import { formatNumberCompact } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
@@ -10,7 +11,6 @@ import ExplorerAddress from 'components/Custom/ExplorerAddress';
 import MintForm from './components/MintForm';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useUser } from 'store/user/hooks';
 
 import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals } from 'utils/numbers';
@@ -76,22 +76,23 @@ function DaoTokenSupply () {
   const { tokenInfo } = useDaoStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { address } = useUser();
+  const { currentProvider } = useWeb3Context();
 
-  async function addTokenToWallet () {
+  // TODO: Add in separate func
+  async function addTokenToWallet () { // to Provider
     if (!window?.ethereum) return;
     try {
-      await window.ethereum.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: tokenInfo.address,
-            symbol: tokenInfo.symbol,
-            decimals: tokenInfo.decimals,
-          },
-        },
-      });
+      // await window.ethereum.request({
+      //   method: 'wallet_watchAsset',
+      //   params: {
+      //     type: 'ERC20',
+      //     options: {
+      //       address: tokenInfo.address,
+      //       symbol: tokenInfo.symbol,
+      //       decimals: tokenInfo.decimals,
+      //     },
+      //   },
+      // });
     } catch (error) {
       captureError(error);
     }
@@ -129,7 +130,7 @@ function DaoTokenSupply () {
               />
               <span>{t('ADD_TO_WALLET')}</span>
             </button>
-            {tokenInfo.owner === address && (
+            {tokenInfo.owner === currentProvider?.selectedAddress && (
               <button
                 className="dao-token-supply__menu-item text-md"
                 onClick={() => setIsModalOpen(true)}

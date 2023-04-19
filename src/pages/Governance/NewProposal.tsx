@@ -17,17 +17,17 @@ import { useExpertPanels } from 'store/expert-panels/hooks';
 
 function NewProposal () {
   const { t } = useTranslation();
-  const { loadExpertPanels, panels } = useExpertPanels();
+  const { loadExpertPanels, allPanels } = useExpertPanels();
   const { composeDaoLink } = useDao();
   const [isLoading, setIsLoading] = useState(true);
 
   const tabs = useMemo(() => {
-    return panels.map((name, index) => ({
+    return allPanels.map((name, index) => ({
       id: index,
       label: name,
       link: composeDaoLink(`/governance/panel-${index}/new`),
     }));
-  }, [panels]);
+  }, [allPanels]);
 
   const loadAllPanels = async () => {
     setIsLoading(true);

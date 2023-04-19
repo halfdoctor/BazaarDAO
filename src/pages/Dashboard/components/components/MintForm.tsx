@@ -2,13 +2,16 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { url, useForm } from '@q-dev/form-hooks';
+import { useForm } from '@q-dev/form-hooks';
 import { toBigNumber } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
+import { mintToErc20 } from 'helpers/erc-20';
+import { mintToErc721 } from 'helpers/erc-721';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
 import Input from 'components/Input';
+
+import useLoadDao from 'hooks/useLoadDao';
 
 import MintDetails from './MintDetails';
 
@@ -16,7 +19,7 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { fromWeiWithDecimals, toWeiWithDecimals } from 'utils/numbers';
-import { amount, integer, min, number, required } from 'utils/validators';
+import { amount, integer, min, number, required, url } from 'utils/validators';
 
 export const StyledMintForm = styled.form`
   display: grid;
@@ -41,8 +44,8 @@ interface Props {
 function MintForm ({ onSubmit }: Props) {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { tokenInfo, mintErc20Token, mintErc721Token } = useDaoStore();
-  const { loadAdditionalInfo } = useWeb3Context();
+  const { tokenInfo } = useDaoStore();
+  const { loadAdditionalInfo } = useLoadDao();
 
   const maxMintValue = useMemo(() => {
     const mintValue = toBigNumber(tokenInfo.totalSupplyCap).minus(tokenInfo.totalSupply);
@@ -73,8 +76,8 @@ function MintForm ({ onSubmit }: Props) {
         successMessage: t('MINT_TX'),
         onConfirm: () => onSubmit(),
         submitFn: () => tokenInfo.isErc721
-          ? mintErc721Token(form.recipient, form.erc721Id, form.tokenURI)
-          : mintErc20Token(form.recipient, toWeiWithDecimals(form.amount, tokenInfo.decimals)),
+          ? mintToErc721(form.recipient, form.erc721Id, form.tokenURI)
+          : mintToErc20(form.recipient, toWeiWithDecimals(form.amount, tokenInfo.decimals)),
         onSuccess: () => loadAdditionalInfo(),
       });
     }

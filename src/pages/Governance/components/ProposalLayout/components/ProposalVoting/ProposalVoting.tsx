@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { VotingType } from '@q-dev/gdk-sdk';
 import { Progress, Tooltip } from '@q-dev/q-ui-kit';
 import { formatNumber, formatPercent, toBigNumber, unixToDate } from '@q-dev/utils';
+import { singlePrecision } from 'helpers';
 import { useTheme } from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -14,21 +15,20 @@ import { StyledProposalVoting } from './styles';
 import { useDaoStore } from 'store/dao/hooks';
 
 import { fromWeiWithDecimals } from 'utils/numbers';
-import { singlePrecision } from 'utils/web3';
 
 function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { tokenInfo } = useDaoStore();
-  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
+  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime.toString()));
 
   const isRestrictedVote = useMemo(() => {
-    return proposal.params.votingType.toString() === VotingType.Restricted;
+    return proposal.params.votingType === VotingType.Restricted;
   }, [proposal]);
 
   const totalVotes = useMemo(() => {
     return toBigNumber(
-      proposal.counters.votedFor).plus(proposal.counters.votedAgainst).toNumber();
+      proposal.counters.votedFor.toString()).plus(proposal.counters.votedAgainst.toString()).toNumber();
   }, [proposal]);
 
   return (
@@ -48,7 +48,7 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
       <div className="block__content">
         <p className="proposal-voting__majority text-md">
           {t('MAJORITY_REQUIREMENT', {
-            majority: `>${formatPercent(singlePrecision(proposal.params.requiredMajority))}`
+            majority: `>${formatPercent(singlePrecision(proposal.params.requiredMajority.toString()))}`
           })}
         </p>
 
@@ -70,12 +70,12 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
               {t('YES')}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatPercent(toBigNumber(proposal.counters.votedFor).div(totalVotes).multipliedBy(100))}
+              {formatPercent(toBigNumber(proposal.counters.votedFor.toString()).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
               {formatNumber(isRestrictedVote
-                ? proposal.counters.votedFor
-                : fromWeiWithDecimals(proposal.counters.votedFor, tokenInfo.decimals))}
+                ? proposal.counters.votedFor.toString()
+                : fromWeiWithDecimals(proposal.counters.votedFor.toString(), tokenInfo.decimals))}
             </p>
           </div>
 
@@ -88,12 +88,12 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
               {t('NO')}
             </p>
             <p className="text-md proposal-voting__vote-val">
-              {formatPercent(toBigNumber(proposal.counters.votedAgainst).div(totalVotes).multipliedBy(100))}
+              {formatPercent(toBigNumber(proposal.counters.votedAgainst.toString()).div(totalVotes).multipliedBy(100))}
             </p>
             <p className="text-md proposal-voting__vote-val">
               {formatNumber(isRestrictedVote
-                ? proposal.counters.votedAgainst
-                : fromWeiWithDecimals(proposal.counters.votedAgainst, tokenInfo.decimals))}
+                ? proposal.counters.votedAgainst.toString()
+                : fromWeiWithDecimals(proposal.counters.votedAgainst.toString(), tokenInfo.decimals))}
             </p>
           </div>
         </div>

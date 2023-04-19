@@ -32,7 +32,7 @@ function ProposalActions ({ proposal, title }: Props) {
   const [isUserCanVoting, setIsUserCanVoting] = useState(false);
   const [isUserCanVeto, setIsUserCanVeto] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime));
+  const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime.toString()));
 
   const loadPermissions = async () => {
     const [isCanVoting, isCanVeto] = await Promise.all([

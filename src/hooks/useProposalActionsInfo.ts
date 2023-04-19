@@ -1,12 +1,12 @@
 
 import { useCallback } from 'react';
 
+import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
-import { fromWei } from 'web3-utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 
 import { useDaoProposals } from './useDaoProposals';
 
-import { getUserAddress } from 'store';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
@@ -16,12 +16,13 @@ import { captureError } from 'utils/errors';
 function useProposalActionsInfo () {
   const { vaultBalance } = useDaoVault();
   const { getPanelSituationInfo } = useDaoProposals();
+  const { currentProvider } = useWeb3Context();
 
   async function checkIsUserMember (panelName: string) {
     try {
-      if (!daoInstance) return false;
+      if (!daoInstance || panelName === DAO_RESERVED_NAME) return false;
       const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
-      return memberStorageInstance.instance.methods.isMember(getUserAddress()).call();
+      return memberStorageInstance.instance.isMember(currentProvider.selectedAddress);
     } catch (error) {
       captureError(error);
       return false;
@@ -32,8 +33,8 @@ function useProposalActionsInfo () {
       if (!daoInstance) return false;
       const permissionManagerInstance = await daoInstance.getPermissionManagerInstance();
       const vetoGroupMembers = await permissionManagerInstance
-        .instance.methods.getVetoGroupMembers(target).call();
-      return vetoGroupMembers.includes(getUserAddress());
+        .instance.getVetoGroupMembers(target);
+      return vetoGroupMembers.includes(currentProvider.selectedAddress);
     } catch (error) {
       captureError(error);
       return false;
@@ -45,8 +46,8 @@ function useProposalActionsInfo () {
       if (!situationInfo) return false;
       const isUserMember = await checkIsUserMember(panelName);
       const isUserHasVotingPower = toBigNumber(vaultBalance)
-        .isGreaterThan(fromWei(situationInfo?.votingMinAmount));
-      return isUserHasVotingPower && (situationInfo.votingType === '0' || isUserMember);
+        .isGreaterThanOrEqualTo(situationInfo?.votingMinAmount.toString());
+      return isUserHasVotingPower && (situationInfo.votingType.toString() === '0' || isUserMember);
     } catch (error) {
       captureError(error);
       return false;
@@ -59,8 +60,8 @@ function useProposalActionsInfo () {
       if (!situationInfo) return false;
       const isUserMember = await checkIsUserMember(panelName);
       const isUserHasVotingPower = toBigNumber(vaultBalance)
-        .isGreaterThan(fromWei(situationInfo?.votingMinAmount));
-      return isUserHasVotingPower && (situationInfo.votingType !== '1' || isUserMember);
+        .isGreaterThanOrEqualTo(situationInfo?.votingMinAmount.toString());
+      return isUserHasVotingPower && (situationInfo.votingType.toString() !== '1' || isUserMember);
     } catch (error) {
       captureError(error);
       return false;

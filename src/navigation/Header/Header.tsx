@@ -17,7 +17,7 @@ import { StyledHeader } from './styles';
 
 function Header ({ onMenuClick }: { onMenuClick: () => void }) {
   const { t } = useTranslation();
-  const { isConnected } = useWeb3Context();
+  const { currentProvider } = useWeb3Context();
   const { isDaoPage } = useDao();
 
   return (
@@ -52,7 +52,7 @@ function Header ({ onMenuClick }: { onMenuClick: () => void }) {
           </Button>
         </div>
         <div className="header__actions">
-          {isConnected
+          {currentProvider?.isConnected
             ? (
               <>
                 {isDaoPage && <Balance />}

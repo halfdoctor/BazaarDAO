@@ -36,8 +36,8 @@ function Input ({
   alwaysEnabled,
   ...rest
 }: Props) {
-  const { isConnected, isRightNetwork } = useWeb3Context();
-  const isDisabled = disabled || (!alwaysEnabled && (!isConnected || !isRightNetwork));
+  const { currentProvider, isRightNetwork } = useWeb3Context();
+  const isDisabled = disabled || (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
 
   return (
     <UiInput

@@ -1,6 +1,7 @@
 import { getValidatorValue } from '@q-dev/form-hooks';
 import { ParameterType } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
+import { isAddress } from 'helpers';
 import i18n from 'i18next';
 import { isBoolean } from 'lodash';
 import isDate from 'lodash/isDate';
@@ -8,7 +9,6 @@ import isEmpty from 'lodash/isEmpty';
 import isNumber from 'lodash/isNumber';
 
 import { ZERO_ADDRESS } from 'constants/boundaries';
-import { isAddress } from 'utils/web3';
 
 const HASH_REGEX = /^0x[a-fA-F0-9]{64}$/;
 const VAULT_ID_REGEX = /^[0-9]{1,18}$/;

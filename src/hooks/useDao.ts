@@ -2,26 +2,32 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { useWeb3Context } from 'context/Web3ContextProvider';
+import { isAddress } from 'helpers';
+
 import useNetworkConfig from './useNetworkConfig';
 
 import { getMasterDaoRegistryInstance } from 'contracts/contract-instance';
 
-import { isAddress } from 'utils/web3';
-
 function useDao () {
   const { pathname } = useLocation();
+  const { masterDaoRegistryAddress } = useNetworkConfig();
+  const { currentProvider } = useWeb3Context();
   const isDaoLoading = false;
   const pathDaoAddress = useMemo(() => pathname.split('/')[1] || '', [pathname]);
   const isDaoPage = isAddress(pathDaoAddress);
-  const { masterDaoRegistryAddress } = useNetworkConfig();
 
   function composeDaoLink (path: string) {
     return `/${pathDaoAddress}${path}`;
   }
 
   const searchDaoAddress = async (address: string) => {
-    const masterDaoRegistryInstance = getMasterDaoRegistryInstance(masterDaoRegistryAddress);
-    return masterDaoRegistryInstance.instance.methods.containsPool('DAO_REGISTRY', address.toLowerCase()).call();
+    if (!currentProvider.currentProvider) return;
+    const masterDaoRegistryInstance = getMasterDaoRegistryInstance(
+      masterDaoRegistryAddress, currentProvider.currentProvider
+    );
+
+    return masterDaoRegistryInstance.instance.containsPool('DAO_REGISTRY', address.toLowerCase());
   };
 
   return {

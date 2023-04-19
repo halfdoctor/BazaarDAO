@@ -70,6 +70,7 @@ function DaoAddressForm () {
       />
 
       <Button
+        alwaysEnabled
         type="submit"
         disabled={!form.isValid}
         className="dao-address-form__btn"

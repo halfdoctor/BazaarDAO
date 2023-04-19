@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media, Select } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -14,7 +15,6 @@ import useApproveToken from 'hooks/useApproveToken';
 import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
-import { useUser } from 'store/user/hooks';
 
 import { getDAOVaultDepositAmount } from 'contracts/helpers/dao-vault-helper';
 
@@ -38,9 +38,9 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault, loadAllBalances, walletNftsList } = useDaoVault();
+  const { walletBalance, depositToVault, loadAllBalances, walletNftsList, chainBalance } = useDaoVault();
   const { submitTransaction } = useTransaction();
-  const { address } = useUser();
+  const { currentProvider } = useWeb3Context();
   const { tokenInfo } = useDaoStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
 
@@ -61,7 +61,7 @@ function DepositForm () {
         ? approveSpendToken()
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
-          submitFn: () => depositToVault({ address: address, amount, erc721Id: id }),
+          submitFn: () => depositToVault({ address: currentProvider?.selectedAddress, amount, erc721Id: id }),
           onSuccess: () => {
             form.reset();
             loadAllBalances();
@@ -71,7 +71,7 @@ function DepositForm () {
   });
 
   const updateMaxAmount = async () => {
-    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, tokenInfo);
+    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, tokenInfo, chainBalance);
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
@@ -98,7 +98,7 @@ function DepositForm () {
             ? <Select
               {...form.fields.id}
               label={t('NFT_ID')}
-              options={walletNftsList.map(item => ({ value: item, label: item }))}
+              options={walletNftsList.map((item: string) => ({ value: item, label: item }))}
               hint={t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
               placeholder={t('NFT_ID')}
             />
