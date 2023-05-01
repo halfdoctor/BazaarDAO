@@ -4,7 +4,7 @@ import { ethers, utils } from 'ethers';
 import { Chain, EthProviderRpcError } from 'typings';
 
 export function isAddress (value: string) {
-  return utils.isAddress(value.toLowerCase());
+  return utils.isAddress(value);
 }
 
 export function singlePrecision (amount?: string | number) {
