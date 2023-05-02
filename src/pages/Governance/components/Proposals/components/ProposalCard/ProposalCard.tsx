@@ -9,11 +9,10 @@ import { singlePrecision } from 'helpers';
 import styled from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
-import useDao from 'hooks/useDao';
-
 import ProposalCardSkeleton from '../ProposalCardSkeleton';
 import VotingPeriods from '../VotingPeriods';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
@@ -65,7 +64,7 @@ transition: all 150ms ease-out;
 
 function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
   const { allPanels } = useExpertPanels();
 
   const leftQuorum = useMemo(() => {

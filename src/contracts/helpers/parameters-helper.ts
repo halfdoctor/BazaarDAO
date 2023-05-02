@@ -44,7 +44,7 @@ export async function getRegistryContracts (): Promise<ParameterValue[]> {
       'DAO Vault': instance.getDAOVault(),
       ...panels.reduce((acc, panel) => ({
         ...acc,
-        [`${panel} Voting`]: panel === DAO_RESERVED_NAME ? instance.getGeneralDAOVoting(panel) : instance.getExpertsDAOVoting(panel),
+        [`${panel} Voting`]: panel === DAO_RESERVED_NAME ? instance.getGeneralDAOVoting(DAO_RESERVED_NAME) : instance.getExpertsDAOVoting(panel),
         [`${panel} Parameter Storage`]: instance.getDAOParameterStorage(panel),
         [`${panel} Member Storage`]: panel === DAO_RESERVED_NAME ? undefined : instance.getDAOMemberStorage(panel),
       }), {}),

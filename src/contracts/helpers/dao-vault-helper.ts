@@ -1,21 +1,25 @@
 import { toBigNumber } from '@q-dev/utils';
 
-import { TokenInfo } from 'store/dao/reducer';
+import { TokenInfo } from 'store/dao-token/reducer';
 
 import { captureError } from 'utils/errors';
 import { toWeiWithDecimals } from 'utils/numbers';
 
 const DEFAULT_GAS_PRICE = '0.04';
 
-export async function getDAOVaultDepositAmount (amount: string, balance: string, token: TokenInfo, qBalance:string) {
+export async function getDAOVaultDepositAmount (
+  amount: string,
+  balance: string,
+  qBalance:string,
+  token: TokenInfo | null) {
   try {
-    if (token.isNative) {
+    if (token?.isNative) {
       return getSpendAmountForNativeToken(amount, balance, token.address);
     }
-    if (token.isErc721) {
+    if (token?.isErc721) {
       return getSpendAmountForErc721(amount, balance, token, qBalance);
     }
-    return getSpendAmountForErc20(amount, balance, token, qBalance);
+    return getSpendAmountForErc20(amount, balance, qBalance, token);
   } catch (error) {
     captureError(error);
     return { balance: '0', canDeposit: false }; ;
@@ -36,9 +40,10 @@ export async function getSpendAmountForErc721 (amount: string, balance: string, 
   }
 }
 
-export async function getSpendAmountForErc20 (amount: string, balance: string, token: TokenInfo, qBalance:string) {
+export async function getSpendAmountForErc20 (
+  amount: string, balance: string, qBalance:string, token: TokenInfo | null) {
   try {
-    if (!token.address) { return { balance: '0', canDeposit: false }; }
+    if (!token || !token?.address) { return { balance: '0', canDeposit: false }; }
 
     const amountInWei = toWeiWithDecimals(amount, token.decimals);
 

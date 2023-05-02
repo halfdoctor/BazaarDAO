@@ -1,7 +1,7 @@
 import { media } from '@q-dev/q-ui-kit';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-export const StyledHeader = styled.header`
+export const StyledHeader = styled.header<{isSelectPage: boolean}>`
   width: 100%;
   border-bottom: 1px solid ${({ theme }) => theme.colors.borderPrimary};
   height: 72px;
@@ -26,11 +26,18 @@ export const StyledHeader = styled.header`
     align-items: center;
   }
 
+  .header__left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
   .header__logo {
     width: 40px;
     transform: scale(1.5);
   }
 
+  .header__actions-network,
   .header__network {
     ${media.lessThan('medium')} {
       display: none;
@@ -55,4 +62,10 @@ export const StyledHeader = styled.header`
       display: none;
     }
   }
+
+  ${({ isSelectPage }) => isSelectPage && css`
+    .header__menu {
+      display: inline-flex;
+    }
+  `};
 `;

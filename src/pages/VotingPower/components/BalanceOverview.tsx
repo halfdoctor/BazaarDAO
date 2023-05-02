@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { media } from '@q-dev/q-ui-kit';
 import { useAnimateNumber, useInterval } from '@q-dev/react-hooks';
 import { formatNumberCompact, unixToDate } from '@q-dev/utils';
+import { BigNumber } from 'bignumber.js';
 import styled from 'styled-components';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY } from 'utils/date';
@@ -48,10 +49,13 @@ function BalanceOverview () {
     loadVaultBalance,
     loadWithdrawalAmount
   } = useDaoVault();
-  const { tokenInfo } = useDaoStore();
-  const userQVBalanceRef = useAnimateNumber(vaultBalance, '', formatNumberCompact);
-  const userLockedBalanceRef = useAnimateNumber(lockedBalance, '', formatNumberCompact);
-  const userAccountBalanceRef = useAnimateNumber(walletBalance, '', formatNumberCompact);
+  const { tokenInfo } = useDaoTokenStore();
+
+  const animateNumberFormatter = (value: BigNumber.Value) =>
+    formatNumberCompact(value, tokenInfo ? tokenInfo.formatNumber : 4);
+  const userQVBalanceRef = useAnimateNumber(vaultBalance, '', animateNumberFormatter);
+  const userLockedBalanceRef = useAnimateNumber(lockedBalance, '', animateNumberFormatter);
+  const userAccountBalanceRef = useAnimateNumber(walletBalance, '', animateNumberFormatter);
 
   useEffect(() => {
     loadWalletBalance();
@@ -74,29 +78,29 @@ function BalanceOverview () {
               title={vaultBalance}
               className="text-xl font-semibold"
             >0</p>
-            <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+            <p className="text-xl font-semibold">{tokenInfo?.symbol}</p>
           </div>
         </div>
         <div>
-          <p className="text-md color-secondary">{t('TOKEN_ADDRESS_BALANCE', { token: tokenInfo.symbol })}</p>
+          <p className="text-md color-secondary">{t('TOKEN_ADDRESS_BALANCE', { token: tokenInfo?.symbol })}</p>
           <div className="balance-overview__params-value-wrapper">
             <p
               ref={userAccountBalanceRef}
               title={walletBalance}
               className="text-xl font-semibold"
             >0</p>
-            <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+            <p className="text-xl font-semibold">{tokenInfo?.symbol}</p>
           </div>
         </div>
         <div>
-          <p className="text-md color-secondary">{t('LOCKED_TOKENS', { symbol: tokenInfo.symbol })}</p>
+          <p className="text-md color-secondary">{t('LOCKED_TOKENS', { symbol: tokenInfo?.symbol })}</p>
           <div className="balance-overview__params-value-wrapper">
             <p
               ref={userLockedBalanceRef}
               title={lockedBalance}
               className="text-xl font-semibold"
             >0</p>
-            <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+            <p className="text-xl font-semibold">{tokenInfo?.symbol}</p>
           </div>
         </div>
         <div>

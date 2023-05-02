@@ -13,8 +13,8 @@ import { captureError } from 'utils/errors';
 
 export function useExpertPanels () {
   const dispatch = useDispatch();
-  const expertPanels = useAppSelector(({ expertPanels }) => expertPanels.expertPanels);
-  const allPanels = useAppSelector(({ expertPanels }) => expertPanels.allPanels);
+  const expertPanels: string[] = useAppSelector(({ expertPanels }) => expertPanels.expertPanels);
+  const allPanels: string[] = useAppSelector(({ expertPanels }) => expertPanels.allPanels);
 
   async function loadExpertPanels () {
     try {

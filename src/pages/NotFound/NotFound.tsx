@@ -5,12 +5,15 @@ import Button from 'components/Button';
 
 import { NotFoundContainer } from './styles';
 
-function NotFound () {
+interface Props {
+  text?: string;
+}
+function NotFound ({ text }: Props) {
   const { t } = useTranslation();
   return (
     <NotFoundContainer>
       <p className="text-xl font-semibold">
-        {t('PAGE_DOES_NOT_EXIST')}
+        {text || t('PAGE_DOES_NOT_EXIST')}
       </p>
 
       <Link to="/">

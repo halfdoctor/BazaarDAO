@@ -1,19 +1,8 @@
-import { lazy, useCallback, useEffect } from 'react';
+import { lazy } from 'react';
 import { Route, Switch } from 'react-router-dom';
-
-import * as Sentry from '@sentry/react';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 
 import LazyLoading from 'components/Base/LazyLoading';
 import ErrorBoundary from 'components/Custom/ErrorBoundary';
-
-import useDao from 'hooks/useDao';
-import useLoadDao from 'hooks/useLoadDao';
-
-import { useDaoStore } from 'store/dao/hooks';
-
-import { LOAD_TYPES } from 'constants/statuses';
-import { captureError } from 'utils/errors';
 
 const SelectDAO = lazy(() => import('pages/SelectDAO'));
 const Imprint = lazy(() => import('pages/Imprint'));
@@ -29,40 +18,6 @@ const NewProposal = lazy(() => import('pages/Governance/NewProposal'));
 const Proposal = lazy(() => import('pages/Governance/Proposal'));
 
 function Routes () {
-  const { currentProvider, setLoadAppType } = useWeb3Context();
-  const { daoAddress } = useDaoStore();
-  const { pathDaoAddress } = useDao();
-  const { loadAdditionalInfo } = useLoadDao();
-
-  const loadApp = useCallback(async () => {
-    setLoadAppType(LOAD_TYPES.loading);
-    await loadAdditionalInfo();
-    setLoadAppType(LOAD_TYPES.loaded);
-  }, [pathDaoAddress]);
-
-  const addSentryContext = () => {
-    try {
-      if (!currentProvider) return;
-      Sentry.setContext('additional', { network: currentProvider.chainId });
-    } catch (error) {
-      captureError(error);
-    }
-  };
-
-  useEffect(() => {
-    if (pathDaoAddress && pathDaoAddress !== daoAddress) {
-      loadApp();
-    }
-  }, [pathDaoAddress]);
-
-  useEffect(() => {
-    addSentryContext();
-  }, []);
-
-  useEffect(() => {
-    loadAdditionalInfo();
-  }, [currentProvider]);
-
   return (
     <ErrorBoundary>
       <LazyLoading>

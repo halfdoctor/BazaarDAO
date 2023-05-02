@@ -2,8 +2,9 @@
 import { QRC721 } from '@q-dev/gdk-sdk';
 import { QRC721__factory as Erc721 } from '@q-dev/gdk-sdk/lib/ethers-contracts/factories/QRC721__factory';
 import { providers, Signer } from 'ethers';
-import { handleEthError } from 'helpers';
-import { EthProviderRpcError, UseProvider } from 'typings';
+import { UseProvider } from 'typings';
+
+import { captureError } from 'utils';
 
 export let erc721ContractInstance: QRC721 | null = null;
 export let erc721ContractSigner: QRC721 | null = null;
@@ -39,7 +40,7 @@ export const loadDetailsErc721 = async (provider: UseProvider) => {
       totalSupplyCap: _totalSupplyCap || '',
     };
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
   }
 };
 
@@ -49,7 +50,7 @@ export const mintToErc721 = async (address: string, amount: string | number, tok
   try {
     return erc721ContractSigner?.mintTo(address, amount, tokenURI);
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
   }
 };
 export const setApprovalForAllErc721 = async (address: string, status: boolean) => {
@@ -58,7 +59,7 @@ export const setApprovalForAllErc721 = async (address: string, status: boolean) 
   try {
     return erc721ContractSigner?.setApprovalForAll(address, status);
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
   }
 };
 
@@ -67,7 +68,7 @@ export async function getTokenOfOwnerByIndexErc721 (selectedAddress: string, ind
   try {
     return (await erc721ContractInstance?.tokenOfOwnerByIndex(selectedAddress, index)).toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '0';
   }
 }
@@ -76,7 +77,7 @@ export async function getIsApprovedForAllErc721 (tokenAddress: string, selectedA
   try {
     return erc721ContractInstance?.isApprovedForAll(selectedAddress, tokenAddress);
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return false;
   }
 }
@@ -88,41 +89,41 @@ export const getBalanceOfErc721 = async (address: string) => {
     const balance = await erc721ContractInstance.balanceOf(address);
     return balance.toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '0';
   }
 };
 
 export async function getTotalSupplyCapErc721 () {
-  if (!erc721ContractInstance) return;
+  if (!erc721ContractInstance || !erc721ContractInstance?.totalSupplyCap) return '0';
 
   try {
-    const totalSupplyCap = await erc721ContractInstance?.totalSupplyCap();
+    const totalSupplyCap = await erc721ContractInstance.totalSupplyCap();
     return totalSupplyCap.toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
-    return '';
+    //    captureError(error);
+    return '0';
   }
 }
 
 export const getNameErc721 = async () => {
-  if (!erc721ContractInstance) return;
+  if (!erc721ContractInstance) return '';
 
   try {
     return erc721ContractInstance?.name();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 };
 
 export const getOwnerErc721 = async () => {
-  if (!erc721ContractInstance) return;
+  if (!erc721ContractInstance) return '';
 
   try {
     return erc721ContractInstance?.owner();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 };
@@ -133,18 +134,18 @@ export const getSymbolErc721 = async () => {
   try {
     return erc721ContractInstance?.symbol();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 };
 
 export const getTotalSupplyErc721 = async () => {
-  if (!erc721ContractInstance) return;
+  if (!erc721ContractInstance) return '0';
 
   try {
     return (await erc721ContractInstance?.totalSupply()).toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '0';
   }
 };

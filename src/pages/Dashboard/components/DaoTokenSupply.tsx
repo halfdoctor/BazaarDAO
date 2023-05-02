@@ -1,22 +1,26 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button, Dropdown, Icon, Modal } from '@q-dev/q-ui-kit';
 import { formatNumberCompact } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
 
 import MintForm from './components/MintForm';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
+import { useProviderStore } from 'store/provider/hooks';
 
 import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals } from 'utils/numbers';
 
 const StyledWrapper = styled.div`
   padding: 16px 16px 16px 24px;
+
+  .dao-token-supply__header {
+    min-height: 32px;
+  }
 
   .dao-token-supply__menu {
     background-color: ${({ theme }) => theme.colors.backgroundPrimary};
@@ -73,26 +77,27 @@ const StyledWrapper = styled.div`
 
 function DaoTokenSupply () {
   const { t } = useTranslation();
-  const { tokenInfo } = useDaoStore();
+  const { currentProvider } = useProviderStore();
+  const { tokenInfo } = useDaoTokenStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { currentProvider } = useWeb3Context();
 
-  // TODO: Add in separate func
-  async function addTokenToWallet () { // to Provider
-    if (!window?.ethereum) return;
+  const isErc20Token = useMemo(() => !tokenInfo?.isErc721 && !tokenInfo?.isNative,
+    [tokenInfo]);
+
+  const isTokenOwner = useMemo(() => tokenInfo?.owner === currentProvider?.selectedAddress,
+    [tokenInfo]);
+
+  async function addTokenToWallet () {
+    if (!currentProvider?.provider || !tokenInfo || !isErc20Token) return;
     try {
-      // await window.ethereum.request({
-      //   method: 'wallet_watchAsset',
-      //   params: {
-      //     type: 'ERC20',
-      //     options: {
-      //       address: tokenInfo.address,
-      //       symbol: tokenInfo.symbol,
-      //       decimals: tokenInfo.decimals,
-      //     },
-      //   },
-      // });
+      await currentProvider.addToken(
+        {
+          address: tokenInfo.address,
+          symbol: tokenInfo.symbol,
+          decimals: tokenInfo.decimals
+        }
+      );
     } catch (error) {
       captureError(error);
     }
@@ -100,10 +105,10 @@ function DaoTokenSupply () {
 
   return (
     <StyledWrapper className="block">
-      <div className="block__header">
+      <div className="block__header dao-token-supply__header">
         <h2 className="text-lg">{t('DAO_TOKEN_SUPPLY')}</h2>
 
-        <Dropdown
+        {(isErc20Token || isTokenOwner) && <Dropdown
           right
           open={isMenuOpen}
           trigger={(
@@ -119,7 +124,7 @@ function DaoTokenSupply () {
           onToggle={setIsMenuOpen}
         >
           <div className="dao-token-supply__menu">
-            <button
+            {isErc20Token && <button
               className="dao-token-supply__menu-item text-md"
               onClick={addTokenToWallet}
             >
@@ -129,8 +134,8 @@ function DaoTokenSupply () {
                 alt="metamask"
               />
               <span>{t('ADD_TO_WALLET')}</span>
-            </button>
-            {tokenInfo.owner === currentProvider?.selectedAddress && (
+            </button>}
+            {isTokenOwner && (
               <button
                 className="dao-token-supply__menu-item text-md"
                 onClick={() => setIsModalOpen(true)}
@@ -140,19 +145,27 @@ function DaoTokenSupply () {
               </button>
             )}
           </div>
-        </Dropdown>
+        </Dropdown>}
       </div>
 
       <div className="dao-token-supply__val">
-        <p className="text-xl font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals)}>
-          {formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals))}
-        </p>
-        <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+        {
+          !tokenInfo || tokenInfo.isNative
+            ? <p className="text-xl font-semibold">-</p>
+            : <>
+              <p className="text-xl font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals)}>
+                {formatNumberCompact(
+                  fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals), tokenInfo.formatNumber
+                )}
+              </p>
+              <p className="text-xl font-semibold">{tokenInfo.symbol}</p>
+            </>
+        }
       </div>
 
       <div className="dao-token-supply__contract text-sm">
         <span className="font-light">{t('CONTRACT')}</span>
-        <ExplorerAddress short address={tokenInfo.address} />
+        <ExplorerAddress short address={tokenInfo?.address || ''} />
       </div>
 
       <Modal

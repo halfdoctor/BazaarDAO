@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { formatNumberCompact } from '@q-dev/utils';
 import styled from 'styled-components';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 
 import { fromWeiWithDecimals } from 'utils/numbers';
 
@@ -33,25 +33,31 @@ export const MintDetailsWrapper = styled.div`
 
 function MintDetails ({ isCanMint, availableMintValue }: Props) {
   const { t } = useTranslation();
-  const { tokenInfo } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
 
-  const mintDetailsList = useMemo(() => [
-    {
-      title: t('TOTAL_TOKEN_SUPPLY_CAP'),
-      amountTitle: fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals),
-      amount: formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals))
-    },
-    {
-      title: t('MINTED_TOKENS'),
-      amountTitle: fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals),
-      amount: formatNumberCompact(fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals))
-    },
-    {
-      title: t('AVAILABLE_TOKENS_FOR_MINT'),
-      amountTitle: availableMintValue,
-      amount: formatNumberCompact(availableMintValue)
-    },
-  ], [availableMintValue, tokenInfo, t]);
+  const mintDetailsList = useMemo(() => tokenInfo
+    ? [
+      {
+        title: t('TOTAL_TOKEN_SUPPLY_CAP'),
+        amountTitle: fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals),
+        amount: formatNumberCompact(
+          fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals), tokenInfo.formatNumber
+        )
+      },
+      {
+        title: t('MINTED_TOKENS'),
+        amountTitle: fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals),
+        amount: formatNumberCompact(
+          fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals), tokenInfo.formatNumber
+        )
+      },
+      {
+        title: t('AVAILABLE_TOKENS_FOR_MINT'),
+        amountTitle: availableMintValue,
+        amount: formatNumberCompact(availableMintValue, tokenInfo.formatNumber)
+      },
+    ]
+    : [], [availableMintValue, tokenInfo, t]);
 
   return (
     <MintDetailsWrapper>
@@ -65,7 +71,7 @@ function MintDetails ({ isCanMint, availableMintValue }: Props) {
               <p className="text-lg font-semibold" title={item.amountTitle}>
                 {item.amount}
               </p>
-              <p className="text-lg font-semibold">{tokenInfo.symbol}</p>
+              <p className="text-lg font-semibold">{tokenInfo?.symbol}</p>
             </div>
           </div>
         ))

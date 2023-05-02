@@ -1,16 +1,17 @@
 
 import { trimString } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 
 import AddressIcon from 'components/Custom/AddressIcon';
 
+import { useProviderStore } from 'store/provider/hooks';
+
 function WalletAddress () {
-  const { currentProvider } = useWeb3Context();
+  const { userAddress } = useProviderStore();
 
   return (
     <>
-      <AddressIcon address={currentProvider?.selectedAddress} size={20} />
-      <span>{trimString(currentProvider?.selectedAddress)}</span>
+      <AddressIcon address={userAddress} size={20} />
+      <span>{trimString(userAddress)}</span>
     </>
   );
 }

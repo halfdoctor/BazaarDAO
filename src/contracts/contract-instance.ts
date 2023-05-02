@@ -10,6 +10,10 @@ export const getDaoInstance = (address: string, signer: Signer | providers.Provi
   return daoInstance;
 };
 
+export const resetDaoInstance = () => {
+  daoInstance = null;
+};
+
 export const getMasterDaoRegistryInstance = (masterDaoFactoryAddress: string, signer: Signer | providers.Provider) => {
   masterDaoRegistryInstance = new MasterDAORegistryInstance(signer, masterDaoFactoryAddress);
   return masterDaoRegistryInstance;

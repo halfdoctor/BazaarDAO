@@ -12,7 +12,7 @@ function References () {
 
   const referenceLinks = [
     {
-      title: t('CONSTITUTION'),
+      title: t('Q_CONSTITUTION'),
       href: `${constitutionUrl}/constitution/latest`,
     },
     {

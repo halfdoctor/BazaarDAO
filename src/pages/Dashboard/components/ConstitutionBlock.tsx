@@ -7,8 +7,6 @@ import styled from 'styled-components';
 
 import CopyToClipboard from 'components/CopyToClipboard';
 
-import useNetworkConfig from 'hooks/useNetworkConfig';
-
 import { useConstitution } from 'store/constitution/hooks';
 
 import { formatDateDMY } from 'utils/date';
@@ -64,7 +62,6 @@ function ConstitutionBlock () {
     loadConstitutionHash,
     loadConstitutionLastUpdate
   } = useConstitution();
-  const { constitutionUrl } = useNetworkConfig();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -102,9 +99,6 @@ function ConstitutionBlock () {
           <div className="constitution-block__menu">
             <a
               className="constitution-block__menu-link text-md"
-              href={`${constitutionUrl}/constitution/latest`}
-              target="_blank"
-              rel="noreferrer"
             >
               <Icon name="download" />
               <span>{t('DOWNLOAD')}</span>

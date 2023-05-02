@@ -18,3 +18,8 @@ export interface TimeLockInfoStruct {
   unlockTime: string;
   withdrawalAmount: string;
 }
+
+export interface SupportedDaoNetwork {
+  isDaoExist: boolean;
+  chainId: number;
+}

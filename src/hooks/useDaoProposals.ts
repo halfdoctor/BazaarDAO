@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
-import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
-import { useWeb3Context } from 'context/Web3ContextProvider';
+import { DAO_RESERVED_NAME, DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { NewProposalForm } from 'typings/forms';
 import {
   DaoProposal,
@@ -10,6 +9,8 @@ import {
   ProposalVetoGroupInfo,
   VotingActionType
 } from 'typings/proposals';
+
+import { useProviderStore } from 'store/provider/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 import {
@@ -23,7 +24,7 @@ import { PROPOSAL_STATUS } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 export function useDaoProposals () {
-  const { currentProvider } = useWeb3Context();
+  const { currentProvider } = useProviderStore();
 
   async function getPanelSituations (panelName: string) {
     try {
@@ -68,7 +69,7 @@ export function useDaoProposals () {
 
   async function getUserVotingStats (proposal: DaoProposal) {
     try {
-      if (!daoInstance || !currentProvider.selectedAddress) return { isUserVoted: false, isUserVetoed: false };
+      if (!daoInstance || !currentProvider?.selectedAddress) return { isUserVoted: false, isUserVetoed: false };
       const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
       const isUserVoted = await votingInstance.instance
         .hasUserVoted(Number(proposal.id), currentProvider.selectedAddress);
@@ -95,9 +96,20 @@ export function useDaoProposals () {
       captureError(error);
     }
   }
+
+  async function getProposalMembersCount (proposal: DaoProposal) {
+    try {
+      if (!daoInstance || proposal.relatedExpertPanel === DAO_RESERVED_NAME) return '0';
+      const memberStorageInstance = await daoInstance.getMemberStorageInstance(proposal.relatedExpertPanel);
+      const count = await memberStorageInstance.instance.getMembersCount();
+      return count.toString();
+    } catch (error) {
+      captureError(error);
+    }
+  }
   async function getAccountStatuses () {
     try {
-      if (!daoInstance || !currentProvider.selectedAddress) return [];
+      if (!daoInstance || !currentProvider?.selectedAddress) return [];
       const accountGroupStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
         currentProvider.selectedAddress
       )) as string[];
@@ -137,15 +149,17 @@ export function useDaoProposals () {
     try {
       const proposal = (await getProposal(panelName, proposalId)) as DaoProposal;
       if (!proposal) return;
-      const [userVotingInfo, userVetoInfo, proposalInfo, totalVoteValue] = await Promise.all([
+      const [userVotingInfo, userVetoInfo, proposalInfo, totalVoteValue, membersCount] = await Promise.all([
         getUserVotingStats(proposal),
         getProposalVetoStats(proposal),
         getProposalVotingDetails(proposal),
-        getProposalTurnoutDetails(proposal)
+        getProposalTurnoutDetails(proposal),
+        getProposalMembersCount(proposal)
       ]);
 
       return {
         totalVoteValue,
+        membersCount,
         ...proposal,
         ...userVotingInfo,
         ...userVetoInfo,
@@ -178,9 +192,9 @@ export function useDaoProposals () {
     type: VotingActionType;
     isVotedFor?: boolean;
   }) {
-    if (!daoInstance) return;
+    if (!daoInstance || !currentProvider) return;
     const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
-    const userAddress = currentProvider.selectedAddress;
+    const userAddress = currentProvider?.selectedAddress;
 
     if (type === 'vote') {
       return isVotedFor
@@ -192,9 +206,9 @@ export function useDaoProposals () {
   }
 
   async function executeProposal (proposal: DaoProposal) {
-    if (!daoInstance) return;
+    if (!daoInstance || !currentProvider) return;
     const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
-    const userAddress = currentProvider.selectedAddress;
+    const userAddress = currentProvider?.selectedAddress;
     const promiseStatus = await votingInstance.instance.getProposalStatus(Number(proposal.id));
     return promiseStatus === PROPOSAL_STATUS.passed && !proposal.executed
       ? votingInstance.executeProposal(Number(proposal.id), { from: userAddress })

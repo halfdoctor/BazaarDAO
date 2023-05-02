@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media, Select } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -12,8 +11,9 @@ import Input from 'components/Input';
 
 import useApproveToken from 'hooks/useApproveToken';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
+import { useProviderStore } from 'store/provider/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { getDAOVaultDepositAmount } from 'contracts/helpers/dao-vault-helper';
@@ -40,8 +40,8 @@ function DepositForm () {
   const { t } = useTranslation();
   const { walletBalance, depositToVault, loadAllBalances, walletNftsList, chainBalance } = useDaoVault();
   const { submitTransaction } = useTransaction();
-  const { currentProvider } = useWeb3Context();
-  const { tokenInfo } = useDaoStore();
+  const { currentProvider } = useProviderStore();
+  const { tokenInfo } = useDaoTokenStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
 
   const [maxAmount, setMaxAmount] = useState('0');
@@ -53,8 +53,8 @@ function DepositForm () {
       id: ''
     },
     validators: {
-      amount: tokenInfo.isErc721 ? [] : [required, amount(maxAmount)],
-      id: tokenInfo.isErc721 ? [required] : []
+      amount: tokenInfo?.isErc721 ? [] : [required, amount(maxAmount)],
+      id: tokenInfo?.isErc721 ? [required] : []
     },
     onSubmit: ({ amount, id }) => {
       isDepositApprovalNeeded
@@ -71,7 +71,7 @@ function DepositForm () {
   });
 
   const updateMaxAmount = async () => {
-    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, tokenInfo, chainBalance);
+    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, chainBalance, tokenInfo);
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
@@ -81,7 +81,7 @@ function DepositForm () {
   }, [form.values.amount, tokenInfo, walletBalance]);
 
   const isDepositApprovalNeeded = useMemo(() => {
-    return tokenInfo.isErc721 ? !tokenInfo.isErc721Approved : checkIsApprovalNeeded(form.values.amount);
+    return tokenInfo?.isErc721 ? !tokenInfo?.isErc721Approved : checkIsApprovalNeeded(form.values.amount);
   }, [form.values.amount, tokenInfo]);
 
   return (
@@ -94,7 +94,7 @@ function DepositForm () {
 
       <div className="transfer-form-main">
         {
-          tokenInfo.isErc721
+          tokenInfo?.isErc721
             ? <Select
               {...form.fields.id}
               label={t('NFT_ID')}
@@ -106,10 +106,10 @@ function DepositForm () {
               {...form.fields.amount}
               type="number"
               label={t('AMOUNT')}
-              prefix={tokenInfo.symbol}
+              prefix={tokenInfo?.symbol}
               hint={Number(maxAmount) > 0 && form.values.amount === maxAmount && !canDeposit
                 ? t('WARNING_NO_Q_LEFT')
-                : t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo.symbol) })
+                : t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo?.symbol) })
               }
               max={maxAmount}
               placeholder="0.0"

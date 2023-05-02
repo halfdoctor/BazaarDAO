@@ -7,7 +7,7 @@ import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import { StatsContainer } from './styles';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
 import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
@@ -15,7 +15,7 @@ import { formatDateDMY, formatTimeGMT, unixToDate } from 'utils/date';
 function VotingStats () {
   const { t, i18n } = useTranslation();
   const { vaultBalance, vaultTimeLock, loadWithdrawalAmount } = useDaoVault();
-  const { tokenInfo } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
   const { getAccountStatuses } = useDaoProposals();
   const [voterStatus, setVoterStatus] = useState<string[]>([]);
 
@@ -27,7 +27,7 @@ function VotingStats () {
   const statsList = [
     {
       title: t('TOTAL_VOTING_WEIGHT'),
-      value: formatAsset(vaultBalance, tokenInfo.symbol),
+      value: formatAsset(vaultBalance, tokenInfo?.symbol),
     },
     {
       title: t('VOTING_LOCKING_END'),

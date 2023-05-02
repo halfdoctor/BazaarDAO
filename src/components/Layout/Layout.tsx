@@ -1,26 +1,37 @@
 import { ReactNode, useState } from 'react';
 import { positions, Provider as AlertProvider, transitions } from 'react-alert';
-
-import { useWeb3Context } from 'context/Web3ContextProvider';
+import { useTranslation } from 'react-i18next';
 
 import NetworkWarning from 'components/NetworkWarning';
+import SupportedDaoNetworks from 'components/SupportedDaoNetworks';
 import Toast from 'components/Toast';
 import TransactionLoader from 'components/TransactionLoader';
 import Header from 'navigation/Header';
 import Sidebar from 'navigation/Sidebar';
-
-import useDao from 'hooks/useDao';
+import NotFound from 'pages/NotFound';
 
 import { AppContainer } from './styles';
+
+import { useDaoStore } from 'store/dao/hooks';
+import { useProviderStore } from 'store/provider/hooks';
 
 interface Props {
   children: ReactNode;
 }
 
 function Layout ({ children }: Props) {
+  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { currentProvider, isRightNetwork } = useWeb3Context();
-  const { isDaoPage } = useDao();
+  const { currentProvider, isRightNetwork } = useProviderStore();
+  const {
+    supportedNetworks,
+    isDaoOnSupportedNetwork,
+    isShowDao,
+    isSelectPage,
+    daoAddress
+  } = useDaoStore();
+
+  const infoPages = ['imprint', 'privacy'];
 
   return (
     <AlertProvider
@@ -42,24 +53,32 @@ function Layout ({ children }: Props) {
         gap: '12px',
       }}
     >
-      {currentProvider?.isConnected && !isRightNetwork && isDaoPage
+      {currentProvider?.isConnected && !isRightNetwork
         ? <NetworkWarning />
-        : (
-          <AppContainer $wide={!isDaoPage}>
-            {isDaoPage && (
-              <Sidebar
-                open={sidebarOpen}
-                onClose={() => setSidebarOpen(false)}
-              />
-            )}
+        : <AppContainer $wide={isShowDao}>
+          <Sidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
 
-            <div className="app__content">
-              <Header onMenuClick={() => setSidebarOpen(true)} />
-              <main className="app__main">
-                <div className="app__main-content">{children}</div>
-              </main>
-            </div>
-          </AppContainer>)
+          <div className="app__content">
+            <Header onMenuClick={() => setSidebarOpen(true)} />
+            <main className="app__main">
+              {
+                isSelectPage || infoPages.includes(daoAddress)
+                  ? <div className="app__main-content">{children}</div>
+                  : <>
+                    {
+                      isDaoOnSupportedNetwork
+                        ? <NotFound text={t('DAO_TOKEN_NOT_SUPPORTED')} />
+                        : <SupportedDaoNetworks networkOptions={supportedNetworks} />
+                    }
+                  </>
+              }
+            </main>
+          </div>
+        </AppContainer>
+
       }
       <TransactionLoader />
     </AlertProvider>

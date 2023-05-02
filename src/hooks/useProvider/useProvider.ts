@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { LogLevel } from '@ethersproject/logger';
 import { errors } from 'errors';
@@ -9,6 +9,7 @@ import {
   ChainId,
   DesignatedProvider,
   ProviderWrapper,
+  TokenParams,
   TransactionResponse,
   TxRequestBody,
 } from 'typings';
@@ -18,16 +19,17 @@ import { defaultProviderWrapper, metamaskWrapper } from 'hooks/useProvider';
 import { PROVIDERS } from 'constants/providers';
 
 export interface UseProvider {
-  currentProvider?: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
-  currentSigner?: ethers.providers.JsonRpcSigner;
+  provider?: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+  signer?: ethers.providers.JsonRpcSigner;
 
-  init: (provider: DesignatedProvider) => void;
+  init: (provider: DesignatedProvider) => Promise<void>;
   disconnect: () => void;
   chainId: ChainId;
   selectedAddress: string;
   switchChain: (chainId: ChainId) => Promise<void>;
   switchNetwork: (chainId: ChainId, chain?: Chain) => Promise<void>;
   addChain: (chain: Chain) => Promise<void>;
+  addToken: (token: TokenParams) => Promise<void>;
   signAndSendTx: (txRequestBody: TxRequestBody) => Promise<TransactionResponse>;
   isConnected: boolean;
   selectedProvider: PROVIDERS | undefined;
@@ -38,20 +40,19 @@ export interface UseProvider {
 }
 
 export const useProvider = (): UseProvider => {
-  const [providerWrp, setProviderWrp] = useState<ProviderWrapper | undefined>();
+  const providerWrp = useRef<ProviderWrapper | undefined>();
 
-  const currentProvider = useMemo(
-    () => providerWrp?.currentProvider,
-    [providerWrp],
+  const provider = useMemo(
+    () => providerWrp.current?.currentProvider,
+    [providerWrp.current],
   );
 
-  const currentSigner = useMemo(
-    () => providerWrp?.currentSigner,
-    [providerWrp],
+  const signer = useMemo(
+    () => providerWrp.current?.currentSigner,
+    [providerWrp.current],
   );
 
   const [selectedProvider, setSelectedProvider] = useState<PROVIDERS | undefined>();
-
   const [chainId, setChainId] = useState<ChainId>('');
   const [selectedAddress, setSelectedAddress] = useState('');
 
@@ -60,112 +61,115 @@ export const useProvider = (): UseProvider => {
     [chainId, selectedAddress],
   );
 
-  const init = useCallback(
-    (provider: DesignatedProvider) => {
-      switch (provider.name as PROVIDERS) {
-        case PROVIDERS.metamask:
-          setProviderWrp(state => {
-            const newState = metamaskWrapper(provider.instance, {
-              selectedAddressState: [selectedAddress, setSelectedAddress],
-              chainIdState: [chainId, setChainId],
-            });
-
-            return isEqual(state, newState) ? state : newState;
-          });
-          setSelectedProvider(provider.name);
-          break;
-        case PROVIDERS.default:
-          setProviderWrp(state => {
-            const newState = defaultProviderWrapper(provider.instance as string, {
-              selectedAddressState: [selectedAddress, setSelectedAddress],
-              chainIdState: [chainId, setChainId],
-            });
-            return isEqual(state, newState) ? state : newState;
-          });
-          setSelectedProvider(provider.name);
-          break;
-        default:
-          throw new Error('Invalid Provider');
-      }
-    },
-    [chainId, selectedAddress],
-  );
-
-  useEffect(() => {
-    providerWrp?.init();
+  const init = useCallback(async (provider: DesignatedProvider) => {
+    let newState;
+    switch (provider.name as PROVIDERS) {
+      case PROVIDERS.metamask:
+        newState = metamaskWrapper(provider.instance, {
+          selectedAddressState: [selectedAddress, setSelectedAddress],
+          chainIdState: [chainId, setChainId],
+        });
+        break;
+      case PROVIDERS.default:
+        newState = defaultProviderWrapper(provider.instance as string, {
+          selectedAddressState: [selectedAddress, setSelectedAddress],
+          chainIdState: [chainId, setChainId],
+        });
+        break;
+      default:
+        throw new Error('Invalid Provider');
+    }
+    if (!isEqual(providerWrp.current, newState)) {
+      providerWrp.current = newState;
+      setSelectedProvider(provider.name);
+      await providerWrp.current?.init();
+    }
   }, [providerWrp]);
 
   const connect = useCallback(async () => {
-    if (!providerWrp || !providerWrp?.connect) throw new errors.ProviderWrapperMethodNotFoundError();
-    await providerWrp.connect();
-  }, [providerWrp]);
+    if (!providerWrp.current || !providerWrp.current?.connect) throw new errors.ProviderWrapperMethodNotFoundError();
+    await providerWrp.current?.connect();
+  }, [providerWrp.current]);
 
   const switchChain = useCallback(
     async (chainId: ChainId) => {
-      if (!providerWrp || !providerWrp?.switchChain) throw new errors.ProviderWrapperMethodNotFoundError();
+      if (!providerWrp.current ||
+        !providerWrp.current?.switchChain) throw new errors.ProviderWrapperMethodNotFoundError();
 
-      await providerWrp.switchChain(chainId);
+      await providerWrp.current.switchChain(chainId);
     },
-    [providerWrp],
+    [providerWrp.current],
   );
 
   const addChain = useCallback(
     async (chain: Chain) => {
-      if (!providerWrp || !providerWrp?.addChain) { throw new errors.ProviderWrapperMethodNotFoundError(); };
+      if (!providerWrp.current ||
+        !providerWrp.current?.addChain) { throw new errors.ProviderWrapperMethodNotFoundError(); };
 
-      await providerWrp.addChain(chain);
+      await providerWrp.current.addChain(chain);
     },
-    [providerWrp],
+    [providerWrp.current],
+  );
+
+  const addToken = useCallback(
+    async (token: TokenParams) => {
+      if (!providerWrp.current ||
+        !providerWrp.current?.addToken) { throw new errors.ProviderWrapperMethodNotFoundError(); };
+
+      await providerWrp.current.addToken(token);
+    },
+    [providerWrp.current],
   );
 
   const switchNetwork = useCallback(
     async (chainId: ChainId, chain?: Chain) => {
-      if (!providerWrp || !providerWrp?.switchNetwork) { throw new errors.ProviderWrapperMethodNotFoundError(); };
+      if (!providerWrp.current ||
+        !providerWrp.current?.switchNetwork) { throw new errors.ProviderWrapperMethodNotFoundError(); };
 
-      await providerWrp.switchNetwork(chainId, chain);
+      await providerWrp.current.switchNetwork(chainId, chain);
     },
-    [providerWrp],
+    [providerWrp.current],
   );
 
   const disconnect = useCallback(() => {
-    setProviderWrp(undefined);
-    setSelectedProvider(undefined);
+    providerWrp.current = undefined;
     setChainId('');
     setSelectedAddress('');
   }, []);
 
   const signAndSendTx = useCallback(
     (txRequestBody: TxRequestBody) => {
-      if (!providerWrp || !providerWrp?.signAndSendTransaction) throw new errors.ProviderWrapperMethodNotFoundError();
+      if (!providerWrp.current ||
+        !providerWrp.current?.signAndSendTransaction) throw new errors.ProviderWrapperMethodNotFoundError();
 
-      return providerWrp.signAndSendTransaction(txRequestBody);
+      return providerWrp.current.signAndSendTransaction(txRequestBody);
     },
     [providerWrp],
   );
 
   const getHashFromTxResponse = (txResponse: TransactionResponse) => {
-    if (!providerWrp) throw new errors.ProviderWrapperMethodNotFoundError();
+    if (!providerWrp.current) throw new errors.ProviderWrapperMethodNotFoundError();
 
-    return providerWrp.getHashFromTxResponse(txResponse);
+    return providerWrp.current.getHashFromTxResponse(txResponse);
   };
 
   const getTxUrl = (explorerUrl: string, txHash: string) => {
-    if (!providerWrp) throw new errors.ProviderWrapperMethodNotFoundError();
+    if (!providerWrp.current) throw new errors.ProviderWrapperMethodNotFoundError();
 
-    return providerWrp.getTxUrl(explorerUrl, txHash);
+    return providerWrp.current.getTxUrl(explorerUrl, txHash);
   };
 
   const getAddressUrl = (explorerUrl: string, address: string) => {
-    if (!providerWrp) throw new errors.ProviderWrapperMethodNotFoundError();
+    if (!providerWrp.current) throw new errors.ProviderWrapperMethodNotFoundError();
 
-    return providerWrp.getAddressUrl(explorerUrl, address);
+    return providerWrp.current.getAddressUrl(explorerUrl, address);
   };
 
   ethers.utils.Logger.setLogLevel(LogLevel.OFF); // Fix for duplicate definition for Compound ABI
 
   return {
-    currentProvider,
-    currentSigner,
+    provider,
+    signer,
 
     selectedProvider,
     chainId,
@@ -182,5 +186,6 @@ export const useProvider = (): UseProvider => {
     getHashFromTxResponse,
     getTxUrl,
     getAddressUrl,
+    addToken
   };
 };

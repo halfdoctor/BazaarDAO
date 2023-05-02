@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { sleep } from 'helpers';
 import { isEqual } from 'lodash';
@@ -7,55 +7,49 @@ import { DesignatedProvider, ProviderInstance } from 'typings/provider.types';
 import { PROVIDERS, PROVIDERS_CHECKS } from 'constants/providers';
 
 export const useWeb3 = () => {
+  const _browserProviders = useRef<ProviderInstance[]>([]);
   const [providers, setProviders] = useState<DesignatedProvider[]>([]);
-
-  // eslint-disable-next-line react/hook-use-state
-  const [_browserProviders, _setBrowserProviders] = useState<
-  ProviderInstance[]
-  >([]);
-
+  const [isWeb3Init, setIsWeb3Init] = useState(false);
   const isEnabled = useMemo(() => providers.length, [providers]);
 
   const init = async () => {
+    setIsWeb3Init(false);
     await sleep(500);
     detectProvidersInBrowser();
+    await _defineProviders();
+    setIsWeb3Init(true);
   };
 
-  const detectProvidersInBrowser = useCallback(() => {
+  const detectProvidersInBrowser = () => {
     const ethProviders = window?.ethereum
       ? window?.ethereum?.providers || [window?.ethereum]
       : undefined;
+    const newState = [
+      ...(ethProviders || []),
+    ];
+    if (!isEqual(_browserProviders.current, newState)) {
+      _browserProviders.current = newState;
+    }
+  };
 
-    _setBrowserProviders(state => {
-      const newState = [
-        ...(ethProviders || []),
+  const getAppropriateProviderName = (provider: ProviderInstance): PROVIDERS => {
+    const providerName = Object.entries(PROVIDERS_CHECKS).find(el => {
+      const [, value] = el;
+
+      return ((<unknown>provider) as { [key in PROVIDERS_CHECKS]: boolean })[
+        value
       ];
-
-      return isEqual(state, newState) ? state : newState;
     });
-  }, []);
 
-  const getAppropriateProviderName = useCallback(
-    (provider: ProviderInstance): PROVIDERS => {
-      const providerName = Object.entries(PROVIDERS_CHECKS).find(el => {
-        const [, value] = el;
+    return (
+      ((providerName && providerName[0]) as PROVIDERS) || PROVIDERS.fallback
+    );
+  };
 
-        return ((<unknown>provider) as { [key in PROVIDERS_CHECKS]: boolean })[
-          value
-        ];
-      });
+  const designateBrowserProviders = (): DesignatedProvider[] => {
+    if (!_browserProviders.current.length) return [];
 
-      return (
-        ((providerName && providerName[0]) as PROVIDERS) || PROVIDERS.fallback
-      );
-    },
-    [],
-  );
-
-  const designateBrowserProviders = useCallback((): DesignatedProvider[] => {
-    if (!_browserProviders.length) return [];
-
-    const designatedProviders = _browserProviders.map(el => {
+    const designatedProviders = _browserProviders.current.map(el => {
       const appropriatedProviderName: PROVIDERS = getAppropriateProviderName(el);
 
       return {
@@ -67,25 +61,25 @@ export const useWeb3 = () => {
     return designatedProviders.filter(
       (el, idx, arr) => arr.findIndex(sec => sec.name === el.name) === idx,
     );
-  }, [_browserProviders, getAppropriateProviderName]);
+  };
 
-  const _defineProviders = useCallback(async () => {
-    if (_browserProviders.length) {
-      await handleProviders();
+  function handleProviders () {
+    if (!_browserProviders.current.length) return;
+    setProviders(state => {
+      const newState = designateBrowserProviders();
+
+      return isEqual(newState, state) ? state : newState;
+    });
+  }
+
+  const _defineProviders = async () => {
+    if (_browserProviders.current.length) {
+      handleProviders();
     } else {
       await sleep(3000);
-      await handleProviders();
+      handleProviders();
     }
-
-    async function handleProviders () {
-      if (!_browserProviders.length) return;
-      setProviders(state => {
-        const newState = designateBrowserProviders();
-
-        return isEqual(newState, state) ? state : newState;
-      });
-    }
-  }, [_browserProviders.length, designateBrowserProviders]);
+  };
 
   useEffect(() => {
     _defineProviders();
@@ -93,9 +87,8 @@ export const useWeb3 = () => {
 
   return {
     providers,
-
+    isWeb3Init,
     isEnabled,
-
     init,
   };
 };

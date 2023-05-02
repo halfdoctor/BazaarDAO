@@ -1,7 +1,7 @@
 import { toBigNumber } from '@q-dev/utils';
 import { errors } from 'errors';
 import { ethers, utils } from 'ethers';
-import { Chain, EthProviderRpcError } from 'typings';
+import { Chain, EthProviderRpcError, TokenParams } from 'typings';
 
 export function isAddress (value: string) {
   return utils.isAddress(value);
@@ -47,6 +47,22 @@ export async function requestSwitchEthChain (
   await provider.send('wallet_switchEthereumChain', [
     { chainId: ethers.utils.hexValue(chainId) },
   ]);
+}
+
+export async function requestAddErc20 (
+  provider: ethers.providers.Web3Provider,
+  { address, symbol, decimals, image }: TokenParams
+) {
+  await provider.send('wallet_watchAsset', {
+    // @ts-ignore: Ethers type error
+    type: 'ERC20',
+    options: {
+      address: address,
+      symbol: symbol,
+      decimals: decimals,
+      image: image!,
+    },
+  });
 }
 
 export async function requestAddEthChain (

@@ -1,7 +1,7 @@
 import { media } from '@q-dev/q-ui-kit';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-export const SidebarContainer = styled.div<{ $open: boolean }>`
+export const SidebarContainer = styled.div<{ $open: boolean; isSelectPage: boolean }>`
   .sidebar {
     position: relative;
     width: 302px;
@@ -41,6 +41,12 @@ export const SidebarContainer = styled.div<{ $open: boolean }>`
       display: none
     }
   }
+  
+  .sidebar__network {
+    ${media.greaterThan('medium')} {
+      display: none
+    }
+  }
 
   .sidebar-content {
     display: grid;
@@ -51,6 +57,7 @@ export const SidebarContainer = styled.div<{ $open: boolean }>`
 
   .sidebar-logo-link {
     display: flex;
+    align-items: center;
     width: max-content;
   }
 
@@ -109,4 +116,19 @@ export const SidebarContainer = styled.div<{ $open: boolean }>`
       gap: 32px;
     }
   }
+
+  ${({ isSelectPage, $open }) => isSelectPage && css`
+    .sidebar {
+      position: fixed;
+        z-index: 9999;
+        transform: translateX(${() => ($open ? '0' : '-100%')}) scaleX(${() => $open ? '1' : '0.8'});
+        transform-origin: top left;
+        transition: transform 200ms ease-out;
+        padding: 16px 24px;
+    }
+
+    .sidebar-overlay {
+      display: block;
+    }
+  `};
 `;
