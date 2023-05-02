@@ -110,7 +110,8 @@ export const metamaskWrapper = (
       try {
         await requestSwitchEthChain(currentProvider, Number(chainId));
       } catch (error) {
-        if ((error as EthProviderRpcError).code === 4902 && chain) {
+        const code = (error as EthProviderRpcError).code;
+        if ((code === 4902 || code === -32603) && chain) {
           try {
             await requestAddEthChain(currentProvider, chain);
           } catch (error) {
