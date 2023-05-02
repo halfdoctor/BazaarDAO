@@ -1,12 +1,9 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useWeb3Context } from 'context/Web3ContextProvider';
+import { Link } from 'react-router-dom';
 
 import logo from 'assets/img/logo.png';
 import Button from 'components/Button';
-
-import useDao from 'hooks/useDao';
 
 import Balance from './components/Balance';
 import ConnectWallet from './components/ConnectWallet';
@@ -15,32 +12,23 @@ import Settings from './components/Settings';
 import WalletDropdown from './components/WalletDropdown';
 import { StyledHeader } from './styles';
 
-function Header ({ onMenuClick }: { onMenuClick: () => void }) {
+import { useDaoStore } from 'store/dao/hooks';
+import { useProviderStore } from 'store/provider/hooks';
+
+interface Props {
+  onMenuClick: () => void;
+
+}
+
+function Header ({ onMenuClick }: Props) {
   const { t } = useTranslation();
-  const { currentProvider } = useWeb3Context();
-  const { isDaoPage } = useDao();
+  const { currentProvider } = useProviderStore();
+  const { isShowDao, isDaoSupportingToken } = useDaoStore();
 
   return (
-    <StyledHeader>
+    <StyledHeader isSelectPage={isShowDao}>
       <div className="header__content">
         <div className="header__left">
-          <div className="header__network">
-            {isDaoPage
-              ? <Network />
-              : (
-                <div className="header__logo-wrp">
-                  <img
-                    className="header__logo"
-                    alt="Q Logo"
-                    src={logo}
-                  />
-
-                  <p className="header__logo-title text-h2">
-                    {t('DAO_DASHBOARD')}
-                  </p>
-                </div>
-              )}
-          </div>
           <Button
             alwaysEnabled
             icon
@@ -50,12 +38,31 @@ function Header ({ onMenuClick }: { onMenuClick: () => void }) {
           >
             <i className="mdi mdi-menu" style={{ fontSize: '20px' }} />
           </Button>
+          <div className="header__network">
+            {!isShowDao
+              ? <Network />
+              : <Link to="/" className="header__logo-wrp">
+                <img
+                  className="header__logo"
+                  alt="Q Logo"
+                  src={logo}
+                />
+                <p className="header__logo-title text-h2">
+                  {t('DAO_DASHBOARD')}
+                </p>
+              </Link>
+            }
+          </div>
         </div>
         <div className="header__actions">
+          {isShowDao &&
+            <div className="header__actions-network">
+              <Network />
+            </div>}
           {currentProvider?.isConnected
             ? (
               <>
-                {isDaoPage && <Balance />}
+                {isDaoSupportingToken && <Balance />}
                 <WalletDropdown />
               </>
             )

@@ -23,7 +23,7 @@ export function useTransaction () {
       item.status === 'sending' || item.status === 'waitingConfirmation');
   });
 
-  const transactions = useAppSelector(({ transaction }) => transaction.transactions);
+  const transactions: Transaction[] = useAppSelector(({ transaction }) => transaction.transactions);
 
   async function submitTransaction ({
     submitFn,

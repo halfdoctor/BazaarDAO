@@ -8,12 +8,12 @@ import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 
-import useDao from 'hooks/useDao';
 import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import ProposalLayout from './components/ProposalLayout';
 import ProposalSkeleton from './components/Proposals/components/ProposalSkeleton';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
@@ -27,7 +27,7 @@ interface ProposalParams {
 function Proposal () {
   const history = useHistory();
   const { t } = useTranslation();
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
   const { allPanels, loadExpertPanels } = useExpertPanels();
   const { getProposalBaseInfo } = useDaoProposals();
   const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);

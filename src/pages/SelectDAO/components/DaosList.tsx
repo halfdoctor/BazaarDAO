@@ -1,8 +1,11 @@
 
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { media } from '@q-dev/q-ui-kit';
-import daos from 'json/daos.json';
+import daosDevnet from 'json/daos-devnet.json';
+import daosMainnet from 'json/daos-mainnet.json';
+import daosTestnet from 'json/daos-testnet.json';
 import styled from 'styled-components';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
@@ -28,11 +31,22 @@ function DaosList () {
   const { t } = useTranslation();
   const { networkName } = useNetworkConfig();
 
+  const daosList = useMemo(() => {
+    switch (networkName) {
+      case 'devnet':
+        return daosDevnet;
+      case 'testnet':
+        return daosTestnet;
+      case 'mainnet':
+        return daosMainnet;
+    }
+  }, [networkName]);
+
   return (
     <StyledWrapper>
       <h3 className="text-h3">{t('DAO_EXPLORE')}</h3>
       <div className="daos-list__items">
-        {daos[networkName].map((dao, index) => (
+        {daosList.map((dao, index) => (
           <DaoCard key={index} card={dao} />
         ))}
       </div>

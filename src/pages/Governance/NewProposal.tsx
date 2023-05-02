@@ -8,17 +8,16 @@ import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
-import useDao from 'hooks/useDao';
-
 import NewProposalForm from './components/NewProposalForm';
 import { ListEmptyStub } from './components/Proposals/styles';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 function NewProposal () {
   const { t } = useTranslation();
   const { loadExpertPanels, allPanels } = useExpertPanels();
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
   const [isLoading, setIsLoading] = useState(true);
 
   const tabs = useMemo(() => {

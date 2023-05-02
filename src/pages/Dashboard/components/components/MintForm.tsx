@@ -15,7 +15,7 @@ import useLoadDao from 'hooks/useLoadDao';
 
 import MintDetails from './MintDetails';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { fromWeiWithDecimals, toWeiWithDecimals } from 'utils/numbers';
@@ -44,10 +44,11 @@ interface Props {
 function MintForm ({ onSubmit }: Props) {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { tokenInfo } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
   const { loadAdditionalInfo } = useLoadDao();
 
   const maxMintValue = useMemo(() => {
+    if (!tokenInfo) return '0';
     const mintValue = toBigNumber(tokenInfo.totalSupplyCap).minus(tokenInfo.totalSupply);
     return mintValue.isGreaterThan(0)
       ? fromWeiWithDecimals(mintValue.toString(), tokenInfo.decimals)
@@ -60,24 +61,24 @@ function MintForm ({ onSubmit }: Props) {
 
   const form = useForm({
     initialValues: {
-      recipient: tokenInfo.owner,
+      recipient: tokenInfo?.owner || '',
       amount: '',
       tokenURI: '',
       erc721Id: '',
     },
     validators: {
       recipient: [required],
-      amount: tokenInfo.isErc721 ? [] : [required, number, amount(maxMintValue)],
-      tokenURI: tokenInfo.isErc721 ? [required, url] : [],
-      erc721Id: tokenInfo.isErc721 ? [required, number, min(0), integer] : [],
+      amount: tokenInfo?.isErc721 ? [] : [required, number, amount(maxMintValue)],
+      tokenURI: tokenInfo?.isErc721 ? [required, url] : [],
+      erc721Id: tokenInfo?.isErc721 ? [required, number, min(0), integer] : [],
     },
     onSubmit: (form) => {
       submitTransaction({
         successMessage: t('MINT_TX'),
         onConfirm: () => onSubmit(),
-        submitFn: () => tokenInfo.isErc721
+        submitFn: () => tokenInfo?.isErc721
           ? mintToErc721(form.recipient, form.erc721Id, form.tokenURI)
-          : mintToErc20(form.recipient, toWeiWithDecimals(form.amount, tokenInfo.decimals)),
+          : mintToErc20(form.recipient, toWeiWithDecimals(form.amount, tokenInfo?.decimals)),
         onSuccess: () => loadAdditionalInfo(),
       });
     }
@@ -96,7 +97,7 @@ function MintForm ({ onSubmit }: Props) {
         label={t('ADDRESS')}
         placeholder={t('ADDRESS_PLACEHOLDER')}
       />
-      {tokenInfo.isErc721
+      {tokenInfo?.isErc721
         ? <>
           <Input
             {...form.fields.tokenURI}
@@ -116,7 +117,7 @@ function MintForm ({ onSubmit }: Props) {
           type="number"
           label={t('AMOUNT')}
           max={maxMintValue}
-          prefix={tokenInfo.symbol}
+          prefix={tokenInfo?.symbol}
           disabled={!isCanMint}
           placeholder="0.0"
         />}

@@ -26,6 +26,13 @@ type NativeCurrency = {
   decimals: number;
 };
 
+export type TokenParams = {
+  address: string;
+  symbol: string;
+  decimals: number;
+  image?: string;
+};
+
 export type Chain = {
   chainId: ChainId;
   chainName: string;
@@ -58,6 +65,7 @@ export interface ProviderWrapper {
   switchChain?: (chainId: ChainId) => Promise<void>;
   switchNetwork?: (chainId: ChainId, chain?: Chain) => Promise<void> | void;
   addChain?: (chain: Chain) => Promise<void>;
+  addToken?: (token: TokenParams) => Promise<void>;
   signAndSendTransaction?: (
     txRequestBody: TxRequestBody,
   ) => Promise<TransactionResponse>;

@@ -4,12 +4,13 @@ import { useHistory } from 'react-router';
 
 import { useForm } from '@q-dev/form-hooks';
 import { Icon, media } from '@q-dev/q-ui-kit';
+import { checkDaoInRegistry } from 'helpers';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
 import Input from 'components/Input';
 
-import useDao from 'hooks/useDao';
+import { useProviderStore } from 'store/provider/hooks';
 
 import { address, required } from 'utils/validators';
 
@@ -41,7 +42,7 @@ const WrapContainer = styled.form`
 
 function DaoAddressForm () {
   const { t } = useTranslation();
-  const { searchDaoAddress } = useDao();
+  const { currentProvider } = useProviderStore();
   const history = useHistory();
   const alert = useAlert();
 
@@ -49,7 +50,7 @@ function DaoAddressForm () {
     initialValues: { address: '' },
     validators: { address: [required, address] },
     onSubmit: async (form) => {
-      const isDaoExist = await searchDaoAddress(form.address);
+      const isDaoExist = await checkDaoInRegistry(currentProvider, form.address);
       isDaoExist
         ? history.push(`${form.address}/`)
         : alert.error(t('WRONG_DAO_ADDRESS'));

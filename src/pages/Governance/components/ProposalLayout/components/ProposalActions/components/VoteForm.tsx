@@ -12,7 +12,7 @@ import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import { StyledVoteForm } from './styles';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
@@ -28,7 +28,7 @@ function VoteForm ({ proposal, onSubmit }: Props) {
   const { submitTransaction } = useTransaction();
   const { voteForProposal } = useDaoProposals();
   const { vaultBalance } = useDaoVault();
-  const { tokenInfo } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
 
   const form = useForm({
     initialValues: { vote: '' },
@@ -55,7 +55,7 @@ function VoteForm ({ proposal, onSubmit }: Props) {
       <div>
         <p className="text-md">{t('TOTAL_VOTING_WEIGHT')}</p>
         <p className="text-xl font-semibold">
-          {formatAsset(vaultBalance, tokenInfo.symbol)}
+          {formatAsset(vaultBalance, tokenInfo?.symbol)}
         </p>
       </div>
       <RadioGroup

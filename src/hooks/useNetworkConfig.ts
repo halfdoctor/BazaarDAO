@@ -1,12 +1,13 @@
-import { useWeb3Context } from 'context/Web3ContextProvider';
+
+import { useProviderStore } from 'store/provider/hooks';
 
 import { chainIdToNetworkMap, networkConfigsMap, ORIGIN_NETWORK_NAME } from 'constants/config';
 
 function useNetworkConfig () {
-  const { currentProvider } = useWeb3Context();
+  const { currentProvider } = useProviderStore();
+  const networkName = currentProvider ? chainIdToNetworkMap[currentProvider?.chainId] : ORIGIN_NETWORK_NAME;
 
-  const network = chainIdToNetworkMap[currentProvider?.chainId] || ORIGIN_NETWORK_NAME;
-  return networkConfigsMap[network];
+  return networkConfigsMap[networkName || ORIGIN_NETWORK_NAME];
 }
 
 export default useNetworkConfig;

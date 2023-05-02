@@ -49,10 +49,10 @@ function VotingPeriods ({ proposal, ...rest }: Props) {
 
       <Tooltip
         placement="bottom"
-        disabled={!proposal.isVetoGroupExists || !vetoEndTime}
+        disabled={!proposal.isVetoGroupExists || !Number(proposal.vetoMembersCount) || !vetoEndTime}
         trigger={(
           <p className="text-md font-light">
-            {!proposal.isVetoGroupExists || !vetoEndTime
+            {!proposal.isVetoGroupExists || !Number(proposal.vetoMembersCount) || !vetoEndTime
               ? t('NO_VETO')
               : `${vetoText} ${formatDateRelative(vetoEndTime, i18n.language)}`
             }

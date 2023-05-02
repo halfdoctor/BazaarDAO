@@ -1,7 +1,6 @@
-import { createContext, FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useLocalStorage } from '@q-dev/react-hooks';
-import { motion } from 'framer-motion';
 
 import { UseProvider, useProvider, useWeb3 } from 'hooks';
 
@@ -9,14 +8,14 @@ import { Wrap } from './styles';
 
 import { chainIdToNetworkMap, networkConfigsMap, ORIGIN_NETWORK_NAME } from 'constants/config';
 import { PROVIDERS } from 'constants/providers';
-import { LOAD_TYPES } from 'constants/statuses';
 import { captureError } from 'utils/errors';
 
 export type Web3Data = {
   currentProvider: UseProvider;
   isRightNetwork: boolean;
-  setLoadAppType: (state: string) => void;
+  isWeb3Loaded: boolean;
   connect: (provider: PROVIDERS) => Promise<void>;
+  initDefaultProvider: (rpc: number) => Promise<void>;
   disconnect: () => void;
 };
 
@@ -26,7 +25,8 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const web3 = useWeb3();
   const metamaskProvider = useProvider();
   const defaultProvider = useProvider();
-  const [loadAppType, setLoadAppType] = useState(LOAD_TYPES.loading);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoadFailed, setIsLoadFailed] = useState(false);
   const [selectedProvider, setSelectedProvider] = useLocalStorage<undefined | PROVIDERS>('selectedProvider', undefined);
 
   const providers = useMemo(
@@ -42,39 +42,67 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const isRightNetwork = useMemo(() => Boolean(currentProvider?.chainId &&
     chainIdToNetworkMap[currentProvider?.chainId]), [currentProvider]);
 
-  const initWeb3Providers = useCallback(async () => {
+  const initWeb3Providers = async () => {
     try {
       await web3.init();
     } catch (error) {
       captureError(error);
-      setLoadAppType(LOAD_TYPES.initError);
+      setIsLoadFailed(true);
     }
-  }, [web3]);
+  };
 
-  const initProviderWrappers = useCallback(() => {
-    setLoadAppType(LOAD_TYPES.loading);
+  const initProviderWrappers = async () => {
+    if (!web3.isWeb3Init) return;
+    setIsLoaded(false);
     try {
       const metamaskBrowserProvider = web3.providers.find(
         (el: { name: PROVIDERS }) => el.name === PROVIDERS.metamask,
       );
       if (metamaskBrowserProvider) {
-        metamaskProvider.init(metamaskBrowserProvider);
+        await metamaskProvider.init(metamaskBrowserProvider);
       }
-      defaultProvider.init({ name: PROVIDERS.default, instance: networkConfigsMap[ORIGIN_NETWORK_NAME].rpcUrl });
+
+      await initDefaultProvider(networkConfigsMap[ORIGIN_NETWORK_NAME].chainId);
     } catch (error) {
       captureError(error);
-      return setLoadAppType(LOAD_TYPES.initError);
+      setIsLoadFailed(true);
     }
-    setLoadAppType(LOAD_TYPES.loaded);
-  }, [web3.providers]);
+    setIsLoaded(true);
+  };
+
+  const initProviderWrapper = async (provider: UseProvider) => {
+    if (!web3.isWeb3Init) return;
+    try {
+      const browserProvider = web3.providers.find(
+        (el: { name: PROVIDERS }) => el.name === provider.selectedProvider,
+      );
+      if (browserProvider) {
+        await provider.init(browserProvider);
+      }
+    } catch (error) {
+      captureError(error);
+    }
+  };
+
+  const initDefaultProvider = async (network: number) => {
+    if (!web3.isWeb3Init) return;
+    try {
+      const selectedNetworkName = chainIdToNetworkMap[network];
+      await defaultProvider.init({ name: PROVIDERS.default, instance: networkConfigsMap[selectedNetworkName].rpcUrl });
+    } catch (error) {
+      captureError(error);
+    }
+  };
 
   const connect = async (provider: PROVIDERS) => {
-    setSelectedProvider(provider);
-    await initProviderWrappers();
-    const foundedProvider = providers.find(item => item.selectedProvider === provider);
-    if (foundedProvider && !foundedProvider.isConnected) {
-      await foundedProvider.connect();
+    const foundProvider = providers.find(item => item.selectedProvider === provider);
+    if (foundProvider && !foundProvider?.provider) {
+      await initProviderWrapper(foundProvider);
     }
+    if (foundProvider && !foundProvider.isConnected) {
+      await foundProvider.connect();
+    }
+    setSelectedProvider(provider);
   };
 
   const disconnect = () => {
@@ -89,57 +117,33 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
   useEffect(() => {
     initProviderWrappers();
-  }, [
-    web3.providers,
-  ]);
+  }, [web3.providers, web3.isWeb3Init]);
 
-  switch (loadAppType) {
-    case LOAD_TYPES.initError:
-      return (
-        <Wrap>
-          <div>
-            <p>Init error</p>
-            <p>Please, refresh the page</p>
-          </div>
-        </Wrap>
-      );
-    case LOAD_TYPES.loaded:
-      return (
-        <Web3Context.Provider
-          value={{
-            currentProvider,
-            isRightNetwork,
-            setLoadAppType,
-            connect,
-            disconnect
-          }}
-        >
-          {children}
-        </Web3Context.Provider>
-      );
-    case LOAD_TYPES.loading:
-    default:
-      return (
-        <Wrap>
-          <motion.div
-            className="breathing-q"
-            animate={{ scale: 1.2 }}
-            transition={{
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeOut',
-              duration: 0.5
-            }}
-          >
-            <img
-              className="breathing-q__logo"
-              src="/logo.png"
-              alt="q"
-            />
-          </motion.div>
-        </Wrap>
-      );
+  if (isLoadFailed) {
+    return (
+      <Wrap>
+        <div>
+          <p>Init error</p>
+          <p>Please, refresh the page</p>
+        </div>
+      </Wrap>
+    );
   }
+
+  return (
+    <Web3Context.Provider
+      value={{
+        currentProvider,
+        isRightNetwork,
+        isWeb3Loaded: isLoaded,
+        connect,
+        initDefaultProvider,
+        disconnect
+      }}
+    >
+      {children}
+    </Web3Context.Provider>
+  );
 };
 
 export const useWeb3Context = () => useContext(Web3Context);

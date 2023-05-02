@@ -4,13 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { SegmentedButton } from '@q-dev/q-ui-kit';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 
+import { useProviderStore } from 'store/provider/hooks';
+
 import { connectorParametersMap, networkConfigsMap } from 'constants/config';
+import { PROVIDERS } from 'constants/providers';
 import { captureError } from 'utils';
 
 function Network () {
-  const { currentProvider } = useWeb3Context();
+  const { currentProvider } = useProviderStore();
   const { t } = useTranslation();
   const alert = useAlert();
+  const { initDefaultProvider } = useWeb3Context();
 
   const isDevnet = ![
     networkConfigsMap.mainnet.dAppUrl,
@@ -26,8 +30,12 @@ function Network () {
   const handleChangeNetwork = async (chainId: number) => {
     if (!currentProvider) return;
     try {
-      const chainInfo = connectorParametersMap[chainId];
-      await currentProvider.switchNetwork(chainId, chainInfo);
+      if (currentProvider.selectedProvider !== PROVIDERS.default) {
+        const chainInfo = connectorParametersMap[chainId];
+        await currentProvider.switchNetwork(chainId, chainInfo);
+        return;
+      }
+      await initDefaultProvider(chainId);
     } catch (error) {
       captureError(error);
       alert.error(t('SWITCH_NETWORK_ERROR'));

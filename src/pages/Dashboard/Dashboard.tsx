@@ -6,13 +6,13 @@ import styled from 'styled-components';
 
 import PageLayout from 'components/PageLayout';
 
-import useDao from 'hooks/useDao';
-
 import ConstitutionBlock from './components/ConstitutionBlock';
 import DaoTokenSupply from './components/DaoTokenSupply';
 import ExpertPanelBlock from './components/ExpertPanelBlock';
 import TotalExpertPanels from './components/TotalExpertPanels';
 
+import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
@@ -50,7 +50,8 @@ export const StyledWrapper = styled.div`
 
 function Dashboard () {
   const { t } = useTranslation();
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
   const { expertPanels } = useExpertPanels();
 
   return (
@@ -68,7 +69,7 @@ function Dashboard () {
       <StyledWrapper>
         <div className="dashboard__general">
           <ConstitutionBlock />
-          <DaoTokenSupply />
+          {tokenInfo && <DaoTokenSupply />}
           <TotalExpertPanels />
         </div>
 

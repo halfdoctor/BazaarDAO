@@ -2,8 +2,9 @@
 import { QRC20 } from '@q-dev/gdk-sdk';
 import { QRC20__factory as Erc20 } from '@q-dev/gdk-sdk/lib/ethers-contracts/factories/QRC20__factory';
 import { providers, Signer } from 'ethers';
-import { handleEthError } from 'helpers';
-import { EthProviderRpcError, UseProvider } from 'typings';
+import { UseProvider } from 'typings';
+
+import { captureError } from 'utils';
 
 export let erc20ContractInstance: QRC20 | null = null;
 export let erc20ContractSigner: QRC20 | null = null;
@@ -40,7 +41,7 @@ export const loadDetailsErc20 = async (provider: UseProvider) => {
       totalSupplyCap: _totalSupplyCap || '',
     };
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
   }
 };
 
@@ -49,7 +50,7 @@ export const approveErc20 = async (address: string, amount: string, userAddress:
   try {
     return erc20ContractSigner.approve(address, amount, { from: userAddress });
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
   }
 };
 
@@ -59,7 +60,7 @@ export const mintToErc20 = async (address: string, amount: string) => {
   try {
     return erc20ContractSigner?.mintTo(address, amount);
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
   }
 };
 
@@ -69,7 +70,7 @@ export const getAllowanceErc20 = async (owner: string, spender: string) => {
   try {
     return (await erc20ContractInstance?.allowance(owner, spender)).toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '0';
   }
 };
@@ -80,7 +81,7 @@ export const getBalanceOfErc20 = async (address: string) => {
   try {
     return (await erc20ContractInstance?.balanceOf(address)).toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '0';
   }
 };
@@ -91,7 +92,7 @@ export const getDecimalsErc20 = async () => {
   try {
     return erc20ContractInstance?.decimals();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return 0;
   }
 };
@@ -103,7 +104,7 @@ export async function getTotalSupplyCapErc20 () {
     const totalSupplyCap = await erc20ContractInstance?.totalSupplyCap();
     return totalSupplyCap.toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 }
@@ -114,7 +115,7 @@ export const getNameErc20 = async () => {
   try {
     return erc20ContractInstance?.name();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 };
@@ -125,7 +126,7 @@ export const getOwnerErc20 = async () => {
   try {
     return erc20ContractInstance?.owner();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 };
@@ -136,7 +137,7 @@ export const getSymbolErc20 = async () => {
   try {
     return erc20ContractInstance?.symbol();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '';
   }
 };
@@ -147,7 +148,7 @@ export const getTotalSupplyErc20 = async () => {
   try {
     return (await erc20ContractInstance?.totalSupply()).toString();
   } catch (error) {
-    handleEthError(error as EthProviderRpcError);
+    captureError(error);
     return '0';
   }
 };

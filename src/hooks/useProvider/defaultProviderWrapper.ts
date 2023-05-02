@@ -14,7 +14,7 @@ import {
   TransactionResponse,
 } from 'typings';
 
-import { connectorParametersMap } from 'constants/config';
+import { chainIdToNetworkMap, networkConfigsMap } from 'constants/config';
 
 export const defaultProviderWrapper = (
   rpc: string,
@@ -47,8 +47,9 @@ export const defaultProviderWrapper = (
   };
 
   const switchNetwork = async (chainId: ChainId) => {
-    const qNetwork = connectorParametersMap[chainId];
-    currentProvider = new ethers.providers.JsonRpcProvider(qNetwork.rpcUrls[0], chainId);
+    const networkName = chainIdToNetworkMap[chainId];
+    const { rpcUrl } = networkConfigsMap[networkName];
+    currentProvider = new ethers.providers.JsonRpcProvider(rpcUrl, chainId);
     await _updateProviderState();
   };
 

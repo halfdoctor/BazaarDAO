@@ -10,7 +10,6 @@ import { NewProposalForm as NewProposalFormType } from 'typings/forms';
 import LoadingSpinner from 'components/LoadingSpinner';
 import MultiStepForm from 'components/MultiStepForm';
 
-import useDao from 'hooks/useDao';
 import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import { ListEmptyStub } from '../Proposals/styles';
@@ -23,6 +22,7 @@ import MembershipSituationStep from './components/MembershipSituationStep';
 import ParameterSituationStep from './components/ParameterSituationStep';
 import TypeStep from './components/TypeStep';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { RoutePaths } from 'constants/routes';
@@ -48,7 +48,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
   const { createNewProposal, getPanelSituations } = useDaoProposals();
   const { submitTransaction } = useTransaction();
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
   const [panelSituations, setPanelSituations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

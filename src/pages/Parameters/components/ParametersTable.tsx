@@ -71,8 +71,8 @@ function ParametersTable ({ parameters }: Props) {
                   ? <ExplorerAddress address={item.normalValue} />
                   : (
                     <>
-                      <span>{item.normalValue}</span>
-                      <CopyToClipboard value={item.normalValue} />
+                      <span>{String(item.normalValue)}</span>
+                      <CopyToClipboard value={String(item.normalValue)} />
                     </>
                   )
                 }

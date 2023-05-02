@@ -1,7 +1,8 @@
 import { HTMLInputTypeAttribute, InputHTMLAttributes, ReactNode } from 'react';
 
 import { Input as UiInput } from '@q-dev/q-ui-kit';
-import { useWeb3Context } from 'context/Web3ContextProvider';
+
+import { useProviderStore } from 'store/provider/hooks';
 
 type InputProps = InputHTMLAttributes<HTMLInputElement>;
 interface Props extends Omit<InputProps, 'onChange' | 'prefix' | 'value'> {
@@ -36,7 +37,8 @@ function Input ({
   alwaysEnabled,
   ...rest
 }: Props) {
-  const { currentProvider, isRightNetwork } = useWeb3Context();
+  const { currentProvider, isRightNetwork } = useProviderStore();
+
   const isDisabled = disabled || (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
 
   return (

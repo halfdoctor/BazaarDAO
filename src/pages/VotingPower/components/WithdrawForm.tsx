@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@q-dev/form-hooks';
 import { media, Select } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
-import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
 import Input from 'components/Input';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
+import { useProviderStore } from 'store/provider/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { amount, required } from 'utils/validators';
@@ -35,8 +35,8 @@ function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
   const { withdrawFromVault, withdrawalBalance, loadAllBalances, withdrawalNftsList } = useDaoVault();
-  const { currentProvider } = useWeb3Context();
-  const { tokenInfo } = useDaoStore();
+  const { currentProvider } = useProviderStore();
+  const { tokenInfo } = useDaoTokenStore();
 
   const form = useForm({
     initialValues: {
@@ -44,8 +44,8 @@ function WithdrawForm () {
       id: ''
     },
     validators: {
-      amount: tokenInfo.isErc721 ? [] : [required, amount(withdrawalBalance)],
-      id: tokenInfo.isErc721 ? [required] : []
+      amount: tokenInfo?.isErc721 ? [] : [required, amount(withdrawalBalance)],
+      id: tokenInfo?.isErc721 ? [required] : []
     },
     onSubmit: ({ amount, id }) => {
       submitTransaction({
@@ -70,7 +70,7 @@ function WithdrawForm () {
       <p className="text-md color-secondary">{t('FROM_VAULT_TO_WALLET')}</p>
 
       <div className="withdraw-form-main">
-        {tokenInfo.isErc721
+        {tokenInfo && tokenInfo.isErc721
           ? <Select
             {...form.fields.id}
             label={t('NFT_ID')}
@@ -82,10 +82,10 @@ function WithdrawForm () {
             {...form.fields.amount}
             type="number"
             label={t('AMOUNT')}
-            prefix={tokenInfo.symbol}
+            prefix={tokenInfo?.symbol}
             max={String(withdrawalBalance)}
             placeholder="0.0"
-            hint={t('AVAILABLE_TO_WITHDRAW', { amount: formatAsset(withdrawalBalance, tokenInfo.symbol) })}
+            hint={t('AVAILABLE_TO_WITHDRAW', { amount: formatAsset(withdrawalBalance, tokenInfo?.symbol) })}
           />
         }
         <Button

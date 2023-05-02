@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
+
+import { useProviderStore } from 'store/provider/hooks';
 
 import { connectorParametersMap } from 'constants/config';
 import { captureError } from 'utils';
@@ -33,7 +34,8 @@ export const StyledWrapper = styled.div`
 
 function NetworkWarning () {
   const { t } = useTranslation();
-  const { currentProvider } = useWeb3Context();
+  const { currentProvider } = useProviderStore();
+
   const { chainId } = useNetworkConfig();
 
   const handleSwitch = async () => {

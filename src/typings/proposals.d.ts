@@ -58,6 +58,7 @@ export interface ProposalVetoGroupInfo {
 export interface ProposalVetoInfo {
   isVetoGroupExists: boolean;
   vetoMembersCount: string;
+  membersCount: string;
 }
 
 export interface TurnoutDetails {

@@ -11,12 +11,11 @@ import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
-import useDao from 'hooks/useDao';
-
 import Proposals from './components/Proposals';
 import { ListEmptyStub } from './components/Proposals/styles';
 import VotingStats from './components/VotingStats';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
@@ -26,7 +25,7 @@ function Governance () {
   const { t } = useTranslation();
   const { loadExpertPanels, allPanels } = useExpertPanels();
 
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
   const [isLoading, setIsLoading] = useState(true);
 
   const loadAllPanels = async () => {

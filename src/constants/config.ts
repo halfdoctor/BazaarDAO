@@ -63,7 +63,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qdevnet.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0x8C0344f0C30C7a67106f4f05b824Ad62Ac7A4f51',
+    masterDaoRegistryAddress: '0x9CFeE6E148B1a9D67d562a0b77fF39C0C11EDE84',
   },
 };
 

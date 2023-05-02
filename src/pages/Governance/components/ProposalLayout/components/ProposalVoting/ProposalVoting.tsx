@@ -12,14 +12,14 @@ import useEndTime from '../../hooks/useEndTime';
 
 import { StyledProposalVoting } from './styles';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 
 import { fromWeiWithDecimals } from 'utils/numbers';
 
 function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { tokenInfo } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
   const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime.toString()));
 
   const isRestrictedVote = useMemo(() => {
@@ -75,7 +75,7 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
             <p className="text-md proposal-voting__vote-val">
               {formatNumber(isRestrictedVote
                 ? proposal.counters.votedFor.toString()
-                : fromWeiWithDecimals(proposal.counters.votedFor.toString(), tokenInfo.decimals))}
+                : fromWeiWithDecimals(proposal.counters.votedFor.toString(), tokenInfo?.decimals))}
             </p>
           </div>
 
@@ -93,7 +93,7 @@ function ProposalVoting ({ proposal }: { proposal: ProposalBaseInfo }) {
             <p className="text-md proposal-voting__vote-val">
               {formatNumber(isRestrictedVote
                 ? proposal.counters.votedAgainst.toString()
-                : fromWeiWithDecimals(proposal.counters.votedAgainst.toString(), tokenInfo.decimals))}
+                : fromWeiWithDecimals(proposal.counters.votedAgainst.toString(), tokenInfo?.decimals))}
             </p>
           </div>
         </div>

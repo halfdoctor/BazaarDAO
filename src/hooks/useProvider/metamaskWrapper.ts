@@ -8,8 +8,9 @@ import {
   getEthExplorerAddressUrl,
   getEthExplorerTxUrl,
   handleEthError,
+  requestAddErc20,
   requestAddEthChain,
-  requestSwitchEthChain,
+  requestSwitchEthChain
 } from 'helpers';
 import {
   Chain,
@@ -18,6 +19,7 @@ import {
   EthTransactionResponse,
   ProviderInstance,
   ProviderWrapper,
+  TokenParams,
   TransactionResponse,
   TxRequestBody,
 } from 'typings';
@@ -95,14 +97,22 @@ export const metamaskWrapper = (
     }
   };
 
+  const addToken = async (token: TokenParams) => {
+    try {
+      await requestAddErc20(currentProvider, token);
+    } catch (error) {
+      handleEthError(error as EthProviderRpcError);
+    }
+  };
+
   const switchNetwork = async (chainId: ChainId, chain?: Chain) => {
     try {
       try {
-        await switchChain(Number(chainId));
+        await requestSwitchEthChain(currentProvider, Number(chainId));
       } catch (error) {
         if ((error as EthProviderRpcError).code === 4902 && chain) {
           try {
-            await addChain(chain);
+            await requestAddEthChain(currentProvider, chain);
           } catch (error) {
             // eslint-disable-next-line no-throw-literal
             throw error as EthProviderRpcError;
@@ -164,5 +174,6 @@ export const metamaskWrapper = (
     getTxUrl,
     getAddressUrl,
     signMessage,
+    addToken
   };
 };

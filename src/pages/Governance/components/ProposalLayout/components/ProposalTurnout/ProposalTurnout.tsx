@@ -10,13 +10,13 @@ import { ProposalBaseInfo } from 'typings/proposals';
 
 import { StyledProposalTurnout } from './styles';
 
-import { useDaoStore } from 'store/dao/hooks';
+import { useDaoTokenStore } from 'store/dao-token/hooks';
 
 import { fromWeiWithDecimals } from 'utils/numbers';
 
 function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
-  const { tokenInfo } = useDaoStore();
+  const { tokenInfo } = useDaoTokenStore();
 
   const leftQuorum = useMemo(() => {
     return BigNumber.max(
@@ -38,7 +38,7 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
   const noVoteValue = useMemo(() => {
     return toBigNumber(proposal.totalVoteValue)
       .minus(proposal.params.votingType === VotingType.Restricted
-        ? proposal.vetoMembersCount
+        ? toBigNumber(proposal.membersCount).plus(proposal.vetoMembersCount)
         : totalVotes
       )
       .toString();
@@ -71,14 +71,14 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('VOTED')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(isRestrictedVote ? totalVotes : fromWeiWithDecimals(totalVotes, tokenInfo.decimals))}
+              {formatNumber(isRestrictedVote ? totalVotes : fromWeiWithDecimals(totalVotes, tokenInfo?.decimals))}
             </p>
           </div>
 
           <div className="proposal-turnout__vote">
             <p className="text-md color-secondary">{t('DID_NOT_VOTE')}</p>
             <p className="text-md proposal-turnout__votes-val">
-              {formatNumber(isRestrictedVote ? noVoteValue : fromWeiWithDecimals(noVoteValue, tokenInfo.decimals))}
+              {formatNumber(isRestrictedVote ? noVoteValue : fromWeiWithDecimals(noVoteValue, tokenInfo?.decimals))}
             </p>
           </div>
         </div>

@@ -11,8 +11,7 @@ import PageLayout from 'components/PageLayout';
 import Tabs from 'components/Tabs';
 import { TabRoute, TabSwitch } from 'components/Tabs/components';
 
-import useDao from 'hooks/useDao';
-
+import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
@@ -22,7 +21,7 @@ const DaoPanelParameters = lazy(() => import('./components/DaoPanelParameters'))
 
 function Parameters () {
   const { t } = useTranslation();
-  const { composeDaoLink } = useDao();
+  const { composeDaoLink } = useDaoStore();
   const { allPanels } = useExpertPanels();
 
   const panelTabs = allPanels.map((panel, i) => ({
