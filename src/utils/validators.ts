@@ -11,6 +11,7 @@ import isNumber from 'lodash/isNumber';
 import { ZERO_ADDRESS } from 'constants/boundaries';
 
 const HASH_REGEX = /^0x[a-fA-F0-9]{64}$/;
+const BYTES_REGEX = /^0x[a-fA-F0-9]{2,64}$/;
 const VAULT_ID_REGEX = /^[0-9]{1,18}$/;
 export const URL_REGEX = /^https?:\/\/(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
@@ -19,7 +20,7 @@ interface ValidationResult {
   message: string;
 }
 type ValidatorValue = string | number | boolean | Date | ParameterType | File | null;
-type Validator<T extends ValidatorValue = ValidatorValue, U = unknown> = (val: T, form?: U) => ValidationResult;
+export type Validator<T extends ValidatorValue = ValidatorValue, U = unknown> = (val: T, form?: U) => ValidationResult;
 type ValidatorFn<U, T extends ValidatorValue = ValidatorValue> = (val: U | ((form: unknown) => T)) => Validator<T>;
 
 export const required: Validator = (val) => ({
@@ -66,6 +67,20 @@ export const min: ValidatorFn<string | number> = min => (val, form) => {
   return {
     isValid: value.comparedTo(validatorValue) >= 0,
     message: i18n.t('VALIDATION_MIN_VALUE', { min })
+  };
+};
+
+export const addressInGroup: ValidatorFn<string[]> = list => val => {
+  return {
+    isValid: !(list as string[]).find(item => item === val),
+    message: i18n.t('VALIDATION_ADDRESS_IN_GROUP')
+  };
+};
+
+export const addressOutGroup: ValidatorFn<string[]> = list => val => {
+  return {
+    isValid: !!(list as string[]).find(item => item === val),
+    message: i18n.t('VALIDATION_ADDRESS_OUT_GROUP')
   };
 };
 
@@ -138,6 +153,12 @@ export const parameterType: ValidatorFn<ParameterType> = type => (val, form) => 
       };
 
     case ParameterType.BYTES:
+      const hash = val.toString().split('0x')[1];
+      const isValidByte = !!hash && hash.length % 2 !== 1;
+      return {
+        isValid: BYTES_REGEX.test(String(val)) && isValidByte,
+        message: i18n.t('VALIDATION_BYTES_VALUE')
+      };
     case ParameterType.UINT256:
       return {
         isValid: !toBigNumber(String(val)).isNaN(),

@@ -1,19 +1,17 @@
-import { useAlert } from 'react-alert';
 import { useTranslation } from 'react-i18next';
 
 import { SegmentedButton } from '@q-dev/q-ui-kit';
 import { useWeb3Context } from 'context/Web3ContextProvider';
+import { ErrorHandler } from 'helpers';
 
 import { useProviderStore } from 'store/provider/hooks';
 
 import { connectorParametersMap, networkConfigsMap } from 'constants/config';
 import { PROVIDERS } from 'constants/providers';
-import { captureError } from 'utils';
 
 function Network () {
   const { currentProvider } = useProviderStore();
   const { t } = useTranslation();
-  const alert = useAlert();
   const { initDefaultProvider } = useWeb3Context();
 
   const isDevnet = ![
@@ -37,8 +35,7 @@ function Network () {
       }
       await initDefaultProvider(chainId);
     } catch (error) {
-      captureError(error);
-      alert.error(t('SWITCH_NETWORK_ERROR'));
+      ErrorHandler.process(error);
     }
   };
 

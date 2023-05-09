@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ErrorHandler } from 'helpers';
 import { ParameterValue } from 'typings/parameters';
 
 import ParametersBlock from './ParametersBlock';
 
 import { getRegistryContracts } from 'contracts/helpers/parameters-helper';
-
-import { captureError } from 'utils/errors';
 
 function DaoContractRegistry () {
   const { t } = useTranslation();
@@ -25,7 +24,7 @@ function DaoContractRegistry () {
       const contracts = await getRegistryContracts();
       setContracts(contracts);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       setError(t('DAO_CONTRACT_REGISTRY_LOADING_ERROR'));
     } finally {
       setLoading(false);

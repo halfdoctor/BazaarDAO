@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { ErrorHandler } from 'helpers';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
@@ -9,7 +10,6 @@ import useNetworkConfig from 'hooks/useNetworkConfig';
 import { useProviderStore } from 'store/provider/hooks';
 
 import { connectorParametersMap } from 'constants/config';
-import { captureError } from 'utils';
 
 export const StyledWrapper = styled.div`
   position: fixed;
@@ -44,7 +44,7 @@ function NetworkWarning () {
       const qNetwork = connectorParametersMap[chainId];
       await currentProvider.switchNetwork(qNetwork.chainId, qNetwork);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.process(error);
     }
   };
 

@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 import { Wrap } from 'context/Web3ContextProvider/styles';
 import { motion } from 'framer-motion';
-import { getDaoSupportedNetworks } from 'helpers';
+import { ErrorHandler, getDaoSupportedNetworks } from 'helpers';
 
 import useLoadDao from 'hooks/useLoadDao';
 
@@ -12,7 +12,6 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useProviderStore } from 'store/provider/hooks';
 
 import { PROVIDERS } from 'constants/providers';
-import { captureError } from 'utils';
 
 interface Props {
   children: ReactNode;
@@ -34,7 +33,7 @@ function DaoInitializer ({ children }: Props) {
     try {
       await loadAdditionalInfo();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
     setIsInfoLoaded(true);
   };
@@ -51,7 +50,7 @@ function DaoInitializer ({ children }: Props) {
       }
       setIsDaoAddressChecked(true);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   };
 
@@ -63,7 +62,7 @@ function DaoInitializer ({ children }: Props) {
         await initDefaultProvider(isDaoInitOnSupportedChain.chainId);
       }
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   };
 

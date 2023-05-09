@@ -1,7 +1,7 @@
-import { useAlert } from 'react-alert';
 import { useTranslation, } from 'react-i18next';
 
 import { useWeb3Context } from 'context/Web3ContextProvider';
+import { ErrorHandler } from 'helpers';
 import styled from 'styled-components';
 import { SupportedDaoNetwork } from 'typings/dao';
 
@@ -13,7 +13,6 @@ import { useProviderStore, } from 'store/provider/hooks';
 
 import { chainIdToNetworkMap, connectorParametersMap } from 'constants/config';
 import { PROVIDERS } from 'constants/providers';
-import { captureError, } from 'utils';
 
 export const StyledWrapper = styled.div`
   position: fixed;
@@ -50,7 +49,6 @@ function SupportedDaoNetworks ({ networkOptions }: Props) {
   const { currentProvider } = useProviderStore();
   const { initDefaultProvider } = useWeb3Context();
   const { t } = useTranslation();
-  const alert = useAlert();
 
   const handleChangeNetwork = async (chain: SupportedDaoNetwork) => {
     if (!currentProvider) return;
@@ -62,8 +60,7 @@ function SupportedDaoNetworks ({ networkOptions }: Props) {
       }
       await initDefaultProvider(chain.chainId);
     } catch (error) {
-      captureError(error);
-      alert.error(t('SWITCH_NETWORK_ERROR'));
+      ErrorHandler.process(error);
     }
   };
 

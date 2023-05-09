@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
 import { useTranslation } from 'react-i18next';
 
 import { useWeb3Context } from 'context/Web3ContextProvider';
+import { ErrorHandler } from 'helpers';
 
 import Button from 'components/Button';
 
 import { PROVIDERS } from 'constants/providers';
-import { captureError } from 'utils/errors';
 
 function ConnectButtons () {
-  const alert = useAlert();
   const { t } = useTranslation();
   const { connect } = useWeb3Context();
   const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +18,7 @@ function ConnectButtons () {
     try {
       await connect(provider);
     } catch (error) {
-      captureError(error);
-      alert.error(t('ERROR_WHILE_CONNECTING_TO_WALLET'));
+      ErrorHandler.process(error, t('ERROR_WHILE_CONNECTING_TO_WALLET'));
     }
     setIsLoading(false);
   };

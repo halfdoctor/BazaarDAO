@@ -1,14 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { ErrorHandler } from 'helpers';
 import { SupportedDaoNetwork } from 'typings/dao';
 
 import { setDaoAddress, setSupportedNetworks } from './reducer';
 
 import { getState, useAppSelector } from 'store';
 import { useDaoTokenStore } from 'store/dao-token/hooks';
-
-import { captureError } from 'utils/errors';
 
 export function useDaoStore () {
   const dispatch = useDispatch();
@@ -43,7 +42,7 @@ export function useDaoStore () {
       await loadDaoVotingToken();
       await getTokenInfo();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 

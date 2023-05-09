@@ -110,7 +110,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
             id: 'membership-situation',
             name: t('DETAILS'),
             title: t('INTERACTION_WITH_USER'),
-            children: <MembershipSituationStep />
+            children: <MembershipSituationStep panelName={panelName} />
           }]
           : []
         ),

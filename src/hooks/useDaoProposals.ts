@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { DAO_RESERVED_NAME, DefaultVotingSituations } from '@q-dev/gdk-sdk';
+import { ErrorHandler } from 'helpers';
 import { NewProposalForm } from 'typings/forms';
 import {
   DaoProposal,
@@ -21,7 +22,6 @@ import {
 } from 'contracts/helpers/proposals-helper';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
-import { captureError } from 'utils/errors';
 
 export function useDaoProposals () {
   const { currentProvider } = useProviderStore();
@@ -32,7 +32,7 @@ export function useDaoProposals () {
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
       return votingInstance.instance.getVotingSituations();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -43,7 +43,7 @@ export function useDaoProposals () {
       const votingSituationInfo = await votingInstance.instance.getVotingSituationInfo(situation);
       return votingSituationInfo;
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -53,7 +53,7 @@ export function useDaoProposals () {
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
       return votingInstance.getProposalList(offset, limit);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -63,7 +63,7 @@ export function useDaoProposals () {
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
       return votingInstance.getProposal(Number(proposalId));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -77,7 +77,7 @@ export function useDaoProposals () {
         .hasUserVetoed(Number(proposal.id), currentProvider.selectedAddress);
       return { isUserVoted, isUserVetoed };
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -93,7 +93,7 @@ export function useDaoProposals () {
         .getVetoGroupInfo(proposal.target)) as ProposalVetoGroupInfo;
       return { isVetoGroupExists, vetoMembersCount, vetoGroupInfo };
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -104,7 +104,7 @@ export function useDaoProposals () {
       const count = await memberStorageInstance.instance.getMembersCount();
       return count.toString();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
   async function getAccountStatuses () {
@@ -115,7 +115,7 @@ export function useDaoProposals () {
       )) as string[];
       return accountGroupStatuses;
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -128,7 +128,7 @@ export function useDaoProposals () {
       const proposalStatus = await votingInstance.instance.getProposalStatus(proposal.id.toString());
       return { ...proposalVotingStats, votingStatus: proposalStatus } as DaoProposalVotingInfo;
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -141,7 +141,7 @@ export function useDaoProposals () {
       );
       return totalVoteValue.toString();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -166,7 +166,7 @@ export function useDaoProposals () {
         ...proposalInfo
       } as ProposalBaseInfo;
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 

@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux';
 
 import { ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
 import { fillArray } from '@q-dev/utils';
+import { errors } from 'errors';
+import { ErrorHandler } from 'helpers';
 import { getBalanceOfErc20 } from 'helpers/erc-20';
 import { getBalanceOfErc721, getTokenOfOwnerByIndexErc721 } from 'helpers/erc-721';
 
@@ -22,7 +24,6 @@ import { Q_TOKEN_INFO } from 'store/dao-token/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 
-import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals, toWeiWithDecimals } from 'utils/numbers';
 
 export function useDaoVault () {
@@ -40,8 +41,8 @@ export function useDaoVault () {
     try {
       const { tokenInfo } = getState().daoToken;
       const { currentProvider } = getState().provider;
-      // TODO: create class with error check
-      if (!tokenInfo || !currentProvider?.selectedAddress) throw Error();
+
+      if (!tokenInfo || !currentProvider?.selectedAddress) throw new errors.DefaultEmptyError();
 
       const userAddress = currentProvider.selectedAddress;
       const balance = tokenInfo.address && userAddress
@@ -53,7 +54,7 @@ export function useDaoVault () {
         : '0';
       dispatch(setWalletBalance(fromWeiWithDecimals(balance?.toString() || '0', tokenInfo.decimals)));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       dispatch(setWalletBalance('0'));
     }
   }
@@ -63,12 +64,12 @@ export function useDaoVault () {
 
       const userAddress = currentProvider?.selectedAddress;
       if (!userAddress || !currentProvider?.provider) {
-        throw Error(); // TODO: create class with error check
+        throw new errors.DefaultEmptyError();
       };
       const balance = await currentProvider.provider.getBalance(userAddress);
       dispatch(setChainBalance(fromWeiWithDecimals(balance.toString(), Q_TOKEN_INFO.decimals)));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       dispatch(setChainBalance('0'));
     }
   }
@@ -78,7 +79,7 @@ export function useDaoVault () {
       const { currentProvider } = getState().provider;
       const { votingToken, tokenInfo } = getState().daoToken;
       if (!daoInstance || !votingToken || !currentProvider?.selectedAddress || !tokenInfo) {
-        throw Error(); // TODO: create class with error check
+        throw new errors.DefaultEmptyError();
       };
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const balance = tokenInfo.isErc721
@@ -86,7 +87,7 @@ export function useDaoVault () {
         : await daoVaultInstance.instance.userTokenBalance(address || currentProvider.selectedAddress, votingToken);
       dispatch(setVaultBalance(fromWeiWithDecimals(balance.toString(), tokenInfo.decimals)));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       dispatch(setVaultBalance('0'));
     }
   }
@@ -96,7 +97,7 @@ export function useDaoVault () {
       const { currentProvider } = getState().provider;
       const { votingToken, tokenInfo } = getState().daoToken;
       if (!daoInstance || !votingToken || !tokenInfo || !currentProvider?.selectedAddress) {
-        throw Error(); // TODO: create class with error check
+        throw new errors.DefaultEmptyError();
       };
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
@@ -109,7 +110,7 @@ export function useDaoVault () {
         : fromWeiWithDecimals(balance.lockedAmount.toString(), tokenInfo.decimals)));
       dispatch(setVaultTimeLock(balance.unlockTime.toString()));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       dispatch(setWithdrawalBalance('0'));
       dispatch(setLockedBalance('0'));
       dispatch(setVaultTimeLock('0'));
@@ -121,14 +122,14 @@ export function useDaoVault () {
       const { currentProvider } = getState().provider;
       const { tokenInfo } = getState().daoToken;
       if (!daoInstance || !tokenInfo || !tokenInfo?.isErc721 || !currentProvider?.selectedAddress) {
-        throw Error(); // TODO: create class with error check
+        throw new errors.DefaultEmptyError();
       };
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const withdrawalNftsList = await daoVaultInstance.instance
         .getUserNFTs(address || currentProvider.selectedAddress, tokenInfo.address);
       dispatch(setWithdrawalNftsList(withdrawalNftsList.map(item => item.toString())));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       dispatch(setWithdrawalNftsList([]));
     }
   }
@@ -140,13 +141,13 @@ export function useDaoVault () {
       const { walletBalance } = getState().qVault;
       const searchAddress = address || currentProvider?.selectedAddress;
       if (!tokenInfo?.isErc721 || !searchAddress) {
-        throw Error(); // TODO: create class with error check
+        throw new errors.DefaultEmptyError();
       };
       const walletNftsList = await Promise.all(fillArray(Number(walletBalance))
         .map(item => getTokenOfOwnerByIndexErc721(searchAddress, item)));
       dispatch(setWalletNftsList(walletNftsList));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       dispatch(setWalletNftsList([]));
     }
   }
@@ -162,7 +163,7 @@ export function useDaoVault () {
         loadWalletNftsList()
       ]);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 

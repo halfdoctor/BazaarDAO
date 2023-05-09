@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button, Dropdown, Icon, Modal } from '@q-dev/q-ui-kit';
 import { formatNumberCompact } from '@q-dev/utils';
+import { ErrorHandler } from 'helpers';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
@@ -12,7 +13,6 @@ import MintForm from './components/MintForm';
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useProviderStore } from 'store/provider/hooks';
 
-import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals } from 'utils/numbers';
 
 const StyledWrapper = styled.div`
@@ -99,7 +99,7 @@ function DaoTokenSupply () {
         }
       );
     } catch (error) {
-      captureError(error);
+      ErrorHandler.process(error);
     }
   }
 

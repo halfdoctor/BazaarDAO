@@ -8,6 +8,7 @@ import Web3ContextProvider from 'context/Web3ContextProvider';
 
 import DaoInitializer from 'components/DaoInitializer';
 import Layout from 'components/Layout';
+import NotificationManager from 'components/NotificationManager';
 import Routes from 'navigation/Routes';
 
 import { store } from './store';
@@ -28,6 +29,7 @@ ReactDOM.render(
           </BrowserRouter>
         </Web3ContextProvider>
       </LanguageProvider>
+      <NotificationManager />
     </StyleProvider>
   </Provider>,
   document.getElementById('root')
