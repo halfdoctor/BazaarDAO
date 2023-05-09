@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { ErrorHandler } from 'helpers';
 import { UseProvider } from 'typings';
 
 import { setProvider } from './reducer';
@@ -8,7 +9,6 @@ import { setProvider } from './reducer';
 import { useAppSelector } from 'store';
 
 import { chainIdToNetworkMap } from 'constants/config';
-import { captureError } from 'utils/errors';
 
 export function useProviderStore () {
   const dispatch = useDispatch();
@@ -21,7 +21,7 @@ export function useProviderStore () {
     try {
       dispatch(setProvider(provider));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 

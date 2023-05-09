@@ -19,6 +19,11 @@ export enum EIP1193 {
   chainDisconnected = 4901,
 }
 
+export enum EIP1193String {
+  userRejectedRequest = 'ACTION_REJECTED',
+  failedEstimateGas = 'UNPREDICTABLE_GAS_LIMIT',
+}
+
 export enum EIP1474 {
   parseError = -32700,
   invalidRequest = -32600,
@@ -75,6 +80,7 @@ export async function requestAddEthChain (
 export function handleEthError (error: EthProviderRpcError) {
   switch (error.code) {
     case EIP1193.userRejectedRequest:
+    case EIP1193String.userRejectedRequest:
       throw new errors.ProviderUserRejectedRequest();
     case EIP1193.unauthorized:
       throw new errors.ProviderUnauthorized();
@@ -108,6 +114,8 @@ export function handleEthError (error: EthProviderRpcError) {
       throw new errors.ProviderLimitExceeded();
     case EIP1474.jsonRpcVersionNotSupported:
       throw new errors.ProviderJsonRpcVersionNotSupported();
+    case EIP1193String.failedEstimateGas:
+      throw new errors.ProviderFailedEstimateGas();
     default:
       throw error;
   }

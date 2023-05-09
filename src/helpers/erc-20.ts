@@ -2,9 +2,8 @@
 import { QRC20 } from '@q-dev/gdk-sdk';
 import { QRC20__factory as Erc20 } from '@q-dev/gdk-sdk/lib/ethers-contracts/factories/QRC20__factory';
 import { providers, Signer } from 'ethers';
-import { UseProvider } from 'typings';
-
-import { captureError } from 'utils';
+import { ErrorHandler, handleEthError } from 'helpers';
+import { EthProviderRpcError, UseProvider } from 'typings';
 
 export let erc20ContractInstance: QRC20 | null = null;
 export let erc20ContractSigner: QRC20 | null = null;
@@ -41,16 +40,16 @@ export const loadDetailsErc20 = async (provider: UseProvider) => {
       totalSupplyCap: _totalSupplyCap || '',
     };
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
   }
 };
 
 export const approveErc20 = async (address: string, amount: string, userAddress: string) => {
   if (!erc20ContractSigner || !address) return;
   try {
-    return erc20ContractSigner.approve(address, amount, { from: userAddress });
+    return await erc20ContractSigner.approve(address, amount, { from: userAddress });
   } catch (error) {
-    captureError(error);
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -58,9 +57,9 @@ export const mintToErc20 = async (address: string, amount: string) => {
   if (!erc20ContractSigner || !address) return;
 
   try {
-    return erc20ContractSigner?.mintTo(address, amount);
+    return await erc20ContractSigner?.mintTo(address, amount);
   } catch (error) {
-    captureError(error);
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -68,9 +67,10 @@ export const getAllowanceErc20 = async (owner: string, spender: string) => {
   if (!erc20ContractInstance || !owner) return '0';
 
   try {
-    return (await erc20ContractInstance?.allowance(owner, spender)).toString();
+    const allowance = await erc20ContractInstance?.allowance(owner, spender);
+    return allowance.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 };
@@ -79,9 +79,10 @@ export const getBalanceOfErc20 = async (address: string) => {
   if (!erc20ContractInstance || !address) return '0';
 
   try {
-    return (await erc20ContractInstance?.balanceOf(address)).toString();
+    const balance = await erc20ContractInstance?.balanceOf(address);
+    return balance.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 };
@@ -90,10 +91,9 @@ export const getDecimalsErc20 = async () => {
   if (!erc20ContractInstance) return;
 
   try {
-    return erc20ContractInstance?.decimals();
+    return await erc20ContractInstance?.decimals();
   } catch (error) {
-    captureError(error);
-    return 0;
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -104,7 +104,7 @@ export async function getTotalSupplyCapErc20 () {
     const totalSupplyCap = await erc20ContractInstance?.totalSupplyCap();
     return totalSupplyCap.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '';
   }
 }
@@ -113,10 +113,9 @@ export const getNameErc20 = async () => {
   if (!erc20ContractInstance) return;
 
   try {
-    return erc20ContractInstance?.name();
+    return await erc20ContractInstance?.name();
   } catch (error) {
-    captureError(error);
-    return '';
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -124,9 +123,9 @@ export const getOwnerErc20 = async () => {
   if (!erc20ContractInstance) return;
 
   try {
-    return erc20ContractInstance?.owner();
+    return await erc20ContractInstance?.owner();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '';
   }
 };
@@ -135,10 +134,9 @@ export const getSymbolErc20 = async () => {
   if (!erc20ContractInstance) return;
 
   try {
-    return erc20ContractInstance?.symbol();
+    return await erc20ContractInstance?.symbol();
   } catch (error) {
-    captureError(error);
-    return '';
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -146,9 +144,10 @@ export const getTotalSupplyErc20 = async () => {
   if (!erc20ContractInstance) return;
 
   try {
-    return (await erc20ContractInstance?.totalSupply()).toString();
+    const totalSupply = await erc20ContractInstance?.totalSupply();
+    return totalSupply.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 };

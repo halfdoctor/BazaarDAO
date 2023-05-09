@@ -1,4 +1,3 @@
-import { useAlert } from 'react-alert';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router';
 
@@ -12,7 +11,7 @@ import Input from 'components/Input';
 
 import { useProviderStore } from 'store/provider/hooks';
 
-import { address, required } from 'utils/validators';
+import { address, Bus, required } from 'utils';
 
 const WrapContainer = styled.form`
   display: grid;
@@ -44,17 +43,18 @@ function DaoAddressForm () {
   const { t } = useTranslation();
   const { currentProvider } = useProviderStore();
   const history = useHistory();
-  const alert = useAlert();
+
+  const tryFindDao = async (daoAddress: string) => {
+    const isDaoExist = await checkDaoInRegistry(currentProvider, daoAddress);
+    isDaoExist
+      ? history.push(`${daoAddress}/`)
+      : Bus.error(t('WRONG_DAO_ADDRESS'));
+  };
 
   const form = useForm({
     initialValues: { address: '' },
     validators: { address: [required, address] },
-    onSubmit: async (form) => {
-      const isDaoExist = await checkDaoInRegistry(currentProvider, form.address);
-      isDaoExist
-        ? history.push(`${form.address}/`)
-        : alert.error(t('WRONG_DAO_ADDRESS'));
-    }
+    onSubmit: async (form) => await tryFindDao(form.address)
   });
 
   return (

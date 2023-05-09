@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import axios from 'axios';
+import { ErrorHandler } from 'helpers';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
 
@@ -13,7 +14,6 @@ import { getState, useAppSelector } from 'store';
 import { daoInstance } from 'contracts/contract-instance';
 
 import { CONSTITUTION_HASH_PARAMETER_KEY } from 'constants/constitution';
-import { captureError } from 'utils/errors';
 
 export function useConstitution () {
   const { constitutionUrl } = useNetworkConfig();
@@ -29,7 +29,7 @@ export function useConstitution () {
       const [, hash] = await parameterStorageInstance.instance.getDAOParameter(CONSTITUTION_HASH_PARAMETER_KEY);
       dispatch(setHash(hash));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -44,7 +44,7 @@ export function useConstitution () {
         .find(({ hash }: { hash: string }) => currentHash === `0x${hash}`);
       dispatch(setLastUpdate(constitution?.time ? constitution?.time * 1000 : 0));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 

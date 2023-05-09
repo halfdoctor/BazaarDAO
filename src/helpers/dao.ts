@@ -1,11 +1,10 @@
 
 import { DAO_REGISTRY_NAME, MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
 import { ethers } from 'ethers';
-import { isAddress } from 'helpers';
+import { ErrorHandler, isAddress } from 'helpers';
 import { UseProvider } from 'typings';
 
 import { chainIdToNetworkMap, networkConfigsMap, NetworkName } from 'constants/config';
-import { captureError } from 'utils/errors';
 
 export const getDaoSupportedNetworks = async (address: string) => {
   try {
@@ -29,7 +28,7 @@ export const getDaoSupportedNetworks = async (address: string) => {
     );
     return daoInfo;
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return [];
   }
 };
@@ -42,7 +41,7 @@ export const checkDaoInRegistry = async (provider: UseProvider | null, address: 
     const check = await masterDaoRegistry.instance.containsPool(DAO_REGISTRY_NAME, address);
     return check;
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return false;
   }
 };

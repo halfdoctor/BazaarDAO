@@ -4,6 +4,7 @@ import { useHistory, useParams } from 'react-router';
 
 import { Icon } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
+import { ErrorHandler } from 'helpers';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
@@ -17,7 +18,6 @@ import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
 import { RoutePaths } from 'constants/routes';
-import { captureError } from 'utils/errors';
 
 interface ProposalParams {
   id: string;
@@ -45,7 +45,7 @@ function Proposal () {
       }
       setProposal(proposalBaseInfo);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   };
 

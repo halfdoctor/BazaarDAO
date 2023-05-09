@@ -1,10 +1,9 @@
 import { DAO_RESERVED_NAME, filterParameter, getParametersValue, ParameterType } from '@q-dev/gdk-sdk';
+import { ErrorHandler } from 'helpers';
 import { ParameterKey } from 'typings/forms';
 import { ParameterValue } from 'typings/parameters';
 
 import { daoInstance } from 'contracts/contract-instance';
-
-import { captureError } from 'utils/errors';
 
 export async function getParameters (
   panelName: string,
@@ -25,7 +24,7 @@ export async function getParameters (
       return { ...item, normalValue: parametersNormalValue[index] };
     });
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return [];
   }
 }
@@ -64,7 +63,7 @@ export async function getRegistryContracts (): Promise<ParameterValue[]> {
 
     return contractValues;
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return [];
   }
 }

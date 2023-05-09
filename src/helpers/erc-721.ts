@@ -2,9 +2,8 @@
 import { QRC721 } from '@q-dev/gdk-sdk';
 import { QRC721__factory as Erc721 } from '@q-dev/gdk-sdk/lib/ethers-contracts/factories/QRC721__factory';
 import { providers, Signer } from 'ethers';
-import { UseProvider } from 'typings';
-
-import { captureError } from 'utils';
+import { ErrorHandler, handleEthError } from 'helpers';
+import { EthProviderRpcError, UseProvider } from 'typings';
 
 export let erc721ContractInstance: QRC721 | null = null;
 export let erc721ContractSigner: QRC721 | null = null;
@@ -40,7 +39,7 @@ export const loadDetailsErc721 = async (provider: UseProvider) => {
       totalSupplyCap: _totalSupplyCap || '',
     };
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
   }
 };
 
@@ -48,36 +47,37 @@ export const mintToErc721 = async (address: string, amount: string | number, tok
   if (!erc721ContractSigner || !address) return;
 
   try {
-    return erc721ContractSigner?.mintTo(address, amount, tokenURI);
+    return await erc721ContractSigner?.mintTo(address, amount, tokenURI);
   } catch (error) {
-    captureError(error);
+    handleEthError(error as EthProviderRpcError);
   }
 };
 export const setApprovalForAllErc721 = async (address: string, status: boolean) => {
   if (!erc721ContractSigner || !address) return;
 
   try {
-    return erc721ContractSigner?.setApprovalForAll(address, status);
+    return await erc721ContractSigner?.setApprovalForAll(address, status);
   } catch (error) {
-    captureError(error);
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
 export async function getTokenOfOwnerByIndexErc721 (selectedAddress: string, index: string | number) {
   if (!erc721ContractInstance || !selectedAddress) return '0';
   try {
-    return (await erc721ContractInstance?.tokenOfOwnerByIndex(selectedAddress, index)).toString();
+    const tokenOfOwnerByIndex = await erc721ContractInstance?.tokenOfOwnerByIndex(selectedAddress, index);
+    return tokenOfOwnerByIndex.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 }
 export async function getIsApprovedForAllErc721 (tokenAddress: string, selectedAddress: string) {
   if (!erc721ContractInstance || !selectedAddress) return false;
   try {
-    return erc721ContractInstance?.isApprovedForAll(selectedAddress, tokenAddress);
+    return await erc721ContractInstance?.isApprovedForAll(selectedAddress, tokenAddress);
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return false;
   }
 }
@@ -89,7 +89,7 @@ export const getBalanceOfErc721 = async (address: string) => {
     const balance = await erc721ContractInstance.balanceOf(address);
     return balance.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 };
@@ -101,7 +101,7 @@ export async function getTotalSupplyCapErc721 () {
     const totalSupplyCap = await erc721ContractInstance.totalSupplyCap();
     return totalSupplyCap.toString();
   } catch (error) {
-    //    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 }
@@ -110,10 +110,9 @@ export const getNameErc721 = async () => {
   if (!erc721ContractInstance) return '';
 
   try {
-    return erc721ContractInstance?.name();
+    return await erc721ContractInstance?.name();
   } catch (error) {
-    captureError(error);
-    return '';
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -121,9 +120,9 @@ export const getOwnerErc721 = async () => {
   if (!erc721ContractInstance) return '';
 
   try {
-    return erc721ContractInstance?.owner();
+    return await erc721ContractInstance?.owner();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '';
   }
 };
@@ -132,10 +131,9 @@ export const getSymbolErc721 = async () => {
   if (!erc721ContractInstance) return;
 
   try {
-    return erc721ContractInstance?.symbol();
+    return await erc721ContractInstance?.symbol();
   } catch (error) {
-    captureError(error);
-    return '';
+    handleEthError(error as EthProviderRpcError);
   }
 };
 
@@ -143,9 +141,10 @@ export const getTotalSupplyErc721 = async () => {
   if (!erc721ContractInstance) return '0';
 
   try {
-    return (await erc721ContractInstance?.totalSupply()).toString();
+    const totalSupply = await erc721ContractInstance?.totalSupply();
+    return totalSupply.toString();
   } catch (error) {
-    captureError(error);
+    ErrorHandler.processWithoutFeedback(error);
     return '0';
   }
 };

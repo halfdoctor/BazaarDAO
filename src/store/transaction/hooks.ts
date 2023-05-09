@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { useAlert } from 'react-alert';
 import { useDispatch } from 'react-redux';
 
 import { ContractTransaction } from 'ethers';
+import { ErrorHandler } from 'helpers';
 import { t } from 'i18next';
 import uniqueId from 'lodash/uniqueId';
 
@@ -11,11 +11,10 @@ import { setTransactions, Transaction, TransactionEditableParams } from './reduc
 import { getState, useAppSelector } from 'store';
 import { useDaoVault } from 'store/dao-vault/hooks';
 
-import { captureError } from 'utils/errors';
+import { Bus } from 'utils';
 
 export function useTransaction () {
   const dispatch = useDispatch();
-  const alert = useAlert();
   const { loadAllBalances } = useDaoVault();
 
   const pendingTransactions = useAppSelector(({ transaction }) => {
@@ -59,19 +58,13 @@ export function useTransaction () {
       }
       onSuccess();
       updateTransaction(transaction.id, { status: 'success' });
-      await alertTxStatus(transaction.id, 'success', transaction.message);
+      await alertTxStatus(transaction.id, transaction.message);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.process(error);
       onError(error);
       updateTransaction(transaction.id, { status: 'error' });
-      await alertTxStatus(transaction.id, 'error', getErrorMessage(error));
     }
   }
-
-  const getTxById = (id: string) => {
-    const { transactions } = getState().transaction;
-    return transactions.find((tx: Transaction) => tx.id === id);
-  };
 
   const updateTransaction = (id: string, params: TransactionEditableParams) => {
     const { transactions } = getState().transaction;
@@ -82,47 +75,22 @@ export function useTransaction () {
     dispatch(setTransactions(newTxs));
   };
 
-  const alertTxStatus = async (id: string, type: 'success' | 'error', message: string) => {
+  const getTxById = (id: string) => {
+    const { transactions } = getState().transaction;
+    return transactions.find((tx: Transaction) => tx.id === id);
+  };
+
+  const alertTxStatus = async (id: string, message: string) => {
     const currentTx = getTxById(id);
     if (currentTx?.isClosedModal) {
-      alert[type](message);
+      Bus.success(message);
     }
     await loadAllBalances();
   };
-
   return {
     pendingTransactions,
     transactions,
     submitTransaction: useCallback(submitTransaction, []),
     updateTransaction: useCallback(updateTransaction, []),
   };
-}
-
-function getErrorMessage (err: unknown): string {
-  const error = err as {
-    message: string;
-    code?: number;
-    stack?: string;
-  };
-
-  if (error.code === 4001) {
-    return t('ERROR_TRANSACTION_REJECTED');
-  }
-
-  if (!error.message?.includes('Internal JSON-RPC error')) {
-    if (error.message?.includes('Transaction has been reverted by the EVM')) {
-      return t('ERROR_TRANSACTION_REVERTED_BY_EVM');
-    }
-
-    return error.message || t('ERROR_UNKNOWN');
-  }
-
-  if (error.message === 'execution reverted') {
-    return t('ERROR_TRANSACTION_REVERTED');
-  }
-
-  const rpcErrorCode = error.message.match(/\[.+-(.+)\]/)?.at(1);
-  return rpcErrorCode
-    ? t(`ERROR_${rpcErrorCode}`)
-    : t('ERROR_RPC_UNKNOWN');
 }

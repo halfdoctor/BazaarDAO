@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ErrorHandler } from 'helpers';
 import { ParameterValue } from 'typings/parameters';
 
 import ParametersBlock from './ParametersBlock';
 
 import { getParameters } from 'contracts/helpers/parameters-helper';
-
-import { captureError } from 'utils/errors';
 
 interface Props {
   panel: string;
@@ -29,7 +28,7 @@ function DaoPanelParameters ({ panel }: Props) {
       const parameters = await getParameters(panel);
       setParameters(parameters);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       setError(t('PANEL_PARAMETERS_LOADING_ERROR', { panel }));
     } finally {
       setLoading(false);

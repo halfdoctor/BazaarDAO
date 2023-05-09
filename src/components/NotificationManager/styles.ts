@@ -1,10 +1,10 @@
 
+import { TypeOptions } from 'react-toastify';
+
 import styled from 'styled-components';
 
-import { ToastType } from './Toast';
-
-export const ToastContainer = styled.div<{
-  $type: ToastType;
+export const Container = styled.div<{
+  $type: TypeOptions;
 }>`
   background-color: ${({ theme }) => theme.colors.backgroundPrimary};
   box-shadow:
@@ -29,12 +29,14 @@ export const ToastContainer = styled.div<{
         case 'error':
           return theme.colors.errorMain;
         case 'info':
+        case 'default':
+        case 'warning':
           return theme.colors.infoPrimary;
       }
     }};
   }
 
-  .toast-icon-wrp {
+  .notification-manager__icon-wrp {
     color: ${({ theme, $type }) => {
       switch ($type) {
         case 'success':
@@ -42,6 +44,8 @@ export const ToastContainer = styled.div<{
         case 'error':
           return theme.colors.errorMain;
         case 'info':
+        case 'default':
+        case 'warning':
           return theme.colors.infoPrimary;
       }
     }};
@@ -51,11 +55,11 @@ export const ToastContainer = styled.div<{
     }
   }
 
-  .toast-content {
+  .notification-manager__content {
     margin-top: 4px;
   }
 
-  .toast-main {
+  .notification-manager__main {
     border: 1px solid ${({ theme }) => theme.colors.borderPrimary};
     border-left: none;
     display: grid;
@@ -65,11 +69,11 @@ export const ToastContainer = styled.div<{
     border-radius: 0 16px 16px 0;
   }
 
-  .toast-text {
+  .notification-manager__text {
     color: ${({ theme }) => theme.colors.textSecondary};
   }
 
-  .toast-close {
+  .notification-manager__close {
     cursor: pointer;
     padding: 0;
     border: none;

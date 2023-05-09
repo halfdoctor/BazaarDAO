@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 
 import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
+import { ErrorHandler } from 'helpers';
 
 import { useDaoProposals } from './useDaoProposals';
 
@@ -12,7 +13,6 @@ import { useProviderStore } from 'store/provider/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 
-import { captureError } from 'utils/errors';
 import { fromWeiWithDecimals } from 'utils/numbers';
 
 function useProposalActionsInfo () {
@@ -27,7 +27,7 @@ function useProposalActionsInfo () {
       const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
       return memberStorageInstance.instance.isMember(currentProvider.selectedAddress);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       return false;
     }
   }
@@ -39,7 +39,7 @@ function useProposalActionsInfo () {
         .instance.getVetoGroupMembers(target);
       return vetoGroupMembers.includes(currentProvider.selectedAddress);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       return false;
     }
   }
@@ -52,7 +52,7 @@ function useProposalActionsInfo () {
         .isGreaterThanOrEqualTo(fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals));
       return { isUserHasVotingPower, isUserMember: situationInfo.votingType.toString() === '0' || isUserMember };
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       return { isUserHasVotingPower: false, isUserMember: false };
     }
   };
@@ -66,7 +66,7 @@ function useProposalActionsInfo () {
         .isGreaterThanOrEqualTo((fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals)));
       return isUserHasVotingPower && (situationInfo.votingType.toString() !== '1' || isUserMember);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       return false;
     }
   };

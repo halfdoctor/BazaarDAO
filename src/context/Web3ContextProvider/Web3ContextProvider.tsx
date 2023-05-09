@@ -1,6 +1,7 @@
 import { createContext, FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useLocalStorage } from '@q-dev/react-hooks';
+import { ErrorHandler } from 'helpers';
 
 import { UseProvider, useProvider, useWeb3 } from 'hooks';
 
@@ -8,7 +9,6 @@ import { Wrap } from './styles';
 
 import { chainIdToNetworkMap, networkConfigsMap, ORIGIN_NETWORK_NAME } from 'constants/config';
 import { PROVIDERS } from 'constants/providers';
-import { captureError } from 'utils/errors';
 
 export type Web3Data = {
   currentProvider: UseProvider;
@@ -46,7 +46,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
     try {
       await web3.init();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       setIsLoadFailed(true);
     }
   };
@@ -64,7 +64,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
 
       await initDefaultProvider(networkConfigsMap[ORIGIN_NETWORK_NAME].chainId);
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       setIsLoadFailed(true);
     }
     setIsLoaded(true);
@@ -80,7 +80,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
         await provider.init(browserProvider);
       }
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   };
 
@@ -90,7 +90,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
       const selectedNetworkName = chainIdToNetworkMap[network];
       await defaultProvider.init({ name: PROVIDERS.default, instance: networkConfigsMap[selectedNetworkName].rpcUrl });
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   };
 

@@ -70,8 +70,8 @@ function DepositForm () {
     }
   });
 
-  const updateMaxAmount = async () => {
-    const depositAmount = await getDAOVaultDepositAmount(form.values.amount, walletBalance, chainBalance, tokenInfo);
+  const updateMaxAmount = () => {
+    const depositAmount = getDAOVaultDepositAmount(form.values.amount, walletBalance, chainBalance, tokenInfo);
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
@@ -99,7 +99,7 @@ function DepositForm () {
               {...form.fields.id}
               label={t('NFT_ID')}
               options={walletNftsList.map((item: string) => ({ value: item, label: item }))}
-              hint={t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
+              hint={t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
               placeholder={t('NFT_ID')}
             />
             : <Input
@@ -109,7 +109,7 @@ function DepositForm () {
               prefix={tokenInfo?.symbol}
               hint={Number(maxAmount) > 0 && form.values.amount === maxAmount && !canDeposit
                 ? t('WARNING_NO_Q_LEFT')
-                : t('AVAILABLE_TO_TRANSFER', { amount: formatAsset(maxAmount, tokenInfo?.symbol) })
+                : t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo?.symbol) })
               }
               max={maxAmount}
               placeholder="0.0"

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { DAO_RESERVED_NAME, ETHEREUM_ADDRESS } from '@q-dev/gdk-sdk';
+import { ErrorHandler } from 'helpers';
 import { approveErc20, getAllowanceErc20, getErc20ContractInstance, getErc20ContractSigner, loadDetailsErc20 } from 'helpers/erc-20';
 import { getErc165ContractInstance, getIsSupportedInterface } from 'helpers/erc-165';
 import { getErc721ContractInstance, getErc721ContractSigner, getIsApprovedForAllErc721, loadDetailsErc721, setApprovalForAllErc721 } from 'helpers/erc-721';
@@ -14,7 +15,6 @@ import { daoInstance, getDaoInstance, resetDaoInstance } from 'contracts/contrac
 
 import { ERC_721_INTERFACE_ID, MAX_APPROVE_AMOUNT } from 'constants/boundaries';
 import { PROVIDERS } from 'constants/providers';
-import { captureError } from 'utils/errors';
 
 export const Q_TOKEN_INFO: TokenInfo = {
   name: 'Q',
@@ -55,7 +55,7 @@ export function useDaoTokenStore () {
       const votingToken = await daoInstance.getPanelVotingTokenAddress(DAO_RESERVED_NAME);
       dispatch(setVotingToken(votingToken));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -70,7 +70,7 @@ export function useDaoTokenStore () {
           : await getErc20Info(votingToken);
       dispatch(setTokenInfo(tokenInfo || null));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -103,7 +103,7 @@ export function useDaoTokenStore () {
         formatNumber: 4
       };
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -139,7 +139,7 @@ export function useDaoTokenStore () {
         formatNumber: 0
       };
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -152,7 +152,7 @@ export function useDaoTokenStore () {
       const isErc721Token = await getIsSupportedInterface(ERC_721_INTERFACE_ID);
       return isErc721Token;
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       return false;
     }
   };

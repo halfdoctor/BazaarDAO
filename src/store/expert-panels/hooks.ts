@@ -2,14 +2,13 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
+import { ErrorHandler } from 'helpers';
 
 import { setAllPanels, setExpertPanels } from './reducer';
 
 import { useAppSelector } from 'store';
 
 import { daoInstance } from 'contracts/contract-instance';
-
-import { captureError } from 'utils/errors';
 
 export function useExpertPanels () {
   const dispatch = useDispatch();
@@ -24,7 +23,7 @@ export function useExpertPanels () {
       dispatch(setExpertPanels(expertPanels));
       dispatch(setAllPanels([DAO_RESERVED_NAME, ...expertPanels]));
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
     }
   }
 
@@ -34,7 +33,7 @@ export function useExpertPanels () {
       const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
       return memberStorageInstance.instance.getMembers();
     } catch (error) {
-      captureError(error);
+      ErrorHandler.processWithoutFeedback(error);
       return [];
     }
   }

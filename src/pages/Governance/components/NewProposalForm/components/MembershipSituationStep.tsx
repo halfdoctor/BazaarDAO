@@ -1,33 +1,57 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
-import { MembershipSituationType, NewProposalForm } from 'typings/forms';
+import { MembershipSituationType } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
-import { address, required, url } from 'utils/validators';
+import { useExpertPanels } from 'store/expert-panels/hooks';
 
-function MembershipSituationStep () {
+import { address, addressInGroup, addressOutGroup, required, url } from 'utils/validators';
+
+function MembershipSituationStep ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
   const { goNext, goBack } = useNewProposalForm();
+  const { getPanelMembers } = useExpertPanels();
+  const [isLoading, setIsLoading] = useState(true);
+  const [membershipAction, setMembershipAction] = useState<MembershipSituationType>('add-member');
+  const [panelMembers, setPanelMembers] = useState<string[]>([]);
 
   const form = useForm({
     initialValues: {
-      membershipSituationType: 'add-member' as MembershipSituationType,
       candidateAddress: '',
       externalLink: '',
     },
     validators: {
-      membershipSituationType: [required],
       externalLink: [required, url],
-      candidateAddress: [required, address],
+      candidateAddress: [
+        required,
+        address,
+        membershipAction === 'add-member' ? addressInGroup(panelMembers) : addressOutGroup(panelMembers)]
     },
-    onSubmit: (form) => goNext(form as NewProposalForm),
+    onSubmit: (form) => goNext({ ...form, membershipSituationType: membershipAction }),
   });
+
+  useEffect(() => {
+    loadPanelMembers();
+  }, [panelName]);
+
+  useEffect(() => {
+    // HACK: for change validators params
+    if (form.values.candidateAddress) { form.reset(); }
+  }, [membershipAction]);
+
+  async function loadPanelMembers () {
+    setIsLoading(true);
+    const members = await getPanelMembers(panelName);
+    setPanelMembers(members);
+    setIsLoading(false);
+  }
 
   const panelTypeOptions: RadioOptions<MembershipSituationType> = [
     {
@@ -42,14 +66,15 @@ function MembershipSituationStep () {
 
   return (
     <FormStep
-      disabled={!form.isValid}
+      disabled={!form.isValid || isLoading}
       onNext={form.submit}
       onBack={goBack}
     >
       <RadioGroup
-        {...form.fields.membershipSituationType}
+        value={membershipAction}
         name="param-panel-type"
         options={panelTypeOptions}
+        onChange={setMembershipAction}
       />
       <Input
         {...form.fields.candidateAddress}
