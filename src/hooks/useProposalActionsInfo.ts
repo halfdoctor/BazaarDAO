@@ -17,7 +17,7 @@ import { fromWeiWithDecimals } from 'utils/numbers';
 
 function useProposalActionsInfo () {
   const { vaultBalance } = useDaoVault();
-  const { getPanelSituationInfo } = useDaoProposals();
+  const { getPanelSituationInfo, getAccountStatuses } = useDaoProposals();
   const { tokenInfo } = useDaoTokenStore();
   const { currentProvider } = useProviderStore();
 
@@ -31,13 +31,25 @@ function useProposalActionsInfo () {
       return false;
     }
   }
+  async function checkIsUserTokenHolder () {
+    try {
+      if (!currentProvider?.selectedAddress) return false;
+      const accountStatuses = await getAccountStatuses();
+      return accountStatuses.includes(DAO_RESERVED_NAME);
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return false;
+    }
+  }
+
   async function checkIsUserCanVeto (target: string) {
     try {
       if (!daoInstance || !currentProvider?.selectedAddress) return false;
       const permissionManagerInstance = await daoInstance.getPermissionManagerInstance();
+      const isUserTokenHolder = await checkIsUserTokenHolder();
       const vetoGroupMembers = await permissionManagerInstance
         .instance.getVetoGroupMembers(target);
-      return vetoGroupMembers.includes(currentProvider.selectedAddress);
+      return vetoGroupMembers.includes(currentProvider.selectedAddress) && isUserTokenHolder;
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       return false;
@@ -48,9 +60,13 @@ function useProposalActionsInfo () {
       const situationInfo = await getPanelSituationInfo(panelName, situation);
       if (!situationInfo || !tokenInfo) return { isUserHasVotingPower: false, isUserMember: false };
       const isUserMember = await checkIsUserMember(panelName);
+      const isUserTokenHolder = await checkIsUserTokenHolder();
       const isUserHasVotingPower = toBigNumber(vaultBalance)
         .isGreaterThanOrEqualTo(fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals));
-      return { isUserHasVotingPower, isUserMember: situationInfo.votingType.toString() === '0' || isUserMember };
+      return {
+        isUserHasVotingPower: isUserHasVotingPower && isUserTokenHolder,
+        isUserMember: situationInfo.votingType.toString() === '0' || isUserMember
+      };
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       return { isUserHasVotingPower: false, isUserMember: false };
@@ -62,9 +78,10 @@ function useProposalActionsInfo () {
       const situationInfo = await getPanelSituationInfo(panelName, situation);
       if (!situationInfo || !tokenInfo) return false;
       const isUserMember = await checkIsUserMember(panelName);
+      const isUserTokenHolder = await checkIsUserTokenHolder();
       const isUserHasVotingPower = toBigNumber(vaultBalance)
         .isGreaterThanOrEqualTo((fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals)));
-      return isUserHasVotingPower && (situationInfo.votingType.toString() !== '1' || isUserMember);
+      return isUserTokenHolder && isUserHasVotingPower && (situationInfo.votingType.toString() !== '1' || isUserMember);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       return false;
@@ -75,6 +92,7 @@ function useProposalActionsInfo () {
     checkIsUserCanVeto: useCallback(checkIsUserCanVeto, []),
     checkIsUserCanCreateProposal: useCallback(checkIsUserCanCreateProposal, []),
     checkIsUserCanVoting: useCallback(checkIsUserCanVoting, []),
+    checkIsUserTokenHolder: useCallback(checkIsUserTokenHolder, []),
     checkIsUserMember: useCallback(checkIsUserMember, [])
   };
 }

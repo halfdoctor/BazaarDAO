@@ -762,17 +762,17 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.7.tgz#ccab5c8f7dc557a52ca3288c10075c9ccd37fff7"
   integrity sha512-Cr4OjIkipTtcXKjAsm8agyleBuDHvxzeBoa1v543lbv1YaIwQjESsVcmjiWiPEbC1FIeHOG/Op9kdCmAmiS3Kw==
 
-"@q-dev/form-hooks@^0.2.1":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@q-dev/form-hooks/-/form-hooks-0.2.2.tgz#6375efe140e05b5c594507558120594f753df8f7"
-  integrity sha512-S5jx5sQmlhfTEVjegaFou4KmTedw2P+ZXL+r/yfcYjknoGQNi3HlSioIAPGIKemvvwp/Y2kq68dPgBsqXeolTQ==
+"@q-dev/form-hooks@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@q-dev/form-hooks/-/form-hooks-0.3.3.tgz#356cb8747f4e6ebec03581bf0abf4a2454e17e8e"
+  integrity sha512-9LVInWlksetXCr618atGDscwaiNDK3xc8WAhMN1CwzSBjAzimhjjc8T1PqJSe/Gx/qYqXl6zrikrDkeeFhHwqA==
   dependencies:
     lodash "^4.17.21"
 
-"@q-dev/gdk-sdk@^0.9.7":
-  version "0.9.7"
-  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.9.7.tgz#940c4d93b4a600578686c61b148dc89819846dea"
-  integrity sha1-lAxNk7SmAFeGhsYbFI3ImBmEbeo=
+"@q-dev/gdk-sdk@^0.10.0":
+  version "0.10.0"
+  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.10.0.tgz#03e1e4419fad2400bfe17ecfeba906916216353a"
+  integrity sha1-A+HkQZ+tJAC/4X7P66kGkWIWNTo=
   dependencies:
     axios "^1.3.4"
     bn.js "^5.2.1"

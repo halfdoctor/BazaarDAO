@@ -33,7 +33,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.q.org',
     constitutionUrl: 'https://constitution.q.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0x81FccB3dAfc6685c783F4A871700f4a0889c4008',
+    masterDaoRegistryAddress: '0x4c3E5bD62c2945aD98EC040745Abb20A53e7098D',
   },
   testnet: {
     chainId: 35443,
@@ -48,7 +48,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qtestnet.org',
     gasBuffer: 2,
-    masterDaoRegistryAddress: '0x58AED0176A0A534630C9df0d1E919EFcD660fbcf',
+    masterDaoRegistryAddress: '0xd20e01bF0EF824aa5647eb1d0F5d9CA2D4f0fDfc',
   },
   devnet: {
     chainId: 35442,
@@ -63,7 +63,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qdevnet.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0x8C0344f0C30C7a67106f4f05b824Ad62Ac7A4f51',
+    masterDaoRegistryAddress: '0x89609649c87A4F6CD99618C7eCfD6c699782304f',
   },
 };
 
@@ -91,11 +91,9 @@ export const connectorParametersMap = Object.values(networkConfigsMap)
   }, {} as { [key: string]: Chain });
 
 const originToNetworkMap: { [key: string]: NetworkName } = {
-  'https://hq.q.org': 'mainnet',
-  'https://hq.qtestnet.org': 'testnet',
-  'https://hq.qdevnet.org': 'devnet',
+  'https://factory.q-dao.tools': 'mainnet',
+  'https://dao-factory.qdevnet.org': 'testnet',
   'http://localhost:3000': 'devnet',
-  'http://localhost:3001': 'devnet',
 };
 
 export const ORIGIN_NETWORK_NAME: NetworkName = originToNetworkMap[window.location.origin] || 'testnet';

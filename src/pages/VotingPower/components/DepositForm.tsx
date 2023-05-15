@@ -10,10 +10,10 @@ import Button from 'components/Button';
 import Input from 'components/Input';
 
 import useApproveToken from 'hooks/useApproveToken';
+import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
 
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useProviderStore } from 'store/provider/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { getDAOVaultDepositAmount } from 'contracts/helpers/dao-vault-helper';
@@ -40,9 +40,9 @@ function DepositForm () {
   const { t } = useTranslation();
   const { walletBalance, depositToVault, loadAllBalances, walletNftsList, chainBalance } = useDaoVault();
   const { submitTransaction } = useTransaction();
-  const { currentProvider } = useProviderStore();
-  const { tokenInfo } = useDaoTokenStore();
+  const { tokenInfo, getToken } = useDaoTokenStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
+  const { checkIsUserTokenHolder } = useProposalActionsInfo();
 
   const [maxAmount, setMaxAmount] = useState('0');
   const [canDeposit, setCanDeposit] = useState(false);
@@ -53,25 +53,35 @@ function DepositForm () {
       id: ''
     },
     validators: {
-      amount: tokenInfo?.isErc721 ? [] : [required, amount(maxAmount)],
-      id: tokenInfo?.isErc721 ? [required] : []
+      amount: tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721' ? [] : [required, amount(maxAmount)],
+      id: tokenInfo?.type === 'erc721' ? [required] : []
     },
     onSubmit: ({ amount, id }) => {
       isDepositApprovalNeeded
         ? approveSpendToken()
         : submitTransaction({
           successMessage: t('DEPOSIT_INTO_VAULT_TX'),
-          submitFn: () => depositToVault({ address: currentProvider?.selectedAddress, amount, erc721Id: id }),
-          onSuccess: () => {
+          submitFn: () => depositToVault({ amount, erc721Id: id }),
+          onSuccess: async () => {
             form.reset();
-            loadAllBalances();
+            await Promise.all([
+              loadAllBalances(),
+              getToken(),
+            ]);
           },
         });
     }
   });
 
-  const updateMaxAmount = () => {
-    const depositAmount = getDAOVaultDepositAmount(form.values.amount, walletBalance, chainBalance, tokenInfo);
+  const updateMaxAmount = async () => {
+    const depositAmount = tokenInfo
+      ? getDAOVaultDepositAmount(form.values.amount, walletBalance, chainBalance, tokenInfo)
+      : { canDeposit: false, balance: '0' };
+    if (tokenInfo?.type === 'erc5484') {
+      const isUserTokenHolder = await checkIsUserTokenHolder();
+      setCanDeposit(depositAmount.canDeposit && !isUserTokenHolder);
+      return;
+    }
     setCanDeposit(depositAmount.canDeposit);
     setMaxAmount(depositAmount.balance);
   };
@@ -81,7 +91,7 @@ function DepositForm () {
   }, [form.values.amount, tokenInfo, walletBalance]);
 
   const isDepositApprovalNeeded = useMemo(() => {
-    return tokenInfo?.isErc721 ? !tokenInfo?.isErc721Approved : checkIsApprovalNeeded(form.values.amount);
+    return checkIsApprovalNeeded(form.values.amount);
   }, [form.values.amount, tokenInfo]);
 
   return (
@@ -93,27 +103,27 @@ function DepositForm () {
       <p className="text-md color-secondary">{t('FROM_WALLET_TO_VAULT')}</p>
 
       <div className="transfer-form-main">
-        {
-          tokenInfo?.isErc721
-            ? <Select
-              {...form.fields.id}
-              label={t('NFT_ID')}
-              options={walletNftsList.map((item: string) => ({ value: item, label: item }))}
-              hint={t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
-              placeholder={t('NFT_ID')}
-            />
-            : <Input
-              {...form.fields.amount}
-              type="number"
-              label={t('AMOUNT')}
-              prefix={tokenInfo?.symbol}
-              hint={Number(maxAmount) > 0 && form.values.amount === maxAmount && !canDeposit
-                ? t('WARNING_NO_Q_LEFT')
-                : t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo?.symbol) })
-              }
-              max={maxAmount}
-              placeholder="0.0"
-            />}
+        {tokenInfo?.type === 'erc721' &&
+          <Select
+            {...form.fields.id}
+            label={t('NFT_ID')}
+            options={walletNftsList.map((item: string) => ({ value: item, label: item }))}
+            hint={t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
+            placeholder={t('NFT_ID')}
+          />}
+        {(tokenInfo?.type === 'erc20' || tokenInfo?.type === 'native') &&
+          <Input
+            {...form.fields.amount}
+            type="number"
+            label={t('AMOUNT')}
+            prefix={tokenInfo?.symbol}
+            hint={+maxAmount && form.values.amount === maxAmount && !canDeposit
+              ? t('WARNING_NO_Q_LEFT')
+              : t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo?.symbol) })
+            }
+            max={maxAmount}
+            placeholder="0.0"
+          />}
 
         <Button
           className="transfer-form-action"

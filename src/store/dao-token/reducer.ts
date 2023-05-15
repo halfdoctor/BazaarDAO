@@ -1,26 +1,28 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type TokenType = 'native' | 'erc20' | 'erc721' | 'erc5484';
+
 export interface TokenInfo {
   name: string;
   symbol: string;
-  allowance: string;
   decimals: number;
-  isNative: boolean;
-  isErc721?: boolean;
-  isErc721Approved?: boolean;
+  type: TokenType;
   address: string;
   totalSupply: string;
   totalSupplyCap: string;
   owner: string;
   formatNumber: number;
+  isErc721Approved?: boolean;
+  isAuthorizedBySBT?: boolean;
+  allowance?: string;
 };
 
-interface daoTokenState {
+interface DaoTokenState {
   votingToken: string;
   tokenInfo: TokenInfo | null;
 };
 
-const initialState: daoTokenState = {
+const initialState: DaoTokenState = {
   votingToken: '',
   tokenInfo: null
 };

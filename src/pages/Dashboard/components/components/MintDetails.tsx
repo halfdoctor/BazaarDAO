@@ -39,10 +39,12 @@ function MintDetails ({ isCanMint, availableMintValue }: Props) {
     ? [
       {
         title: t('TOTAL_TOKEN_SUPPLY_CAP'),
-        amountTitle: fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals),
-        amount: formatNumberCompact(
-          fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals), tokenInfo.formatNumber
-        )
+        amountTitle: tokenInfo.totalSupplyCap ? fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals) : '–',
+        amount: tokenInfo.totalSupplyCap
+          ? formatNumberCompact(
+            fromWeiWithDecimals(tokenInfo.totalSupplyCap, tokenInfo.decimals), tokenInfo.formatNumber
+          )
+          : '–'
       },
       {
         title: t('MINTED_TOKENS'),
@@ -53,8 +55,8 @@ function MintDetails ({ isCanMint, availableMintValue }: Props) {
       },
       {
         title: t('AVAILABLE_TOKENS_FOR_MINT'),
-        amountTitle: availableMintValue,
-        amount: formatNumberCompact(availableMintValue, tokenInfo.formatNumber)
+        amountTitle: tokenInfo.totalSupplyCap ? availableMintValue : '–',
+        amount: tokenInfo.totalSupplyCap ? formatNumberCompact(availableMintValue, tokenInfo.formatNumber) : '–'
       },
     ]
     : [], [availableMintValue, tokenInfo, t]);
