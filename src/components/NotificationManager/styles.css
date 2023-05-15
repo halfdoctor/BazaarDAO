@@ -6,4 +6,5 @@
 
 .Toastify__toast-container--top-right {
   top: 5em;
+  z-index: 99999;
 }

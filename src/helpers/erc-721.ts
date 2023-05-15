@@ -8,13 +8,13 @@ import { EthProviderRpcError, UseProvider } from 'typings';
 export let erc721ContractInstance: QRC721 | null = null;
 export let erc721ContractSigner: QRC721 | null = null;
 
-export const getErc721ContractInstance = (address: string, provider: Signer | providers.Provider) => {
-  erc721ContractInstance = Erc721.connect(address, provider);
+export const getErc721ContractInstance = (address: string, provider?: providers.Provider) => {
+  erc721ContractInstance = provider ? Erc721.connect(address, provider) : null;
   return erc721ContractInstance;
 };
 
-export const getErc721ContractSigner = (address: string, signer: Signer) => {
-  erc721ContractSigner = Erc721.connect(address, signer);
+export const getErc721ContractSigner = (address: string, signer?: Signer) => {
+  erc721ContractSigner = signer ? Erc721.connect(address, signer) : null;
   return erc721ContractSigner;
 };
 

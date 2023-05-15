@@ -23,7 +23,7 @@ function Balance () {
   const { tokenInfo } = useDaoTokenStore();
   const { composeDaoLink } = useDaoStore();
   const [balanceOpen, setBalanceOpen] = useState(false);
-  const formatNumber = useMemo(() => tokenInfo?.isErc721 ? 0 : 2, [tokenInfo]);
+  const formatNumber = useMemo(() => tokenInfo?.type === 'erc721' || tokenInfo?.type === 'erc5484' ? 0 : 2, [tokenInfo]);
 
   useInterval(loadAllBalances, 5000);
 

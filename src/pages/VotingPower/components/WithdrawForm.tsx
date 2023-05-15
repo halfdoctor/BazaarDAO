@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
@@ -8,9 +9,10 @@ import styled from 'styled-components';
 import Button from 'components/Button';
 import Input from 'components/Input';
 
+import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
+
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useProviderStore } from 'store/provider/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { amount, required } from 'utils/validators';
@@ -34,9 +36,12 @@ const StyledForm = styled.form`
 function WithdrawForm () {
   const { t } = useTranslation();
   const { submitTransaction } = useTransaction();
-  const { withdrawFromVault, withdrawalBalance, loadAllBalances, withdrawalNftsList } = useDaoVault();
-  const { currentProvider } = useProviderStore();
-  const { tokenInfo } = useDaoTokenStore();
+  const { withdrawFromVault, withdrawalBalance, loadAllBalances, withdrawalNftsList, walletBalance } = useDaoVault();
+  const { tokenInfo, getToken } = useDaoTokenStore();
+  const { checkIsUserTokenHolder } = useProposalActionsInfo();
+  const [isErc5484Approved, setIsErc5484Approved] = useState(true);
+
+  const isNftLike = useMemo(() => tokenInfo?.type === 'erc721' || tokenInfo?.type === 'erc5484', [tokenInfo]);
 
   const form = useForm({
     initialValues: {
@@ -44,22 +49,36 @@ function WithdrawForm () {
       id: ''
     },
     validators: {
-      amount: tokenInfo?.isErc721 ? [] : [required, amount(withdrawalBalance)],
-      id: tokenInfo?.isErc721 ? [required] : []
+      amount: isNftLike ? [] : [required, amount(withdrawalBalance)],
+      id: tokenInfo?.type === 'erc721' ? [required] : []
     },
     onSubmit: ({ amount, id }) => {
       submitTransaction({
         successMessage: t('WITHDRAW_FROM_VAULT_TX'),
         submitFn: async () => withdrawFromVault(
-          { amount, address: currentProvider?.selectedAddress, erc721Id: id }
+          { amount, erc721Id: id }
         ),
         onSuccess: async () => {
           form.reset();
-          await loadAllBalances();
+          await Promise.all([
+            loadAllBalances(),
+            getToken(),
+          ]);
         },
       });
     }
   });
+
+  const checkWithdrawAbility = async () => {
+    if (tokenInfo?.type === 'erc5484') {
+      const isUserTokenHolder = await checkIsUserTokenHolder();
+      setIsErc5484Approved(!!tokenInfo.isAuthorizedBySBT && isUserTokenHolder && !!Number(walletBalance));
+    }
+  };
+
+  useEffect(() => {
+    checkWithdrawAbility();
+  }, [tokenInfo, walletBalance]);
 
   return (
     <StyledForm
@@ -70,15 +89,16 @@ function WithdrawForm () {
       <p className="text-md color-secondary">{t('FROM_VAULT_TO_WALLET')}</p>
 
       <div className="withdraw-form-main">
-        {tokenInfo && tokenInfo.isErc721
-          ? <Select
+        {tokenInfo?.type === 'erc721' &&
+          <Select
             {...form.fields.id}
             label={t('NFT_ID')}
             options={withdrawalNftsList.map((item: string) => ({ value: item, label: item }))}
             hint={t('AVAILABLE_TO_WITHDRAW', { amount: withdrawalNftsList.length })}
             placeholder={t('NFT_ID')}
-          />
-          : <Input
+          />}
+        {(tokenInfo?.type === 'erc20' || tokenInfo?.type === 'native') &&
+          <Input
             {...form.fields.amount}
             type="number"
             label={t('AMOUNT')}
@@ -91,7 +111,7 @@ function WithdrawForm () {
         <Button
           type="submit"
           className="withdraw-form-action"
-          disabled={!form.isValid}
+          disabled={!form.isValid || !isErc5484Approved}
           onClick={form.submit}
         >
           {t('WITHDRAW')}

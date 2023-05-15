@@ -114,8 +114,6 @@ export function handleEthError (error: EthProviderRpcError) {
       throw new errors.ProviderLimitExceeded();
     case EIP1474.jsonRpcVersionNotSupported:
       throw new errors.ProviderJsonRpcVersionNotSupported();
-    case EIP1193String.failedEstimateGas:
-      throw new errors.ProviderFailedEstimateGas();
     default:
       throw error;
   }

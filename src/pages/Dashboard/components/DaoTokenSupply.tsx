@@ -81,12 +81,9 @@ function DaoTokenSupply () {
   const { tokenInfo } = useDaoTokenStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const isErc20Token = useMemo(() => !tokenInfo?.isErc721 && !tokenInfo?.isNative,
-    [tokenInfo]);
-
+  const isErc20Token = useMemo(() => tokenInfo?.type === 'erc20', [tokenInfo]);
   const isTokenOwner = useMemo(() => tokenInfo?.owner === currentProvider?.selectedAddress,
-    [tokenInfo]);
+    [tokenInfo, currentProvider?.selectedAddress]);
 
   async function addTokenToWallet () {
     if (!currentProvider?.provider || !tokenInfo || !isErc20Token) return;
@@ -150,7 +147,7 @@ function DaoTokenSupply () {
 
       <div className="dao-token-supply__val">
         {
-          !tokenInfo || tokenInfo.isNative
+          !tokenInfo || tokenInfo.type === 'native'
             ? <p className="text-xl font-semibold">-</p>
             : <>
               <p className="text-xl font-semibold" title={fromWeiWithDecimals(tokenInfo.totalSupply, tokenInfo.decimals)}>

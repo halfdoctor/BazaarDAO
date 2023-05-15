@@ -16,8 +16,10 @@ function useApproveToken () {
   const { loadAdditionalInfo } = useLoadDao();
 
   const checkIsApprovalNeeded = (spendTokenAmount: string | number) => {
-    return !tokenInfo || (!tokenInfo.isNative && (toBigNumber(tokenInfo.allowance).isLessThanOrEqualTo(0) ||
-        toBigNumber(toWeiWithDecimals(spendTokenAmount, tokenInfo.decimals)).isGreaterThan(tokenInfo.allowance)));
+    if (!tokenInfo || tokenInfo.type === 'native' || tokenInfo.type === 'erc5484') return;
+    if (tokenInfo.type === 'erc721') return !tokenInfo.isErc721Approved;
+    return toBigNumber(Number(tokenInfo.allowance)).isLessThanOrEqualTo(0) ||
+        toBigNumber(toWeiWithDecimals(spendTokenAmount, tokenInfo.decimals)).isGreaterThan(Number(tokenInfo.allowance));
   };
 
   const approveSpendToken = () => {

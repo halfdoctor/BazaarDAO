@@ -10,14 +10,27 @@ export function getDAOVaultDepositAmount (
   amount: string,
   balance: string,
   qBalance:string,
-  token: TokenInfo | null) {
-  if (token?.isNative) {
-    return getSpendAmountForNativeToken(balance, token.address);
+  token: TokenInfo) {
+  switch (token.type) {
+    case 'native':
+      return getSpendAmountForNativeToken(balance, token.address);
+    case 'erc20':
+      return getSpendAmountForErc20(amount, balance, qBalance, token);
+    case 'erc721':
+      return getSpendAmountForErc721(amount, balance, token, qBalance);
+    case 'erc5484':
+      return getSpendAmountForErc5484(balance, qBalance);
+    default:
+      throw new Error('Unknown token type');
   }
-  if (token?.isErc721) {
-    return getSpendAmountForErc721(amount, balance, token, qBalance);
-  }
-  return getSpendAmountForErc20(amount, balance, qBalance, token);
+}
+
+export function getSpendAmountForErc5484 (balance: string, qBalance: string) {
+  if (!Number(balance) || !Number(qBalance)) { return { balance: '0', canDeposit: false }; }
+  return {
+    balance,
+    canDeposit: checkIsCanDeposit(qBalance)
+  };
 }
 
 export function getSpendAmountForErc721 (amount: string, balance: string, token: TokenInfo, qBalance: string) {
@@ -30,8 +43,8 @@ export function getSpendAmountForErc721 (amount: string, balance: string, token:
 }
 
 export function getSpendAmountForErc20 (
-  amount: string, balance: string, qBalance:string, token: TokenInfo | null) {
-  if (!token || !token?.address) { return { balance: '0', canDeposit: false }; }
+  amount: string, balance: string, qBalance:string, token: TokenInfo) {
+  if (!token || !token?.address || !token?.allowance) { return { balance: '0', canDeposit: false }; }
   const amountInWei = toWeiWithDecimals(amount, token.decimals);
   if (
     toBigNumber(token.allowance).isLessThanOrEqualTo(0) ||

@@ -28,8 +28,8 @@ ReactDOM.render(
             </DaoInitializer>
           </BrowserRouter>
         </Web3ContextProvider>
+        <NotificationManager />
       </LanguageProvider>
-      <NotificationManager />
     </StyleProvider>
   </Provider>,
   document.getElementById('root')

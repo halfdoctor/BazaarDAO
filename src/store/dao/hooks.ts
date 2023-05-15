@@ -11,7 +11,7 @@ import { useDaoTokenStore } from 'store/dao-token/hooks';
 
 export function useDaoStore () {
   const dispatch = useDispatch();
-  const { loadDaoVotingToken, getTokenInfo } = useDaoTokenStore();
+  const { loadDaoVotingToken, getToken, loadDaoInstance } = useDaoTokenStore();
 
   const daoAddress = useAppSelector(({ dao }) => dao.daoAddress);
   const isDaoAddressExist = useAppSelector(({ dao }) => Boolean(dao.daoAddress));
@@ -39,8 +39,9 @@ export function useDaoStore () {
 
   async function loadAllDaoInfo () {
     try {
+      await loadDaoInstance();
       await loadDaoVotingToken();
-      await getTokenInfo();
+      await getToken();
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }

@@ -110,12 +110,12 @@ export function useDaoProposals () {
   async function getAccountStatuses () {
     try {
       if (!daoInstance || !currentProvider?.selectedAddress) return [];
-      const accountGroupStatuses = (await daoInstance.DAORegistryInstance.getAccountStatuses(
+      return await daoInstance.DAORegistryInstance.getAccountStatuses(
         currentProvider.selectedAddress
-      )) as string[];
-      return accountGroupStatuses;
+      );
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
+      return [];
     }
   }
 
