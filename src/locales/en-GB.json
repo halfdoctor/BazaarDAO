@@ -18,6 +18,7 @@
   "CONNECT_TO_Q_MAINNET": "Connect to Q Mainnet",
   "CONNECT_TO_Q_TESTNET": "Connect to Q Testnet",
   "INSTALL_METAMASK": "Install MetaMask",
+  "GO_TO_METAMASK": "Open in MetaMask Browser",
   "NO_WALLETS_CONNECTED": "No wallets connected",
   "SETTINGS": "Settings",
   "REPOSITORIES": "Repositories",

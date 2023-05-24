@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useWeb3Context } from 'context/Web3ContextProvider';
-import { ErrorHandler } from 'helpers';
+import { ErrorHandler, isMobile } from 'helpers';
 
 import Button from 'components/Button';
 
 import { PROVIDERS } from 'constants/providers';
 
+const METAMASK_DOWNLOAD_LINK = 'https://metamask.io/download';
+
 function ConnectButtons () {
   const { t } = useTranslation();
   const { connect } = useWeb3Context();
   const [isLoading, setIsLoading] = useState(false);
+  const METAMASK_APP_CONNECT_URL = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
 
   const connectWallet = async (provider: PROVIDERS) => {
     setIsLoading(true);
@@ -52,7 +55,7 @@ function ConnectButtons () {
         )
         : (
           <a
-            href="https://metamask.io/"
+            href={isMobile() ? METAMASK_APP_CONNECT_URL : METAMASK_DOWNLOAD_LINK}
             target="_blank"
             rel="noreferrer"
           >
@@ -66,7 +69,7 @@ function ConnectButtons () {
                 alt="metamask"
                 className="connect-buttons__icon"
               />
-              <span>{t('INSTALL_METAMASK')}</span>
+              <span>{isMobile() ? t('GO_TO_METAMASK') : t('INSTALL_METAMASK')}</span>
             </Button>
           </a>
         )}
