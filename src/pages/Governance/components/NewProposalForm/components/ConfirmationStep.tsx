@@ -50,7 +50,8 @@ function ConfirmationStep () {
       )}
 
       {(values.type === DefaultVotingSituations.ConstitutionSituation ||
-        values.type === DefaultVotingSituations.ParameterSituation) &&
+        values.type === DefaultVotingSituations.ConfigurationParameterSituation ||
+        values.type === DefaultVotingSituations.RegularParameterSituation) &&
         (
           <FormBlock
             icon="edit"

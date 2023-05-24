@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import { ErrorHandler } from 'helpers';
 import { ParameterValue } from 'typings/parameters';
 
@@ -15,17 +16,18 @@ interface Props {
 function DaoPanelParameters ({ panel }: Props) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
+  const [isRegularParams, setIsRegularParams] = useState(true);
   const [error, setError] = useState('');
   const [parameters, setParameters] = useState<ParameterValue[]>([]);
 
   useEffect(() => {
     loadParameters();
-  }, []);
+  }, [isRegularParams]);
 
   async function loadParameters () {
     try {
       setLoading(true);
-      const parameters = await getParameters(panel);
+      const parameters = await getParameters(panel, isRegularParams ? 'regular' : 'configuration');
       setParameters(parameters);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -41,6 +43,10 @@ function DaoPanelParameters ({ panel }: Props) {
       parameters={parameters}
       loading={loading}
       errorMsg={error}
+      isSwitcherShown={panel !== DAO_RESERVED_NAME}
+      switcherValue={isRegularParams}
+      switcherLabel={t('REGULAR_PARAMS')}
+      onChange={() => setIsRegularParams(!isRegularParams)}
     />
   );
 }

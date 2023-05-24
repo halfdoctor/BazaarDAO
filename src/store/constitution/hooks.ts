@@ -25,7 +25,7 @@ export function useConstitution () {
   async function loadConstitutionHash () {
     try {
       if (!daoInstance) return;
-      const parameterStorageInstance = await daoInstance.getParameterStorageInstance(DAO_RESERVED_NAME);
+      const parameterStorageInstance = await daoInstance.getConfParameterStorageInstance(DAO_RESERVED_NAME);
       const [, hash] = await parameterStorageInstance.instance.getDAOParameter(CONSTITUTION_HASH_PARAMETER_KEY);
       dispatch(setHash(hash));
     } catch (error) {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Form, useForm } from '@q-dev/form-hooks';
 import { filterParameter, ParameterType } from '@q-dev/gdk-sdk';
 import { RadioGroup, Select, Tip } from '@q-dev/q-ui-kit';
-import { FormParameter } from 'typings/forms';
+import { FormParameter, ParameterSituationType } from 'typings/forms';
 import { ParameterValue } from 'typings/parameters';
 
 import Input from 'components/Input';
@@ -17,12 +17,14 @@ import { parameterType, required } from 'utils/validators';
 
 interface Props {
   panelName: string;
+  situation?: ParameterSituationType;
   disabled?: boolean;
   onChange: (form: Form<FormParameter>) => void;
 }
 
 function ParameterForm ({
   panelName,
+  situation,
   disabled = false,
   onChange
 }: Props) {
@@ -51,7 +53,7 @@ function ParameterForm ({
 
   useEffect(() => {
     form.values.key = '';
-    getParameters(panelName, form.values.type as ParameterType)
+    getParameters(panelName, situation, form.values.type as ParameterType)
       .then(setKeys);
 
     return () => {
