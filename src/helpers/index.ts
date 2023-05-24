@@ -1,3 +1,4 @@
+export * from './browser';
 export * from './dao';
 export * from './decode-errors';
 export * from './erc-20';
