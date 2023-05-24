@@ -20,14 +20,15 @@ export const getErc721ContractSigner = (address: string, signer?: Signer) => {
 
 export const loadDetailsErc721 = async (provider: UseProvider) => {
   try {
-    const [_name, _owner, _symbol, _totalSupply, _balance, _totalSupplyCap] =
+    const [_name, _owner, _symbol, _totalSupply, _balance, _totalSupplyCap, _baseUri] =
       await Promise.all([
         getNameErc721(),
         getOwnerErc721(),
         getSymbolErc721(),
         getTotalSupplyErc721(),
         provider?.selectedAddress ? getBalanceOfErc721(provider.selectedAddress) : '0',
-        getTotalSupplyCapErc721()
+        getTotalSupplyCapErc721(),
+        getBaseUriErc721()
       ]);
     return {
       decimals: 0,
@@ -37,6 +38,7 @@ export const loadDetailsErc721 = async (provider: UseProvider) => {
       totalSupply: _totalSupply || '',
       balance: _balance || '',
       totalSupplyCap: _totalSupplyCap || '',
+      baseURI: _baseUri || '',
     };
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
@@ -121,6 +123,17 @@ export const getOwnerErc721 = async () => {
 
   try {
     return await erc721ContractInstance?.owner();
+  } catch (error) {
+    ErrorHandler.processWithoutFeedback(error);
+    return '';
+  }
+};
+
+export const getBaseUriErc721 = async () => {
+  if (!erc721ContractInstance) return '';
+
+  try {
+    return await erc721ContractInstance?.baseURI();
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
     return '';

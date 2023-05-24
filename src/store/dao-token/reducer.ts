@@ -15,6 +15,7 @@ export interface TokenInfo {
   isErc721Approved?: boolean;
   isAuthorizedBySBT?: boolean;
   allowance?: string;
+  baseURI?: string;
 };
 
 interface DaoTokenState {

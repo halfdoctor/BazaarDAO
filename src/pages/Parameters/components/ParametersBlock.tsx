@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Spinner } from '@q-dev/q-ui-kit';
+import { Spinner, Switch } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 import { ParameterValue } from 'typings/parameters';
 
@@ -13,6 +13,8 @@ export const StyledWrapper = styled.div`
 
   .parameters-block__title {
     padding: 24px 0 16px;
+    display: flex;
+    justify-content: space-between;
   }
 
   .parameters-block__loading-wrp {
@@ -28,21 +30,35 @@ interface Props {
   loading: boolean;
   errorMsg: string;
   emptyMsg?: string;
+  isSwitcherShown?: boolean;
+  switcherValue?: boolean;
+  switcherLabel?: string;
+  onChange?: () => void;
 }
 
 function ParametersBlock ({
   title,
+  switcherValue,
+  isSwitcherShown,
+  switcherLabel,
   parameters = [],
   loading = false,
   errorMsg = '',
+  onChange
 }: Props) {
   const { t } = useTranslation();
 
   return (
     <StyledWrapper className="block">
-      <h2 className="text-h3 parameters-block__title">
-        {title}
-      </h2>
+      <div className="text-h3 parameters-block__title">
+        <h2>{title}</h2>
+        {onChange && isSwitcherShown && switcherLabel &&
+          <Switch
+            label={switcherLabel}
+            value={Boolean(switcherValue)}
+            onChange={onChange}
+          />}
+      </div>
 
       {loading && !parameters.length
         ? (

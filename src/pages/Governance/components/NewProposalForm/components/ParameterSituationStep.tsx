@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm, useFormArray } from '@q-dev/form-hooks';
 import { Icon } from '@q-dev/q-ui-kit';
-import { FormParameter, NewProposalForm } from 'typings/forms';
+import { FormParameter, NewProposalForm, ParameterSituationType } from 'typings/forms';
 
 import Button from 'components/Button';
 import FormBlock from 'components/FormBlock';
@@ -14,7 +14,12 @@ import { useNewProposalForm } from '../NewProposalForm';
 
 import { required, url } from 'utils/validators';
 
-function ParameterSituation ({ panelName }: { panelName: string }) {
+interface Props {
+  panelName: string;
+  situation?: ParameterSituationType;
+}
+
+function ParameterSituation ({ panelName, situation }: Props) {
   const { t } = useTranslation();
   const { goNext, goBack, onChange } = useNewProposalForm();
 
@@ -65,6 +70,7 @@ function ParameterSituation ({ panelName }: { panelName: string }) {
         >
           <ParameterForm
             key={form.id}
+            situation={situation}
             panelName={panelName}
             onChange={form.onChange}
           />

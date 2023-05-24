@@ -7,7 +7,6 @@ import {
   DaoProposal,
   DaoProposalVotingInfo,
   ProposalBaseInfo,
-  ProposalVetoGroupInfo,
   VotingActionType
 } from 'typings/proposals';
 
@@ -90,7 +89,7 @@ export function useDaoProposals () {
         ? (await permissionManagerInstance.instance.getVetoMembersCount(proposal.target)).toString()
         : '0';
       const vetoGroupInfo = (await permissionManagerInstance.instance
-        .getVetoGroupInfo(proposal.target)) as ProposalVetoGroupInfo;
+        .getVetoGroupInfo(proposal.target));
       return { isVetoGroupExists, vetoMembersCount, vetoGroupInfo };
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -178,8 +177,10 @@ export function useDaoProposals () {
         return createMembershipSituationProposal(form);
       case DefaultVotingSituations.ConstitutionSituation:
         return createConstitutionProposal(form);
-      case DefaultVotingSituations.ParameterSituation:
-        return createParameterSituationProposal(form);
+      case DefaultVotingSituations.RegularParameterSituation:
+        return createParameterSituationProposal(form, DefaultVotingSituations.RegularParameterSituation);
+      case DefaultVotingSituations.ConfigurationParameterSituation:
+        return createParameterSituationProposal(form, DefaultVotingSituations.ConfigurationParameterSituation);
     }
   }
 

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
-import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { RadioGroup, RadioOptions, Tip } from '@q-dev/q-ui-kit';
 
 import { FormStep } from 'components/MultiStepForm';
@@ -27,7 +26,7 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
 
   const form = useForm({
     initialValues: {
-      type: DefaultVotingSituations.GeneralSituation as string,
+      type: '',
       panel: panelName
     },
     validators: {
@@ -50,6 +49,7 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
   }, [situations]);
 
   const loadPermissions = async () => {
+    if (!form.values.type) return;
     const userPermission = await checkIsUserCanCreateProposal(panelName, form.values.type);
     setIsUserHasVotingPower(userPermission.isUserHasVotingPower);
     setIsUserMember(userPermission.isUserMember);
@@ -58,6 +58,10 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
   useEffect(() => {
     loadPermissions();
   }, [form.values.type, panelName]);
+
+  useEffect(() => {
+    form.fields.type.onChange(situations[0]);
+  }, [situations, panelName]);
 
   return (
     <FormStep

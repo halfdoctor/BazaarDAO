@@ -18,8 +18,13 @@ function useProposalSteps () {
       tip: t('GENERAL_Q_UPDATE_TIP')
     },
     {
-      value: DefaultVotingSituations.ParameterSituation,
-      label: t('PARAMETER_VOTE'),
+      value: DefaultVotingSituations.ConfigurationParameterSituation,
+      label: t('CONFIG_PARAMETER_VOTE'),
+      tip: t('PARAMETER_VOTE_TIP')
+    },
+    {
+      value: DefaultVotingSituations.RegularParameterSituation,
+      label: t('REGULAR_PARAMETER_VOTE'),
       tip: t('PARAMETER_VOTE_TIP')
     },
     {

@@ -10,6 +10,7 @@ import { mintToErc721 } from 'helpers/erc-721';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
+import InfoTooltip from 'components/InfoTooltip';
 import Input from 'components/Input';
 
 import useLoadDao from 'hooks/useLoadDao';
@@ -25,16 +26,10 @@ import { amount, number, required, url } from 'utils/validators';
 export const StyledMintForm = styled.form`
   display: grid;
   gap: 16px;
-  
-  .mint-form__details {
-    display: grid;
-    gap: 12px;
-  }
-  .mint-form__details-item,
-  .mint-form__details-item-amount {
+
+  .mint-form__uri-tooltip {
     display: flex;
-    align-items: center;
-    gap: 5px;
+    margin-bottom: 12px;
   }
 `;
 
@@ -68,7 +63,7 @@ function MintForm ({ onSubmit }: Props) {
     initialValues: {
       recipient: tokenInfo?.owner || '',
       amount: '',
-      tokenURI: '',
+      tokenURI: tokenInfo?.baseURI || '',
     },
     validators: {
       recipient: [required],
@@ -79,15 +74,28 @@ function MintForm ({ onSubmit }: Props) {
       submitTransaction({
         successMessage: t('MINT_TX'),
         onConfirm: () => onSubmit(),
-        submitFn: () => isNftLike
-          ? tokenInfo?.type === 'erc721'
-            ? mintToErc721(form.recipient, Date.now(), form.tokenURI)
-            : mintToErc5484(form.recipient, Date.now(), form.tokenURI)
-          : mintToErc20(form.recipient, toWeiWithDecimals(form.amount, tokenInfo?.decimals)),
+        submitFn: () => {
+          if (isNftLike) {
+            const tokenURI = tokenInfo?.baseURI ? form.tokenURI.replace(tokenInfo.baseURI, '') : form.tokenURI;
+            return tokenInfo?.type === 'erc721'
+              ? mintToErc721(form.recipient, Date.now(), tokenURI)
+              : mintToErc5484(form.recipient, Date.now(), tokenURI);
+          }
+          return mintToErc20(form.recipient, toWeiWithDecimals(form.amount, tokenInfo?.decimals));
+        },
         onSuccess: () => loadAdditionalInfo(),
       });
     }
   });
+
+  const handleTokenUriChange = (value: string) => {
+    if (!tokenInfo?.baseURI) {
+      form.fields.tokenURI.onChange(value);
+      return;
+    }
+
+    form.fields.tokenURI.onChange(value.startsWith(tokenInfo?.baseURI) ? value : tokenInfo.baseURI);
+  };
 
   return (
     <StyledMintForm
@@ -103,12 +111,20 @@ function MintForm ({ onSubmit }: Props) {
         placeholder={t('ADDRESS_PLACEHOLDER')}
       />
       {tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721'
-        ? <Input
-          {...form.fields.tokenURI}
-          label={t('TOKEN_URI')}
-          placeholder={t('TOKEN_URI_PLACEHOLDER')}
-          disabled={!isCanMint}
-        />
+        ? <div className="mint-form__uri">
+          <div className="mint-form__uri-tooltip">
+            <p className="text-md">
+              {t('TOKEN_URI')}
+            </p>
+            <InfoTooltip description={t('TOKEN_URI_TOOLTIP')} />
+          </div>
+          <Input
+            {...form.fields.tokenURI}
+            placeholder={t('TOKEN_URI_PLACEHOLDER')}
+            disabled={!isCanMint}
+            onChange={handleTokenUriChange}
+          />
+        </div>
         : <Input
           {...form.fields.amount}
           type="number"

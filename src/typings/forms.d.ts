@@ -15,6 +15,7 @@ interface ParameterKey {
 
 type GeneralSituationType = 'raise-topic' | 'create-voting' | 'remove-voting';
 type MembershipSituationType = 'add-member' | 'remove-member';
+type ParameterSituationType = 'configuration' | 'regular' | 'aggregate';
 
 interface NewProposalForm {
   type: string;

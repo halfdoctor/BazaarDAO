@@ -5,21 +5,36 @@ import { ParameterValue } from 'typings/parameters';
 
 import { daoInstance } from 'contracts/contract-instance';
 
+export async function getPanelParameters (
+  panelName: string,
+  situation?: string,
+) {
+  try {
+    if (!daoInstance) return [];
+    if (panelName === DAO_RESERVED_NAME || !situation) {
+      return await daoInstance?.getAggregatedParameters(panelName);
+    }
+    const confParameterStorage = situation === 'configuration'
+      ? await daoInstance.getConfParameterStorageInstance(panelName)
+      : await daoInstance.getRegParameterStorageInstance(panelName);
+    return await confParameterStorage.instance.getDAOParameters();
+  } catch (error) {
+    ErrorHandler.processWithoutFeedback(error);
+    return [];
+  }
+}
+
 export async function getParameters (
   panelName: string,
+  situation?: string,
   parameterType?: ParameterType
 ): Promise<ParameterValue[]> {
   try {
-    if (!daoInstance) return [];
-
-    const panelParametersInstance = await daoInstance?.getParameterStorageInstance(panelName);
-    const panelParameters = await panelParametersInstance.instance.getDAOParameters();
-
+    const panelParameters = await getPanelParameters(panelName, situation);
     const filteredParameters = parameterType
       ? filterParameter(panelParameters, parameterType)
       : panelParameters;
     const parametersNormalValue = getParametersValue(filteredParameters);
-
     return filteredParameters.map((item: ParameterKey, index: number) => {
       return { ...item, normalValue: parametersNormalValue[index] };
     });
@@ -44,7 +59,8 @@ export async function getRegistryContracts (): Promise<ParameterValue[]> {
       ...panels.reduce((acc, panel) => ({
         ...acc,
         [`${panel} Voting`]: panel === DAO_RESERVED_NAME ? instance.getGeneralDAOVoting(DAO_RESERVED_NAME) : instance.getExpertsDAOVoting(panel),
-        [`${panel} Parameter Storage`]: instance.getDAOParameterStorage(panel),
+        [`${panel} Regular Parameter Storage`]: instance.getRegDAOParameterStorage(panel),
+        [`${panel} Configuration Parameter Storage`]: instance.getConfDAOParameterStorage(panel),
         [`${panel} Member Storage`]: panel === DAO_RESERVED_NAME ? undefined : instance.getDAOMemberStorage(panel),
       }), {}),
     };

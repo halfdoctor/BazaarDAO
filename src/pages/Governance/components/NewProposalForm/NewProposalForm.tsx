@@ -96,12 +96,21 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           }]
           : []
         ),
-        ...(form.values.type === DefaultVotingSituations.ParameterSituation
+        ...(form.values.type === DefaultVotingSituations.ConfigurationParameterSituation
           ? [{
-            id: 'parameter-situation',
+            id: 'configuration-parameter-situation',
             name: t('PARAMETERS'),
-            title: t('PARAMETER_VOTE'),
-            children: <ParameterSituationStep panelName={panelName} />
+            title: t('CONFIG_PARAMETER_VOTE'),
+            children: <ParameterSituationStep panelName={panelName} situation="configuration" />
+          }]
+          : []
+        ),
+        ...(form.values.type === DefaultVotingSituations.RegularParameterSituation
+          ? [{
+            id: 'regular-parameter-situation',
+            name: t('PARAMETERS'),
+            title: t('REGULAR_PARAMETER_VOTE'),
+            children: <ParameterSituationStep panelName={panelName} situation="regular" />
           }]
           : []
         ),

@@ -56,13 +56,17 @@ export async function createConstitutionProposal (form: NewProposalForm) {
   return daoInstance.createVoting(votingInstance, votingParams);
 }
 
-export async function createParameterSituationProposal (form: NewProposalForm) {
+export async function createParameterSituationProposal (
+  form: NewProposalForm,
+  situation: DefaultVotingSituations.ConfigurationParameterSituation |
+  DefaultVotingSituations.RegularParameterSituation
+) {
   if (!daoInstance) return;
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
     remark: form.externalLink,
-    situation: DefaultVotingSituations.ParameterSituation,
+    situation: situation,
     callData: getEncodedData(
       'DAOParameterStorage',
       'setDAOParameters',

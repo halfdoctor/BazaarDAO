@@ -20,14 +20,15 @@ export const getErc5484ContractSigner = (address: string, signer?: Signer) => {
 
 export const loadErc5484Details = async (provider: UseProvider) => {
   try {
-    const [_name, _owner, _symbol, _totalSupply, _balance, _totalSupplyCap] =
+    const [_name, _owner, _symbol, _totalSupply, _balance, _totalSupplyCap, _baseUri] =
       await Promise.all([
         getErc5484Name(),
         getErc5484Owner(),
         getErc5484Symbol(),
         getErc5484TotalSupply(),
         provider?.selectedAddress ? getErc5484BalanceOf(provider.selectedAddress) : '0',
-        getErc5484TotalSupplyCap()
+        getErc5484TotalSupplyCap(),
+        getErc5484BaseUri()
       ]);
     return {
       decimals: 0,
@@ -37,6 +38,7 @@ export const loadErc5484Details = async (provider: UseProvider) => {
       totalSupply: _totalSupply || '',
       balance: _balance || '',
       totalSupplyCap: _totalSupplyCap || '',
+      baseURI: _baseUri || '',
     };
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
@@ -47,7 +49,7 @@ export const mintToErc5484 = async (address: string, amount: string | number, to
   if (!erc5484ContractSigner || !address) return;
 
   try {
-    return await erc5484ContractSigner?.mintTo(address, amount, tokenURI, 0);
+    return await erc5484ContractSigner.mintTo(address, amount, tokenURI, 0);
   } catch (error) {
     handleEthError(error as EthProviderRpcError);
   }
@@ -81,7 +83,7 @@ export const getErc5484Name = async () => {
   if (!erc5484ContractInstance) return '';
 
   try {
-    return await erc5484ContractInstance?.name();
+    return await erc5484ContractInstance.name();
   } catch (error) {
     handleEthError(error as EthProviderRpcError);
   }
@@ -91,7 +93,7 @@ export const getErc5484Owner = async () => {
   if (!erc5484ContractInstance) return '';
 
   try {
-    return await erc5484ContractInstance?.owner();
+    return await erc5484ContractInstance.owner();
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
     return '';
@@ -102,9 +104,20 @@ export const getErc5484Symbol = async () => {
   if (!erc5484ContractInstance) return;
 
   try {
-    return await erc5484ContractInstance?.symbol();
+    return await erc5484ContractInstance.symbol();
   } catch (error) {
     handleEthError(error as EthProviderRpcError);
+  }
+};
+
+export const getErc5484BaseUri = async () => {
+  if (!erc5484ContractInstance) return '';
+
+  try {
+    return await erc5484ContractInstance.baseURI();
+  } catch (error) {
+    ErrorHandler.processWithoutFeedback(error);
+    return '';
   }
 };
 
@@ -112,7 +125,7 @@ export const getErc5484TotalSupply = async () => {
   if (!erc5484ContractInstance) return '0';
 
   try {
-    const totalSupply = await erc5484ContractInstance?.totalSupply();
+    const totalSupply = await erc5484ContractInstance.totalSupply();
     return totalSupply.toString();
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
