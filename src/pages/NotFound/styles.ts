@@ -6,5 +6,10 @@ export const NotFoundContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 16px;
+
+  .not-found__text { 
+    text-align: center;
+    padding: 8px;
+  }
 `;

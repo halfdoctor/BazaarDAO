@@ -111,7 +111,7 @@
   "VETO_ENDED": "Veto ended",
   "NO_VETO": "No Veto",
   "PROPOSAL_TYPE": "Proposal type",
-  "REGULAR_PARAMS": "Regular Parameters",
+  "SHOW_REGULAR_PARAMS": "Show Regular Parameters",
   "REGULAR_PARAMETER_VOTE": "Regular Parameter Vote",
   "CONFIG_PARAMETER_VOTE": "Configuration Parameter Vote",
   "PARAMETER_VOTE_TIP": "Propose a change of specific parameter managed by the Expert Panel you are belonging to.",
