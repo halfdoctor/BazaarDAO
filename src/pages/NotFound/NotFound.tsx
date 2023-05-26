@@ -12,7 +12,7 @@ function NotFound ({ text }: Props) {
   const { t } = useTranslation();
   return (
     <NotFoundContainer>
-      <p className="text-xl font-semibold">
+      <p className="not-found__text text-xl font-semibold">
         {text || t('PAGE_DOES_NOT_EXIST')}
       </p>
 

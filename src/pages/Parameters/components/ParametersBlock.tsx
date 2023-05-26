@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Spinner, Switch } from '@q-dev/q-ui-kit';
+import { media, Spinner, Switch } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 import { ParameterValue } from 'typings/parameters';
 
@@ -15,6 +15,11 @@ export const StyledWrapper = styled.div`
     padding: 24px 0 16px;
     display: flex;
     justify-content: space-between;
+    
+    ${media.lessThan('medium')} {
+      flex-direction: column;
+      gap: 16px;
+    }
   }
 
   .parameters-block__loading-wrp {

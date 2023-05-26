@@ -45,7 +45,7 @@ function DaoPanelParameters ({ panel }: Props) {
       errorMsg={error}
       isSwitcherShown={panel !== DAO_RESERVED_NAME}
       switcherValue={isRegularParams}
-      switcherLabel={t('REGULAR_PARAMS')}
+      switcherLabel={t('SHOW_REGULAR_PARAMS')}
       onChange={() => setIsRegularParams(!isRegularParams)}
     />
   );
