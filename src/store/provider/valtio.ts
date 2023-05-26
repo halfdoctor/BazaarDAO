@@ -1,5 +1,6 @@
+
 import { UseProvider } from 'typings';
-import { proxy, ref, useSnapshot } from 'valtio';
+import { proxy, useSnapshot } from 'valtio';
 
 import { chainIdToNetworkMap } from 'constants/config';
 
@@ -14,12 +15,6 @@ const state = proxy({
   },
 });
 
-export const providerStore = state as Readonly<typeof state>;
-
 export function useProviderStore () {
   return useSnapshot(state);
-}
-
-export function setProvider (provider: UseProvider) {
-  state.currentProvider = ref(provider);
 }

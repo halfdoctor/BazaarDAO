@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import Button from 'components/Button';
 import Input from 'components/Input';
 
-import { useProviderStore } from 'store/provider/hooks';
+import { providerStore } from 'store/provider/hooks';
 
 import { address, Bus, required } from 'utils';
 
@@ -41,11 +41,10 @@ const WrapContainer = styled.form`
 
 function DaoAddressForm () {
   const { t } = useTranslation();
-  const { currentProvider } = useProviderStore();
   const history = useHistory();
 
   const tryFindDao = async (daoAddress: string) => {
-    const isDaoExist = await checkDaoInRegistry(currentProvider, daoAddress);
+    const isDaoExist = await checkDaoInRegistry(providerStore.currentProvider, daoAddress);
     isDaoExist
       ? history.push(`${daoAddress}/`)
       : Bus.error(t('WRONG_DAO_ADDRESS'));

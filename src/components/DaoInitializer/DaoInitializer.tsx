@@ -9,7 +9,7 @@ import { ErrorHandler, getDaoSupportedNetworks } from 'helpers';
 import useLoadDao from 'hooks/useLoadDao';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useProviderStore } from 'store/provider/hooks';
+import { setProvider, useProviderStore } from 'store/provider/hooks';
 
 import { PROVIDERS } from 'constants/providers';
 
@@ -23,8 +23,13 @@ function DaoInitializer ({ children }: Props) {
   const [isDaoAddressChecked, setIsDaoAddressChecked] = useState(false);
   const { currentProvider, isWeb3Loaded, initDefaultProvider } = useWeb3Context();
   const { setDaoAddress, daoAddress, setSupportedNetworks, supportedNetworks } = useDaoStore();
-  const { setProviderValue, currentProvider: storeProvider, isRightNetwork } = useProviderStore();
+  const { currentProvider: storeProvider, isRightNetwork } = useProviderStore();
   const { loadAdditionalInfo } = useLoadDao();
+
+  const [test, setTest] = useState(currentProvider);
+  console.log('currentProvider', currentProvider);
+  console.log('storeProvider', storeProvider);
+  console.log('test', test);
 
   const loadAppDetails = async () => {
     if (!isWeb3Loaded || !storeProvider || !isDaoAddressChecked || !isRightNetwork) return;
@@ -68,7 +73,8 @@ function DaoInitializer ({ children }: Props) {
 
   useEffect(() => {
     if (currentProvider?.provider) {
-      setProviderValue(currentProvider);
+      setProvider(currentProvider);
+      setTest(currentProvider);
       tryInitProvider();
     }
   }, [currentProvider]);

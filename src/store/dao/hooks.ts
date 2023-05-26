@@ -8,6 +8,7 @@ import { setDaoAddress, setSupportedNetworks } from './reducer';
 
 import { getState, useAppSelector } from 'store';
 import { useDaoTokenStore } from 'store/dao-token/hooks';
+import { providerStore } from 'store/provider/hooks';
 
 export function useDaoStore () {
   const dispatch = useDispatch();
@@ -18,8 +19,8 @@ export function useDaoStore () {
   const isDaoSupportingToken = useAppSelector(({ dao, daoToken }) =>
     Boolean(dao.daoAddress && daoToken.tokenInfo));
   const supportedNetworks: SupportedDaoNetwork[] = useAppSelector(({ dao }) => dao.supportedNetworks);
-  const isDaoOnSupportedNetwork = useAppSelector(({ dao, provider }) => dao.supportedNetworks
-    .some((item: SupportedDaoNetwork) => item.chainId === provider.currentProvider?.chainId) && Boolean(dao.daoAddress)
+  const isDaoOnSupportedNetwork = useAppSelector(({ dao }) => dao.supportedNetworks
+    .some((item: SupportedDaoNetwork) => item.chainId === providerStore.currentProvider?.chainId) && Boolean(dao.daoAddress)
   );
   const isSelectPage = useMemo(() =>
     !isDaoAddressExist || (isDaoOnSupportedNetwork && isDaoSupportingToken),

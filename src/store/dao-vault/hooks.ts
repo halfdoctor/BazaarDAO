@@ -20,6 +20,7 @@ import {
 
 import { getState, useAppSelector } from 'store';
 import { Q_TOKEN_INFO } from 'store/dao-token/hooks';
+import { providerStore } from 'store/provider/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 
@@ -39,8 +40,8 @@ export function useDaoVault () {
   async function loadWalletBalance () {
     try {
       const { tokenInfo } = getState().daoToken;
-      const { currentProvider } = getState().provider;
-      const userAddress = currentProvider?.selectedAddress;
+      const { currentProvider } = providerStore;
+      const userAddress = currentProvider?.selectedAddress || '';
       if (!tokenInfo || !currentProvider?.selectedAddress) throw new errors.DefaultEmptyError();
       let balance;
       switch (tokenInfo.type) {
@@ -68,7 +69,7 @@ export function useDaoVault () {
   }
   async function loadChainBalance () {
     try {
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
 
       const userAddress = currentProvider?.selectedAddress;
       if (!userAddress || !currentProvider?.provider) {
@@ -84,7 +85,7 @@ export function useDaoVault () {
 
   async function loadVaultBalance (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
       const { votingToken, tokenInfo } = getState().daoToken;
       if (!daoInstance || !votingToken || !currentProvider?.selectedAddress || !tokenInfo) {
         throw new errors.DefaultEmptyError();
@@ -102,7 +103,7 @@ export function useDaoVault () {
 
   async function loadWithdrawalAmount (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
       const { votingToken, tokenInfo } = getState().daoToken;
       if (!daoInstance || !votingToken || !tokenInfo || !currentProvider?.selectedAddress) {
         throw new errors.DefaultEmptyError();
@@ -127,7 +128,7 @@ export function useDaoVault () {
 
   async function loadVaultNftsList (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
       const { tokenInfo } = getState().daoToken;
       if (!daoInstance || !tokenInfo || tokenInfo?.type !== 'erc721' || !currentProvider?.selectedAddress) {
         throw new errors.DefaultEmptyError();
@@ -144,7 +145,7 @@ export function useDaoVault () {
 
   async function loadWalletNftsList (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
       const { tokenInfo } = getState().daoToken;
       const { walletBalance } = getState().qVault;
       const searchAddress = address || currentProvider?.selectedAddress;
@@ -179,7 +180,7 @@ export function useDaoVault () {
     amount: string;
     erc721Id: string; }) {
     const { tokenInfo } = getState().daoToken;
-    const { currentProvider } = getState().provider;
+    const { currentProvider } = providerStore;
     const userAddress = currentProvider?.selectedAddress;
     if (!daoInstance || !tokenInfo || !userAddress) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
@@ -212,7 +213,7 @@ export function useDaoVault () {
     erc721Id: string;
   }) {
     const { tokenInfo } = getState().daoToken;
-    const { currentProvider } = getState().provider;
+    const { currentProvider } = providerStore;
     const userAddress = currentProvider?.selectedAddress;
     if (!daoInstance || !tokenInfo || !userAddress) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();

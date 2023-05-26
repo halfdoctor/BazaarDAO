@@ -10,6 +10,7 @@ import { getErc721ContractInstance, getErc721ContractSigner, getIsApprovedForAll
 import { setTokenInfo, setVotingToken, TokenInfo, TokenType } from './reducer';
 
 import { getState, useAppSelector } from 'store';
+import { providerStore } from 'store/provider/hooks';
 
 import { daoInstance, getDaoInstance, resetDaoInstance } from 'contracts/contract-instance';
 
@@ -36,7 +37,7 @@ export function useDaoTokenStore () {
   async function loadDaoInstance () {
     try {
       const { daoAddress } = getState().dao;
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
       if (!daoAddress || !currentProvider?.provider) {
         throw new errors.DefaultEmptyError();
       };
@@ -97,10 +98,10 @@ export function useDaoTokenStore () {
 
   async function getErc20Info (tokenAddress: string) {
     try {
-      const { currentProvider } = getState().provider;
-      if (!daoInstance) return null;
+      const { currentProvider } = providerStore;
+      if (!daoInstance || !currentProvider) return null;
       getErc20ContractInstance(tokenAddress, currentProvider.provider);
-      getErc20ContractSigner(tokenAddress, currentProvider.signer);
+      getErc20ContractSigner(tokenAddress, currentProvider.signer as any);
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const details = await loadDetailsErc20(currentProvider);
       const allowance = await getAllowanceErc20(currentProvider.selectedAddress, daoVaultInstance.address);
@@ -121,9 +122,9 @@ export function useDaoTokenStore () {
 
   async function getErc5484Info (tokenAddress: string) {
     try {
-      const { currentProvider } = getState().provider;
-      if (!daoInstance) return null;
-      getErc5484ContractInstance(tokenAddress, currentProvider.provider);
+      const { currentProvider } = providerStore;
+      if (!daoInstance || !currentProvider) return null;
+      getErc5484ContractInstance(tokenAddress, currentProvider.provider as any);
       getErc5484ContractSigner(tokenAddress, currentProvider.signer);
       const details = await loadErc5484Details(currentProvider);
       const isAuthorizedBySBT = await checkIsAuthorizedBySBT(tokenAddress);
@@ -146,7 +147,7 @@ export function useDaoTokenStore () {
 
   async function getErc721Info (tokenAddress: string) {
     try {
-      const { currentProvider } = getState().provider;
+      const { currentProvider } = providerStore;
       if (!daoInstance || !currentProvider?.provider) return null;
       getErc721ContractInstance(tokenAddress, currentProvider.provider);
       getErc721ContractSigner(tokenAddress, currentProvider.signer);
@@ -172,7 +173,7 @@ export function useDaoTokenStore () {
 
   async function approveToken () {
     const { tokenInfo } = getState().daoToken;
-    const { currentProvider } = getState().provider;
+    const { currentProvider } = providerStore;
     if (!tokenInfo || !daoInstance || !currentProvider) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
     return tokenInfo?.type === 'erc721'
@@ -181,7 +182,7 @@ export function useDaoTokenStore () {
   }
 
   const checkIsAuthorizedBySBT = async (address: string) => {
-    const { currentProvider } = getState().provider;
+    const { currentProvider } = providerStore;
     if (!address || !daoInstance || !currentProvider?.selectedAddress) return false;
     try {
       const daoVaultInstance = await daoInstance.getVaultInstance();

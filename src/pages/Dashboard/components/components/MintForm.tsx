@@ -20,7 +20,7 @@ import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { fromWeiWithDecimals, toWeiWithDecimals } from 'utils/numbers';
-import { amount, number, required, url } from 'utils/validators';
+import { amount, number, required } from 'utils/validators';
 
 export const StyledMintForm = styled.form`
   display: grid;
@@ -64,16 +64,18 @@ function MintForm ({ onSubmit }: Props) {
     return tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721';
   }, [tokenInfo]);
 
+  const baseUri = 'https://base.uri/';
+
   const form = useForm({
     initialValues: {
       recipient: tokenInfo?.owner || '',
       amount: '',
-      tokenURI: '',
+      tokenURI: baseUri,
     },
     validators: {
       recipient: [required],
       amount: isNftLike ? [] : [required, number, ...maxMintValue ? [amount(maxMintValue)] : []],
-      tokenURI: isNftLike ? [required, url] : [],
+      tokenURI: isNftLike ? [required] : [],
     },
     onSubmit: (form) => {
       submitTransaction({
@@ -108,6 +110,9 @@ function MintForm ({ onSubmit }: Props) {
           label={t('TOKEN_URI')}
           placeholder={t('TOKEN_URI_PLACEHOLDER')}
           disabled={!isCanMint}
+          onChange={val => {
+            form.fields.tokenURI.onChange(val.startsWith(baseUri) ? val : baseUri);
+          }}
         />
         : <Input
           {...form.fields.amount}
