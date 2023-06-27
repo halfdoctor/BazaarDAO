@@ -278,6 +278,7 @@
   "LOCKED_TOKENS": "Locked {{symbol}} tokens",
   "FROM_WALLET_TO_VAULT": "From Wallet to DAO Vault",
   "AVAILABLE_TO_DEPOSIT": "Available to deposit: {{amount}}",
+  "MULTIPLE_NFT_DEPOSIT_WARNING": "You can't deposit more than 1 NFT",
   "FROM_VAULT_TO_WALLET": "From DAO Vault to Wallet",
   "LOCKING_END_TIME": "Locking end time",
   "PROPOSAL_LINK_DISCLAIMER": "Note: Anybody can add a proposal link. Inspect it with care",

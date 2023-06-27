@@ -38,7 +38,7 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault, loadAllBalances, walletNftsList, chainBalance } = useDaoVault();
+  const { walletBalance, depositToVault, loadAllBalances, walletNftsList, chainBalance, vaultBalance } = useDaoVault();
   const { submitTransaction } = useTransaction();
   const { tokenInfo, getToken } = useDaoTokenStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
@@ -94,6 +94,8 @@ function DepositForm () {
     return checkIsApprovalNeeded(form.values.amount);
   }, [form.values.amount, tokenInfo]);
 
+  const isDepositedNft = useMemo(() => Number(vaultBalance) > 0 && tokenInfo?.type === 'erc721', [vaultBalance, tokenInfo]);
+
   return (
     <StyledForm
       noValidate
@@ -106,9 +108,10 @@ function DepositForm () {
         {tokenInfo?.type === 'erc721' &&
           <Select
             {...form.fields.id}
+            disabled={isDepositedNft}
             label={t('NFT_ID')}
             options={walletNftsList.map((item: string) => ({ value: item, label: item }))}
-            hint={t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
+            hint={isDepositedNft ? t('MULTIPLE_NFT_DEPOSIT_WARNING') : t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
             placeholder={t('NFT_ID')}
           />}
         {(tokenInfo?.type === 'erc20' || tokenInfo?.type === 'native') &&
@@ -127,7 +130,7 @@ function DepositForm () {
 
         <Button
           className="transfer-form-action"
-          disabled={!form.isValid || !canDeposit}
+          disabled={!form.isValid || !canDeposit || isDepositedNft}
           onClick={form.submit}
         >
           {isDepositApprovalNeeded ? t('APPROVE') : t('DEPOSIT')}
