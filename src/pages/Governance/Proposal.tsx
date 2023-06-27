@@ -16,6 +16,7 @@ import ProposalSkeleton from './components/Proposals/components/ProposalSkeleton
 
 import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
+import { useTransaction } from 'store/transaction/hooks';
 
 import { RoutePaths } from 'constants/routes';
 
@@ -32,6 +33,7 @@ function Proposal () {
   const { getProposalBaseInfo } = useDaoProposals();
   const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
   const { id, panel } = useParams<ProposalParams>();
+  const { pendingTransactions } = useTransaction();
 
   const loadProposal = async () => {
     try {
@@ -65,6 +67,13 @@ function Proposal () {
   }, []);
 
   useInterval(loadProposal, 60_000);
+
+  useEffect(() => {
+    if (!pendingTransactions.length) {
+      setProposal(null);
+      loadProposal();
+    }
+  }, [pendingTransactions.length]);
 
   return (
     <div className="proposal">
