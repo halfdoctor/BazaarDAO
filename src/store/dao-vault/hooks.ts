@@ -3,12 +3,14 @@ import { useDispatch } from 'react-redux';
 
 import { fillArray } from '@q-dev/utils';
 import { errors } from 'errors';
+import { utils } from 'ethers';
 import { ErrorHandler, getErc5484BalanceOf } from 'helpers';
 import { getBalanceOfErc20 } from 'helpers/erc-20';
 import { getBalanceOfErc721, getTokenOfOwnerByIndexErc721 } from 'helpers/erc-721';
 
 import {
   setChainBalance,
+  setConstitutionData,
   setLockedBalance,
   setVaultBalance,
   setVaultTimeLock,
@@ -35,13 +37,30 @@ export function useDaoVault () {
   const withdrawalBalance: string = useAppSelector(({ qVault }) => qVault.withdrawalBalance);
   const withdrawalNftsList: string[] = useAppSelector(({ qVault }) => qVault.withdrawalNftsList);
   const vaultTimeLock: string = useAppSelector(({ qVault }) => qVault.vaultTimeLock);
+  const isConstitutionSigned: boolean = useAppSelector(({ qVault }) => qVault.constitutionData.isSigned);
+
+  async function loadConstitutionData () {
+    try {
+      const { currentProvider } = getState().provider;
+      const address = currentProvider?.selectedAddress;
+      if (!daoInstance || !address) throw new errors.DefaultEmptyError();
+      const vaultInstance = await daoInstance.getVaultInstance();
+      const { isSigned, signedAt } = await vaultInstance.getUserConstitutionData(address);
+      dispatch(setConstitutionData({
+        isSigned,
+        signedAt: signedAt.toString()
+      }));
+    } catch (e) {
+      ErrorHandler.processWithoutFeedback(e);
+    }
+  }
 
   async function loadWalletBalance () {
     try {
       const { tokenInfo } = getState().daoToken;
       const { currentProvider } = getState().provider;
       const userAddress = currentProvider?.selectedAddress;
-      if (!tokenInfo || !currentProvider?.selectedAddress) throw new errors.DefaultEmptyError();
+      if (!tokenInfo || !userAddress) throw new errors.DefaultEmptyError();
       let balance;
       switch (tokenInfo.type) {
         case 'native':
@@ -175,6 +194,18 @@ export function useDaoVault () {
     }
   }
 
+  async function signConstitution () {
+    const { currentProvider } = getState().provider;
+    if (!daoInstance || !currentProvider?.signer || !currentProvider?.selectedAddress) return;
+
+    const constitutionHash = await daoInstance.getConstitutionHash();
+    const bytes = utils.arrayify(constitutionHash);
+    const signedHash = await currentProvider.signer.signMessage(bytes);
+
+    const daoVaultInstance = await daoInstance.getVaultInstance();
+    return daoVaultInstance.signConstitution(currentProvider.selectedAddress, signedHash);
+  }
+
   async function depositToVault ({ amount, erc721Id }: {
     amount: string;
     erc721Id: string; }) {
@@ -249,7 +280,10 @@ export function useDaoVault () {
     walletNftsList,
     withdrawalNftsList,
     chainBalance,
+    isConstitutionSigned,
 
+    signConstitution: useCallback(signConstitution, []),
+    loadConstitutionData: useCallback(loadConstitutionData, []),
     loadWalletBalance: useCallback(loadWalletBalance, []),
     loadChainBalance: useCallback(loadChainBalance, []),
     loadVaultBalance: useCallback(loadVaultBalance, []),

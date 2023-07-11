@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import Button from 'components/Button';
 import Input from 'components/Input';
 
+import { useSignConstitution } from 'hooks';
 import useApproveToken from 'hooks/useApproveToken';
 import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
 
@@ -38,7 +39,15 @@ const StyledForm = styled.form`
 
 function DepositForm () {
   const { t } = useTranslation();
-  const { walletBalance, depositToVault, loadAllBalances, walletNftsList, chainBalance, vaultBalance } = useDaoVault();
+  const {
+    walletBalance,
+    depositToVault,
+    loadAllBalances,
+    walletNftsList,
+    chainBalance,
+    vaultBalance,
+  } = useDaoVault();
+  const { isConstitutionSignNeeded, signConstitution, loadConstitutionData } = useSignConstitution();
   const { submitTransaction } = useTransaction();
   const { tokenInfo, getToken } = useDaoTokenStore();
   const { checkIsApprovalNeeded, approveSpendToken } = useApproveToken();
@@ -87,12 +96,26 @@ function DepositForm () {
   };
 
   useEffect(() => {
+    loadConstitutionData();
+  }, []);
+
+  useEffect(() => {
     updateMaxAmount();
   }, [form.values.amount, tokenInfo, walletBalance]);
 
   const isDepositApprovalNeeded = useMemo(() => {
     return checkIsApprovalNeeded(form.values.amount);
   }, [form.values.amount, tokenInfo]);
+
+  const submitBtnText = useMemo(() => {
+    if (isConstitutionSignNeeded) {
+      return t('SIGN_CONSTITUTION_TO_DEPOSIT');
+    }
+
+    return isDepositApprovalNeeded
+      ? t('APPROVE')
+      : t('DEPOSIT');
+  }, [t, isDepositApprovalNeeded, isConstitutionSignNeeded]);
 
   const isDepositedNft = useMemo(() => Number(vaultBalance) > 0 && tokenInfo?.type === 'erc721', [vaultBalance, tokenInfo]);
 
@@ -130,10 +153,10 @@ function DepositForm () {
 
         <Button
           className="transfer-form-action"
-          disabled={!form.isValid || !canDeposit || isDepositedNft}
-          onClick={form.submit}
+          disabled={!isConstitutionSignNeeded && (!form.isValid || !canDeposit || isDepositedNft)}
+          onClick={isConstitutionSignNeeded ? signConstitution : form.submit }
         >
-          {isDepositApprovalNeeded ? t('APPROVE') : t('DEPOSIT')}
+          {submitBtnText}
         </Button>
       </div>
     </StyledForm>

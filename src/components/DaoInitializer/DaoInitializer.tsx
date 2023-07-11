@@ -8,7 +8,9 @@ import { ErrorHandler, getDaoSupportedNetworks } from 'helpers';
 
 import useLoadDao from 'hooks/useLoadDao';
 
+import { useConstitution } from 'store/constitution/hooks';
 import { useDaoStore } from 'store/dao/hooks';
+import { useDaoVault } from 'store/dao-vault/hooks';
 import { useProviderStore } from 'store/provider/hooks';
 
 import { PROVIDERS } from 'constants/providers';
@@ -24,7 +26,9 @@ function DaoInitializer ({ children }: Props) {
   const { currentProvider, isWeb3Loaded, initDefaultProvider } = useWeb3Context();
   const { setDaoAddress, daoAddress, setSupportedNetworks, supportedNetworks } = useDaoStore();
   const { setProviderValue, currentProvider: storeProvider, isRightNetwork } = useProviderStore();
+  const { loadConstitutionData } = useDaoVault();
   const { loadAdditionalInfo } = useLoadDao();
+  const { loadConstitutionHash } = useConstitution();
 
   const loadAppDetails = async () => {
     if (!isWeb3Loaded || !storeProvider || !isDaoAddressChecked || !isRightNetwork) return;
@@ -32,6 +36,10 @@ function DaoInitializer ({ children }: Props) {
     setIsInfoLoaded(false);
     try {
       await loadAdditionalInfo();
+      await Promise.all([
+        loadConstitutionHash(),
+        loadConstitutionData()
+      ]);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }

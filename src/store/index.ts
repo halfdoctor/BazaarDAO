@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 
 import constitution from './constitution/reducer';
 import dao from './dao/reducer';
@@ -11,7 +11,7 @@ import provider from './provider/reducer';
 import transaction from './transaction/reducer';
 
 export const store = configureStore({
-  reducer: combineReducers({
+  reducer: {
     qVault,
     transaction,
     dao,
@@ -19,7 +19,7 @@ export const store = configureStore({
     constitution,
     provider,
     daoToken
-  }),
+  },
   middleware: getDefaultMiddleware => {
     return getDefaultMiddleware({ // Hack for provider
       serializableCheck: {

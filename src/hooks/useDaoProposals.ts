@@ -171,16 +171,16 @@ export function useDaoProposals () {
 
   async function createNewProposal (form: NewProposalForm) {
     switch (form.type) {
-      case DefaultVotingSituations.GeneralSituation:
+      case DefaultVotingSituations.General:
         return createGeneralSituationProposal(form);
-      case DefaultVotingSituations.MembershipSituation:
+      case DefaultVotingSituations.Membership:
         return createMembershipSituationProposal(form);
-      case DefaultVotingSituations.ConstitutionSituation:
+      case DefaultVotingSituations.Constitution:
         return createConstitutionProposal(form);
-      case DefaultVotingSituations.RegularParameterSituation:
-        return createParameterSituationProposal(form, DefaultVotingSituations.RegularParameterSituation);
-      case DefaultVotingSituations.ConfigurationParameterSituation:
-        return createParameterSituationProposal(form, DefaultVotingSituations.ConfigurationParameterSituation);
+      case DefaultVotingSituations.RegularParameter:
+        return createParameterSituationProposal(form, DefaultVotingSituations.RegularParameter);
+      case DefaultVotingSituations.ConfigurationParameter:
+        return createParameterSituationProposal(form, DefaultVotingSituations.ConfigurationParameter);
     }
   }
 
