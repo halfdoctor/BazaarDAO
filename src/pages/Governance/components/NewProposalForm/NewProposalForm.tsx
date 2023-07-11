@@ -87,7 +87,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           title: t('TYPE_OF_Q_PROPOSAL'),
           children: <TypeStep situations={panelSituations} panelName={panelName} />
         },
-        ...(form.values.type === DefaultVotingSituations.GeneralSituation
+        ...(form.values.type === DefaultVotingSituations.General
           ? [{
             id: 'general-situation',
             name: t('DETAILS'),
@@ -96,7 +96,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           }]
           : []
         ),
-        ...(form.values.type === DefaultVotingSituations.ConfigurationParameterSituation
+        ...(form.values.type === DefaultVotingSituations.ConfigurationParameter
           ? [{
             id: 'configuration-parameter-situation',
             name: t('PARAMETERS'),
@@ -105,7 +105,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           }]
           : []
         ),
-        ...(form.values.type === DefaultVotingSituations.RegularParameterSituation
+        ...(form.values.type === DefaultVotingSituations.RegularParameter
           ? [{
             id: 'regular-parameter-situation',
             name: t('PARAMETERS'),
@@ -114,7 +114,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           }]
           : []
         ),
-        ...(form.values.type === DefaultVotingSituations.MembershipSituation
+        ...(form.values.type === DefaultVotingSituations.Membership
           ? [{
             id: 'membership-situation',
             name: t('DETAILS'),
@@ -123,7 +123,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           }]
           : []
         ),
-        ...(form.values.type === DefaultVotingSituations.ConstitutionSituation
+        ...(form.values.type === DefaultVotingSituations.Constitution
           ? [
             {
               id: 'constitution-situation-1',

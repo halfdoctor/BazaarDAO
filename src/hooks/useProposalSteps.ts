@@ -8,27 +8,27 @@ function useProposalSteps () {
 
   const proposalSteps: RadioOptions<string> = [
     {
-      value: DefaultVotingSituations.ConstitutionSituation,
+      value: DefaultVotingSituations.Constitution,
       label: t('CONSTITUTION_UPDATE'),
       tip: t('CONSTITUTION_UPDATE_TIP')
     },
     {
-      value: DefaultVotingSituations.GeneralSituation,
+      value: DefaultVotingSituations.General,
       label: t('GENERAL_Q_UPDATE'),
       tip: t('GENERAL_Q_UPDATE_TIP')
     },
     {
-      value: DefaultVotingSituations.ConfigurationParameterSituation,
+      value: DefaultVotingSituations.ConfigurationParameter,
       label: t('CONFIG_PARAMETER_VOTE'),
       tip: t('PARAMETER_VOTE_TIP')
     },
     {
-      value: DefaultVotingSituations.RegularParameterSituation,
+      value: DefaultVotingSituations.RegularParameter,
       label: t('REGULAR_PARAMETER_VOTE'),
       tip: t('PARAMETER_VOTE_TIP')
     },
     {
-      value: DefaultVotingSituations.MembershipSituation,
+      value: DefaultVotingSituations.Membership,
       label: t('MEMBERSHIP_VOTE'),
       tip: t('MEMBERSHIP_VOTE_TIP')
     }

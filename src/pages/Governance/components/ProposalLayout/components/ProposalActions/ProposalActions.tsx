@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
 import { ShareButton } from 'components/ShareButton';
 
+import { useSignConstitution } from 'hooks';
 import { useDaoProposals } from 'hooks/useDaoProposals';
 import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
 
@@ -29,6 +31,7 @@ function ProposalActions ({ proposal, title }: Props) {
   const { submitTransaction } = useTransaction();
   const { voteForProposal, executeProposal } = useDaoProposals();
   const { checkIsUserCanVeto, checkIsUserCanVoting } = useProposalActionsInfo();
+  const { isConstitutionSignNeeded, signConstitution, loadConstitutionData } = useSignConstitution();
   const [isUserCanVoting, setIsUserCanVoting] = useState(false);
   const [isUserCanVeto, setIsUserCanVeto] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,6 +45,29 @@ function ProposalActions ({ proposal, title }: Props) {
     setIsUserCanVoting(isCanVoting);
     setIsUserCanVeto(isCanVeto);
   };
+
+  const isMembershipSituation = useMemo(() => {
+    return proposal.relatedVotingSituation === DefaultVotingSituations.Membership;
+  }, [proposal.relatedVotingSituation]);
+
+  const isSignNeeded = useMemo(() => {
+    return isMembershipSituation && isConstitutionSignNeeded;
+  }, [isMembershipSituation, isConstitutionSignNeeded]);
+
+  const executeOrSignConstitution = () => {
+    isSignNeeded
+      ? signConstitution()
+      : submitTransaction({
+        successMessage: t('EXECUTE_TX'),
+        submitFn: () => executeProposal(proposal)
+      });
+  };
+
+  useEffect(() => {
+    if (isMembershipSituation) {
+      loadConstitutionData();
+    }
+  }, [isMembershipSituation]);
 
   useEffect(() => {
     loadPermissions();
@@ -83,12 +109,9 @@ function ProposalActions ({ proposal, title }: Props) {
 
       {proposal.votingStatus === PROPOSAL_STATUS.passed && (
         <Button
-          onClick={() => submitTransaction({
-            successMessage: t('EXECUTE_TX'),
-            submitFn: () => executeProposal(proposal)
-          })}
+          onClick={executeOrSignConstitution}
         >
-          {t('EXECUTE')}
+          {isSignNeeded ? t('SIGN_CONSTITUTION_TO_EXECUTE') : t('EXECUTE')}
         </Button>
       )}
 

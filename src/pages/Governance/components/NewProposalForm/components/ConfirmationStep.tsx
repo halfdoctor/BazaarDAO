@@ -31,7 +31,7 @@ function ConfirmationStep () {
         </p>
       </FormBlock>
 
-      {values.type === DefaultVotingSituations.ConstitutionSituation && (
+      {values.type === DefaultVotingSituations.Constitution && (
         <FormBlock
           icon="edit"
           title={t('BASIC_PART')}
@@ -49,14 +49,14 @@ function ConfirmationStep () {
         </FormBlock>
       )}
 
-      {(values.type === DefaultVotingSituations.ConstitutionSituation ||
-        values.type === DefaultVotingSituations.ConfigurationParameterSituation ||
-        values.type === DefaultVotingSituations.RegularParameterSituation) &&
+      {(values.type === DefaultVotingSituations.Constitution ||
+        values.type === DefaultVotingSituations.ConfigurationParameter ||
+        values.type === DefaultVotingSituations.RegularParameter) &&
         (
           <FormBlock
             icon="edit"
             title={t('PARAMETERS')}
-            onAction={() => updateStep(values.type === DefaultVotingSituations.ConstitutionSituation ? 2 : 1)}
+            onAction={() => updateStep(values.type === DefaultVotingSituations.Constitution ? 2 : 1)}
           >
             <div>
               <p className="text-md color-secondary">
@@ -77,7 +77,7 @@ function ConfirmationStep () {
           </FormBlock>
         )}
 
-      {values.type === DefaultVotingSituations.GeneralSituation && (
+      {values.type === DefaultVotingSituations.General && (
         <FormBlock
           icon="edit"
           title={t('DETAILS')}
@@ -89,7 +89,7 @@ function ConfirmationStep () {
           </div>
         </FormBlock>)}
 
-      {values.type === DefaultVotingSituations.MembershipSituation && (
+      {values.type === DefaultVotingSituations.Membership && (
         <FormBlock
           icon="edit"
           title={t('DETAILS')}
