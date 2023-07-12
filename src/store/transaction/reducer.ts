@@ -11,7 +11,7 @@ export interface Transaction {
 }
 
 export interface TransactionEditableParams {
-  title?: string;
+  message?: string;
   status?: TxStatus;
   isConfirmed?: boolean;
   isClosedModal?: boolean;
