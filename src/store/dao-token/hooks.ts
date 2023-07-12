@@ -98,7 +98,7 @@ export function useDaoTokenStore () {
   async function getErc20Info (tokenAddress: string) {
     try {
       const { currentProvider } = getState().provider;
-      if (!daoInstance || !currentProvider?.provider || !currentProvider?.signer) return null;
+      if (!daoInstance || !currentProvider?.provider) return null;
       getErc20ContractInstance(tokenAddress, currentProvider.provider);
       getErc20ContractSigner(tokenAddress, currentProvider.signer);
       const daoVaultInstance = await daoInstance.getVaultInstance();

@@ -13,7 +13,7 @@ export const getErc20ContractInstance = (address: string, provider?: providers.P
   return erc20ContractInstance;
 };
 
-export const getErc20ContractSigner = (address: string, signer: Signer) => {
+export const getErc20ContractSigner = (address: string, signer?: Signer) => {
   erc20ContractSigner = signer ? Erc20.connect(address, signer) : null;
   return erc20ContractSigner;
 };
