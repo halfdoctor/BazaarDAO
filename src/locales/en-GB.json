@@ -177,6 +177,7 @@
   "ERROR_003000": "The caller is not a Master DAO factory.",
   "ERROR_003001": "The sender is not allowed to perform the action, access denied.",
   "ERROR_004000": "The sender is not allowed to perform the action, access denied.",
+  "ERROR_004001": "The candidate should be the one who initiates the transaction.",
   "ERROR_005000": "The sender is not allowed to perform the action, access denied.",
   "ERROR_006000": "The sender is not allowed to perform the action, access denied.",
   "ERROR_007000": "msg.value is not equal to the amount.",
