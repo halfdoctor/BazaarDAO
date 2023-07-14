@@ -48,34 +48,15 @@ export async function getRegistryContracts (): Promise<ParameterValue[]> {
   try {
     if (!daoInstance) return [];
 
-    const { instance } = daoInstance.DAORegistryInstance;
-    const panels = await instance.getPanels();
+    const registryContracts = await daoInstance.DAORegistryInstance.getRegistryContractAddresses();
 
-    const contractKeyToMethodMap = {
-      'Permission Manager': instance.getPermissionManager(),
-      'Voting Factory': instance.getVotingFactory(),
-      'Voting Registry': instance.getVotingRegistry(),
-      'DAO Vault': instance.getDAOVault(),
-      ...panels.reduce((acc, panel) => ({
-        ...acc,
-        [`${panel} Voting`]: panel === DAO_RESERVED_NAME ? instance.getGeneralDAOVoting(DAO_RESERVED_NAME) : instance.getExpertsDAOVoting(panel),
-        [`${panel} Regular Parameter Storage`]: instance.getRegDAOParameterStorage(panel),
-        [`${panel} Configuration Parameter Storage`]: instance.getConfDAOParameterStorage(panel),
-        [`${panel} Member Storage`]: panel === DAO_RESERVED_NAME ? undefined : instance.getDAOMemberStorage(panel),
-      }), {}),
-    };
-
-    const contractValues: ParameterValue[] = await Promise.all(
-      Object.entries(contractKeyToMethodMap)
-        .map(([name, method]) => method
-          ?.then((value) => ({
-            name,
-            value,
-            normalValue: value,
-            solidityType: ParameterType.ADDRESS,
-          }))
-        )
-    );
+    const contractValues: ParameterValue[] = registryContracts
+      .map(({ name, address_ }) => ({
+        name,
+        value: address_,
+        normalValue: address_,
+        solidityType: ParameterType.ADDRESS,
+      }));
 
     return contractValues;
   } catch (error) {
