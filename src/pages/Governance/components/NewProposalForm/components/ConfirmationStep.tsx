@@ -10,6 +10,8 @@ import useProposalSteps from 'hooks/useProposalSteps';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
+import DAORegistryCallDataViewer from './DAORegistryCallDataViewer';
+
 function ConfirmationStep () {
   const { t } = useTranslation();
   const { values, goBack, confirm, updateStep } = useNewProposalForm();
@@ -110,6 +112,33 @@ function ConfirmationStep () {
             <p className="text-lg ellipsis">{values.externalLink}</p>
           </div>
         </FormBlock>)}
+      {values.type === DefaultVotingSituations.DAORegistry && (
+        <>
+          <FormBlock
+            icon="edit"
+            title={t('BASIC_PART')}
+            onAction={() => updateStep(1)}
+          >
+            <div>
+              <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
+              <p className="text-lg ellipsis">{values.externalLink}</p>
+            </div>
+          </FormBlock>
+          <FormBlock
+            icon="edit"
+            title={t('DETAILS')}
+            onAction={() => updateStep(2)}
+          >
+            {values.callData.map((callData, index) => (
+              <DAORegistryCallDataViewer
+                key={index}
+                callData={callData}
+                index={index}
+              />
+            ))}
+          </FormBlock>
+        </>
+      )}
     </FormStep>
   );
 }

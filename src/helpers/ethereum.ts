@@ -7,6 +7,10 @@ export function isAddress (value: string) {
   return utils.isAddress(value);
 }
 
+export function isBytesLike (value: string) {
+  return utils.isBytesLike(value);
+}
+
 export function singlePrecision (amount?: string | number) {
   return amount ? toBigNumber(amount).div(1e25).toString() : '0';
 }

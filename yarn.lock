@@ -762,17 +762,18 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.7.tgz#ccab5c8f7dc557a52ca3288c10075c9ccd37fff7"
   integrity sha512-Cr4OjIkipTtcXKjAsm8agyleBuDHvxzeBoa1v543lbv1YaIwQjESsVcmjiWiPEbC1FIeHOG/Op9kdCmAmiS3Kw==
 
-"@q-dev/form-hooks@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@q-dev/form-hooks/-/form-hooks-0.3.3.tgz#356cb8747f4e6ebec03581bf0abf4a2454e17e8e"
-  integrity sha512-9LVInWlksetXCr618atGDscwaiNDK3xc8WAhMN1CwzSBjAzimhjjc8T1PqJSe/Gx/qYqXl6zrikrDkeeFhHwqA==
+"@q-dev/form-hooks@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@q-dev/form-hooks/-/form-hooks-1.0.0-rc.1.tgz#0fb288a2e0abae4645778cee0911436bd3bf699b"
+  integrity sha512-QlCrz5/Zy+zYf3aCTXuAW0pgCADLZvHmpum/crUbNsyLNYYacBIXdMgs+s03MmcbRe4vs8otQq70u07xqEDAgw==
   dependencies:
+    bignumber.js "^9.0.1"
     lodash "^4.17.21"
 
-"@q-dev/gdk-sdk@^0.12.8":
-  version "0.12.8"
-  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.12.8.tgz#36e0a09d6d0e61370d01f942e421403aab9133f2"
-  integrity sha1-NuCgnW0OYTcNAflC5CFAOquRM/I=
+"@q-dev/gdk-sdk@^0.12.10":
+  version "0.12.10"
+  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.12.10.tgz#8321a356a9c3b53ff6ee7e1db4d2ed2f93adc313"
+  integrity sha1-gyGjVqnDtT/27n4dtNLtL5OtwxM=
   dependencies:
     axios "^1.3.4"
     bn.js "^5.2.1"
@@ -788,10 +789,23 @@
     react-datepicker "^4.8.0"
     react-hotkeys-hook "^3.4.7"
 
-"@q-dev/react-hooks@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@q-dev/react-hooks/-/react-hooks-0.1.0.tgz#5b59ca8db23f3372cc731f771dcc845502704807"
-  integrity sha512-w6JhnqTFskh+oAnIJyzPpgr4y7iCo2bDJjhYm1yOfyFCZY7cD5XcW3BqK+93FwQxkrlcVr0SMtVHvI1UKCeuKA==
+"@q-dev/react-hooks@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@q-dev/react-hooks/-/react-hooks-1.0.0-rc.1.tgz#bea3a1b387255475ea1b3468a102092f1bcc07fc"
+  integrity sha512-9MgtlsfjoAiy7MS9v7F258pyLia1wly0nz4IMoO3ArCXsJPxYTRZDAGTIkY3yEXUvZSbvyZS3M8VOqOPHm9G7Q==
+  dependencies:
+    "@q-dev/utils" "1.0.0-rc.1"
+    bignumber.js "^9.0.1"
+    copy-to-clipboard "^3.3.1"
+    framer-motion "^4.1.17"
+
+"@q-dev/utils@1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@q-dev/utils/-/utils-1.0.0-rc.1.tgz#a13fdc143db259aee314c46c3bdea3bfc706dea0"
+  integrity sha512-SrB4qPPCmoVKRxnQpqCWVeWwQ7c1jYRJ/rToA8Q4lMsT5kXvOEKXe9tHLhdyGKV4teUXCfJKdix/TN6XO1ji7A==
+  dependencies:
+    bignumber.js "^9.0.1"
+    lodash "^4.17.21"
 
 "@q-dev/utils@^0.1.0":
   version "0.1.0"

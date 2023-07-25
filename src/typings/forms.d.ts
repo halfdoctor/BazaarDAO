@@ -27,4 +27,12 @@ interface NewProposalForm {
   externalLink: string;
   isParamsChanged: boolean;
   params: FormParameter[];
+  callData: string[];
 }
+
+interface FormDAORegistry {
+  callData: string;
+  upgradeName: string;
+}
+
+type FormValidatesMap = Record<string, () => boolean>;

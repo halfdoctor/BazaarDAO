@@ -3,7 +3,7 @@ import {
   DefaultVotingSituations,
   getEncodedData,
   getParameter,
-  ParameterType
+  ParameterType,
 } from '@q-dev/gdk-sdk';
 import { TagState } from '@q-dev/q-ui-kit/dist/components/Tag';
 import { NewProposalForm } from 'typings/forms';
@@ -75,6 +75,23 @@ export async function createParameterSituationProposal (
       })
     )
   };
+  return daoInstance.createVoting(votingInstance, votingParams);
+}
+
+export async function createDAORegistryProposal (form: NewProposalForm) {
+  if (!daoInstance) return;
+  const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
+
+  const votingParams: CreateVotingParameters = {
+    remark: form.externalLink,
+    situation: DefaultVotingSituations.DAORegistry,
+    callData: getEncodedData(
+      'DAORegistry',
+      'multicall',
+      form.callData
+    )
+  };
+
   return daoInstance.createVoting(votingInstance, votingParams);
 }
 
