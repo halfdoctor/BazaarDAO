@@ -379,5 +379,6 @@
   "UPGRADE_TYPE": "Upgrade Type",
   "INVALID_CALL_DATA": "Invalid Call Data",
   "UPGRADE_INDEX": "Upgrade {{ index }}",
-  "ADD_UPGRADE": "Add Update"
+  "ADD_UPGRADE": "Add Update",
+  "UPGRADES": "Upgrades"
 }

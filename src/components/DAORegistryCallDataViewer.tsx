@@ -3,21 +3,32 @@ import { useTranslation } from 'react-i18next';
 
 import { getDecodeData } from '@q-dev/gdk-sdk';
 import startCase from 'lodash/startCase';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 interface Props {
   callData: string;
   index: number;
+  block?: boolean;
 }
 
-export const DAORegistryCallDataViewerContainer = styled.div`
+export const DAORegistryCallDataViewerContainer = styled.div<{ $block: boolean }>`
   display: grid;
   gap: 16px;
   padding: 16px 16px 0;
   border-top: 1px solid ${({ theme }) => theme.colors.borderSecondary};
+
+  ${({ $block }) => $block && css`
+    padding: 24px;
+    border: 1px solid ${({ theme }) => theme.colors.borderPrimary};
+    border-radius: 8px;
+  `}
 `;
 
-function DAORegistryCallDataViewer ({ callData, index }: Props) {
+function DAORegistryCallDataViewer ({
+  callData,
+  index,
+  block = false,
+}: Props) {
   const { t } = useTranslation();
 
   const decodedCallData = useMemo(() => {
@@ -44,7 +55,7 @@ function DAORegistryCallDataViewer ({ callData, index }: Props) {
   const isValidCallData = Boolean(decodedCallData);
 
   return (
-    <DAORegistryCallDataViewerContainer>
+    <DAORegistryCallDataViewerContainer $block={block}>
       <p className={'text-lg font-semibold'}>
         {t('UPGRADE_INDEX', { index: index + 1 })}
       </p>
