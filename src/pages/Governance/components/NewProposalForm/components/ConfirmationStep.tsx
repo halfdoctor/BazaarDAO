@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 
+import DAORegistryCallDataViewer from 'components/DAORegistryCallDataViewer';
 import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterViewer from 'components/ParameterViewer';
@@ -9,8 +10,6 @@ import ParameterViewer from 'components/ParameterViewer';
 import useProposalSteps from 'hooks/useProposalSteps';
 
 import { useNewProposalForm } from '../NewProposalForm';
-
-import DAORegistryCallDataViewer from './DAORegistryCallDataViewer';
 
 function ConfirmationStep () {
   const { t } = useTranslation();
