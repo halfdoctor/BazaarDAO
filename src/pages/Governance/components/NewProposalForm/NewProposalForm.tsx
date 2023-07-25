@@ -17,6 +17,8 @@ import { ListEmptyStub } from '../Proposals/styles';
 import ConfirmationStep from './components/ConfirmationStep';
 import ConstitutionHashStep from './components/ConstitutionHashStep';
 import ConstitutionSituationStep from './components/ConstitutionSituationStep';
+import DAORegistryBasicStep from './components/DAORegistryBasicStep';
+import DAORegistrySituationStep from './components/DAORegistrySituationStep';
 import GeneralSituationStep from './components/GeneralSituationStep';
 import MembershipSituationStep from './components/MembershipSituationStep';
 import ParameterSituationStep from './components/ParameterSituationStep';
@@ -36,7 +38,8 @@ const DEFAULT_VALUES: NewProposalFormType = {
   membershipSituationType: 'add-member',
   generalSituationType: 'raise-topic',
   isParamsChanged: false,
-  params: []
+  params: [],
+  callData: [],
 };
 
 const NewProposalContext = createContext(
@@ -87,6 +90,23 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           title: t('TYPE_OF_Q_PROPOSAL'),
           children: <TypeStep situations={panelSituations} panelName={panelName} />
         },
+        ...(form.values.type === DefaultVotingSituations.DAORegistry
+          ? [
+            {
+              id: 'dao-registry-basic',
+              name: t('BASIC_DETAILS'),
+              title: t('BASIC_DETAILS'),
+              children: <DAORegistryBasicStep />
+            },
+            {
+              id: 'dao-registry-situation',
+              name: t('DETAILS'),
+              title: t('DETAILS'),
+              children: <DAORegistrySituationStep />
+            }
+          ]
+          : []
+        ),
         ...(form.values.type === DefaultVotingSituations.General
           ? [{
             id: 'general-situation',

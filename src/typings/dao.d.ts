@@ -23,3 +23,8 @@ export interface SupportedDaoNetwork {
   isDaoExist: boolean;
   chainId: number;
 }
+
+export interface DecodedCallData {
+  functionName: string;
+  arguments: Record<string, string>;
+}

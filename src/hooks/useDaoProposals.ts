@@ -15,9 +15,10 @@ import { useProviderStore } from 'store/provider/hooks';
 import { daoInstance } from 'contracts/contract-instance';
 import {
   createConstitutionProposal,
+  createDAORegistryProposal,
   createGeneralSituationProposal,
   createMembershipSituationProposal,
-  createParameterSituationProposal
+  createParameterSituationProposal,
 } from 'contracts/helpers/proposals-helper';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
@@ -181,6 +182,8 @@ export function useDaoProposals () {
         return createParameterSituationProposal(form, DefaultVotingSituations.RegularParameter);
       case DefaultVotingSituations.ConfigurationParameter:
         return createParameterSituationProposal(form, DefaultVotingSituations.ConfigurationParameter);
+      case DefaultVotingSituations.DAORegistry:
+        return createDAORegistryProposal(form);
     }
   }
 

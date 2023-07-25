@@ -304,6 +304,7 @@
   "VALIDATION_ADDRESS_OUT_GROUP": "Address is not exists in current group",
   "VALIDATION_URL": "Invalid URL",
   "VALIDATION_ADDRESS": "Invalid address",
+  "VALIDATION_BYTES": "Invalid bytes",
   "VALIDATION_VAULT_UD": "Invalid vault ID",
   "VALIDATION_HASH": "Invalid hash",
   "VALIDATION_CURRENT_HASH": "Invalid current hash",
@@ -315,6 +316,8 @@
   "VALIDATION_BYTES_VALUE": "Invalid byte value",
   "VALIDATION_NUMBER_VALUE": "Invalid number",
   "VALIDATION_INTEGER_NUMBER_VALUE": "Invalid integer number",
+  "VALIDATION_CALL_DATA": "Invalid call data",
+  "VALIDATION_NAME": "Invalid name",
   "USER_TRANSACTIONS": "Transactions",
   "EMPTY_TX": "No Transactions",
   "DEFAULT_MESSAGE_TX": "User transactions",
@@ -368,5 +371,13 @@
   "NEED_VOTING_POWER": "To create a proposal you need to have enough voting power",
   "SIGN_CONSTITUTION_TX": "Sign Constitution",
   "SIGN_CONSTITUTION_TO_DEPOSIT": "Sign Constitution to Deposit",
-  "SIGN_CONSTITUTION_TO_EXECUTE": "Sign Constitution to Execute"
+  "SIGN_CONSTITUTION_TO_EXECUTE": "Sign Constitution to Execute",
+  "DAO_REGISTRY_VOTE": "DAO Registry Vote",
+  "DAO_REGISTRY_TIP": "DAO Registry Vote updates the core of the system on which DAO is built",
+  "CALL_DATA": "Call Data",
+  "RAW_MODE": "Raw mode",
+  "UPGRADE_TYPE": "Upgrade Type",
+  "INVALID_CALL_DATA": "Invalid Call Data",
+  "UPGRADE_INDEX": "Upgrade {{ index }}",
+  "ADD_UPGRADE": "Add Update"
 }

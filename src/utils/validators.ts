@@ -1,7 +1,7 @@
 import { getValidatorValue } from '@q-dev/form-hooks';
-import { ParameterType } from '@q-dev/gdk-sdk';
+import { getDecodeData, ParameterType } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
-import { isAddress } from 'helpers';
+import { isAddress, isBytesLike } from 'helpers';
 import i18n from 'i18next';
 import { isBoolean } from 'lodash';
 import isDate from 'lodash/isDate';
@@ -13,6 +13,7 @@ import { ZERO_ADDRESS } from 'constants/boundaries';
 const HASH_REGEX = /^0x[a-fA-F0-9]{64}$/;
 const BYTES_REGEX = /^0x[a-fA-F0-9]{2,64}$/;
 const VAULT_ID_REGEX = /^[0-9]{1,18}$/;
+const NAME_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9_\-. ]*[A-Za-z0-9]+$/;
 export const URL_REGEX = /^https?:\/\/(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 interface ValidationResult {
@@ -104,6 +105,11 @@ export const address: Validator<string> = val => ({
   message: i18n.t('VALIDATION_ADDRESS')
 });
 
+export const bytes: Validator<string> = val => ({
+  isValid: !val || isBytesLike(val),
+  message: i18n.t('VALIDATION_BYTES')
+});
+
 export const nonZeroAddress: Validator<string> = val => ({
   isValid: !val || (isAddress(val) && val !== ZERO_ADDRESS),
   message: i18n.t('VALIDATION_ADDRESS')
@@ -184,3 +190,21 @@ export const integer: Validator = val => ({
   isValid: Number.isInteger(Number(val)),
   message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
 });
+
+export const name: Validator = val => ({
+  isValid: !val || NAME_REGEX.test(String(val)),
+  message: i18n.t('VALIDATION_NAME')
+});
+
+export const callData = ({ functionNames, abiName }: {functionNames: string[]; abiName: string}): Validator =>
+  (val) => {
+    let isValid: boolean;
+    try {
+      const decodedData = val ? getDecodeData(abiName, String(val)) : null;
+      isValid = Boolean(decodedData) && functionNames.some(name => name === decodedData?.functionName);
+    } catch (e) {
+      isValid = false;
+    }
+
+    return { isValid, message: i18n.t('VALIDATION_CALL_DATA') };
+  };

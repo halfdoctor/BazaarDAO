@@ -31,6 +31,11 @@ function useProposalSteps () {
       value: DefaultVotingSituations.Membership,
       label: t('MEMBERSHIP_VOTE'),
       tip: t('MEMBERSHIP_VOTE_TIP')
+    },
+    {
+      value: DefaultVotingSituations.DAORegistry,
+      label: t('DAO_REGISTRY_VOTE'),
+      tip: t('DAO_REGISTRY_TIP')
     }
   ];
 
