@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
+import { DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -16,6 +16,7 @@ import useEndTime from '../../hooks/useEndTime';
 
 import VoteForm from './components/VoteForm';
 
+import { useProviderStore } from 'store/provider/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
@@ -28,6 +29,7 @@ interface Props {
 
 function ProposalActions ({ proposal, title }: Props) {
   const { t } = useTranslation();
+  const { userAddress } = useProviderStore();
   const { submitTransaction } = useTransaction();
   const { voteForProposal, executeProposal } = useDaoProposals();
   const { checkIsUserCanVeto, checkIsUserCanVoting } = useProposalActionsInfo();
@@ -53,6 +55,22 @@ function ProposalActions ({ proposal, title }: Props) {
   const isSignNeeded = useMemo(() => {
     return isMembershipSituation && isConstitutionSignNeeded;
   }, [isMembershipSituation, isConstitutionSignNeeded]);
+
+  const membershipSituationsDecodedCallData = useMemo(() => {
+    if (!isMembershipSituation) return null;
+    try {
+      return getDecodeData('DAOMemberStorage', proposal.callData) || null;
+    } catch (_) {
+      return null;
+    }
+  }, [proposal.callData, isMembershipSituation]);
+
+  const canExecute = useMemo(() => {
+    if (proposal.votingStatus !== PROPOSAL_STATUS.passed) return false;
+    if (membershipSituationsDecodedCallData?.functionName !== 'addMember') return true;
+
+    return Boolean(userAddress) && membershipSituationsDecodedCallData.arguments?.member_ === userAddress;
+  }, [proposal.votingStatus, userAddress, membershipSituationsDecodedCallData]);
 
   const executeOrSignConstitution = () => {
     isSignNeeded
@@ -107,7 +125,7 @@ function ProposalActions ({ proposal, title }: Props) {
         </Tooltip>
       )}
 
-      {proposal.votingStatus === PROPOSAL_STATUS.passed && (
+      {canExecute && (
         <Button
           onClick={executeOrSignConstitution}
         >

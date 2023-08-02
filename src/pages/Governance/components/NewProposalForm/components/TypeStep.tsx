@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { NavLink } from 'react-router-dom';
 
 import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions, Tip } from '@q-dev/q-ui-kit';
@@ -11,12 +12,15 @@ import useProposalSteps from 'hooks/useProposalSteps';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
+import { useDaoStore } from 'store/dao/hooks';
 import { useProviderStore } from 'store/provider/hooks';
 
+import { RoutePaths } from 'constants/routes';
 import { required } from 'utils/validators';
 
 function TypeStep ({ situations, panelName }: { situations: string[]; panelName: string }) {
   const { t } = useTranslation();
+  const { composeDaoLink } = useDaoStore();
   const { currentProvider } = useProviderStore();
   const { goNext, onChange } = useNewProposalForm();
   const { proposalSteps } = useProposalSteps();
@@ -70,7 +74,18 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
     >
       {(!isUserHasVotingPower || !isUserMember) && currentProvider?.selectedAddress &&
         <Tip type="warning">
-          {isUserHasVotingPower ? t('NEED_MEMBER_STATUS') : t('NEED_VOTING_POWER')}
+          {isUserHasVotingPower
+            ? t('NEED_MEMBER_STATUS')
+            : <Trans
+              i18nKey="NEED_VOTING_POWER"
+              components={{
+                votingPowerLink: <NavLink
+                  style={{ textDecoration: 'underline' }}
+                  to={composeDaoLink(RoutePaths.votingPower)}
+                />
+              }}
+            />
+          }
         </Tip>}
       <RadioGroup
         {...form.fields.type}

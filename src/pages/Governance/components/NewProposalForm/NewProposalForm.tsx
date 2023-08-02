@@ -129,7 +129,7 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
           ? [{
             id: 'regular-parameter-situation',
             name: t('PARAMETERS'),
-            title: t('REGULAR_PARAMETER_VOTE'),
+            title: t('EXPERT_PARAMETER_VOTE'),
             children: <ParameterSituationStep panelName={panelName} situation="regular" />
           }]
           : []

@@ -2,27 +2,32 @@ import { useTranslation } from 'react-i18next';
 
 import { Icon } from '@q-dev/q-ui-kit';
 
-import useNetworkConfig from 'hooks/useNetworkConfig';
-
 import { ReferencesContainer } from './styles';
+
+import { useProviderStore } from 'store/provider/hooks';
+
+import { networkConfigsMap } from 'constants/config';
 
 function References () {
   const { t } = useTranslation();
-  const { docsUrl, constitutionUrl } = useNetworkConfig();
+  const { currentProvider } = useProviderStore();
 
   const referenceLinks = [
     {
-      title: t('Q_CONSTITUTION'),
-      href: `${constitutionUrl}/constitution/latest`,
-    },
-    {
       title: t('REPOSITORIES'),
-      href: 'https://gitlab.com/q-dev',
+      href: 'https://gitlab.com/q-dev/q-gdk',
     },
     {
-      title: t('TUTORIALS'),
-      href: docsUrl,
+      title: t('DOCUMENTATION'),
+      href: 'https://docs.q-dao.tools',
     },
+    ...(Number(currentProvider?.chainId) === networkConfigsMap.testnet.chainId
+      ? [{
+        title: t('Q_TESTNET_FAUCET'),
+        href: 'https://faucet.qtestnet.org',
+      }]
+      : []
+    )
   ];
 
   return (

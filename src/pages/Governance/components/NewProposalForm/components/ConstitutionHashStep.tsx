@@ -4,7 +4,6 @@ import { useForm } from '@q-dev/form-hooks';
 import styled from 'styled-components';
 import { NewProposalForm } from 'typings/forms';
 
-import InfoTooltip from 'components/InfoTooltip';
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 
@@ -19,7 +18,7 @@ const ConstitutionHashStepContainer = styled.div`
   gap: 12px;
 
 
-  .constitution-hash-step__hash-tooltip {
+  .constitution-hash-step__tooltip {
     display: flex;
     margin-bottom: 12px;
   }
@@ -51,22 +50,17 @@ function ConstitutionHashStep () {
     >
       <ConstitutionHashStepContainer>
 
-        <div>
-          <div className="constitution-hash-step__hash-tooltip">
-            <p className="text-md">
-              {t('NEW_CONSTITUTION_HASH')}
-            </p>
-            <InfoTooltip description={t('NEW_CONSTITUTION_HASH_TOOLTIP')} />
-          </div>
-          <Input
-            {...form.fields.hash}
-            placeholder={t('HASH')}
-          />
-        </div>
+        <Input
+          {...form.fields.hash}
+          placeholder={t('HASH')}
+          label={t('NEW_CONSTITUTION_HASH')}
+          labelTooltip={t('NEW_CONSTITUTION_HASH_TOOLTIP')}
+        />
 
         <Input
           {...form.fields.externalLink}
           label={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE')}
+          labelTooltip={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE_TOOLTIP')}
           placeholder={t('LINK')}
         />
       </ConstitutionHashStepContainer>
