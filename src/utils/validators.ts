@@ -14,7 +14,7 @@ const HASH_REGEX = /^0x[a-fA-F0-9]{64}$/;
 const BYTES_REGEX = /^0x[a-fA-F0-9]{2,64}$/;
 const VAULT_ID_REGEX = /^[0-9]{1,18}$/;
 const NAME_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9_\-. ]*[A-Za-z0-9]+$/;
-export const URL_REGEX = /^https?:\/\/(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
+export const URL_REGEX = /^(https?:\/\/)?(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 interface ValidationResult {
   isValid: boolean;

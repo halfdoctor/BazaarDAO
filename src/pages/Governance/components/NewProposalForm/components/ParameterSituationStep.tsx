@@ -58,6 +58,7 @@ function ParameterSituation ({ panelName, situation }: Props) {
       <Input
         {...form.fields.externalLink}
         label={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE')}
+        labelTooltip={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE_TOOLTIP')}
         placeholder={t('LINK')}
       />
 

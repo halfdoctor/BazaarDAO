@@ -57,15 +57,16 @@ function Sidebar ({ open, onClose }: { open: boolean; onClose: () => void }) {
 
               <SidebarLink
                 exact={false}
-                to={composeDaoLink('/governance')}
-                title={t('GOVERNANCE')}
-                icon="vote"
-              />
-              <SidebarLink
-                exact={false}
                 to={composeDaoLink(RoutePaths.votingPower)}
                 title={t('VOTING_POWER')}
                 icon="bank"
+              />
+
+              <SidebarLink
+                exact={false}
+                to={composeDaoLink('/governance')}
+                title={t('GOVERNANCE')}
+                icon="vote"
               />
             </div>}
 

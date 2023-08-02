@@ -20,11 +20,11 @@ function useProposalSteps () {
     {
       value: DefaultVotingSituations.ConfigurationParameter,
       label: t('CONFIG_PARAMETER_VOTE'),
-      tip: t('PARAMETER_VOTE_TIP')
+      tip: t('CONFIG_PARAMETER_VOTE_TIP')
     },
     {
       value: DefaultVotingSituations.RegularParameter,
-      label: t('REGULAR_PARAMETER_VOTE'),
+      label: t('EXPERT_PARAMETER_VOTE'),
       tip: t('PARAMETER_VOTE_TIP')
     },
     {
