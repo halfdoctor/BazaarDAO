@@ -13,6 +13,8 @@ import { useNewProposalForm } from '../NewProposalForm';
 
 import DAORegistryForm from './DAORegistryForm';
 
+const MAX_UPGRADES_COUNT = 10;
+
 function DAORegistrySituationStep () {
   const { t } = useTranslation();
   const { goNext, goBack } = useNewProposalForm();
@@ -20,7 +22,7 @@ function DAORegistrySituationStep () {
 
   const formArray = useFormArray<FormDAORegistry>({
     minCount: 1,
-    maxCount: 10,
+    maxCount: MAX_UPGRADES_COUNT,
     onSubmit: (forms) => {
       goNext({ callData: forms.map(i => i.callData) });
     },
@@ -57,13 +59,15 @@ function DAORegistrySituationStep () {
         </FormBlock>
       ))}
 
-      <Button
-        look="ghost"
-        onClick={formArray.appendForm}
-      >
-        <Icon name="add" />
-        <span>{t('ADD_UPGRADE')}</span>
-      </Button>
+      {formArray.forms.length < MAX_UPGRADES_COUNT && (
+        <Button
+          look="ghost"
+          onClick={formArray.appendForm}
+        >
+          <Icon name="add" />
+          <span>{t('ADD_UPGRADE')}</span>
+        </Button>
+      )}
     </FormStep>
   );
 }
