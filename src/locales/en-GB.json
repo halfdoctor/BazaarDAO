@@ -251,6 +251,7 @@
   "ERROR_PROVIDER_LIMIT_EXCEEDED": "Request exceeds defined limit non-standard",
   "ERROR_PROVIDER_JSON_RPC_VERSION_NOT_SUPPORTED": "Version of JSON-RPC protocol is not supported non-standard",
   "ERROR_PROVIDER_WRAPPER_METHOD_NOT_FOUND": "Provider not exist or hasn't this method",
+  "ERROR_UNPREDICTABLE_GAS_LIMIT": "Unpredictable gas limit. Please check your input data.",
   "TOAST_INFO": "Info",
   "TOAST_SUCCESS": "Success",
   "TOAST_ERROR": "Error",

@@ -6,7 +6,7 @@ export function getErrorMessage (error: Error | unknown): string {
   const rpcErrorCode = error.message.match(/\[.+-(.+)\]/)?.at(1);
 
   if (rpcErrorCode) {
-    return t(`ERROR_${rpcErrorCode}`);
+    return t(`ERROR_${rpcErrorCode.trim()}`);
   }
 
   return getEthErrorMessage(error);
