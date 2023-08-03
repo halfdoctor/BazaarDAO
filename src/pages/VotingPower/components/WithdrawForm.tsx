@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
-import { media, Select } from '@q-dev/q-ui-kit';
+import { media } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
 import styled from 'styled-components';
 
@@ -10,6 +10,8 @@ import Button from 'components/Button';
 import Input from 'components/Input';
 
 import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
+
+import Erc721IdField from './Erc721IdField';
 
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
@@ -89,14 +91,13 @@ function WithdrawForm () {
       <p className="text-md color-secondary">{t('FROM_VAULT_TO_WALLET')}</p>
 
       <div className="withdraw-form-main">
-        {tokenInfo?.type === 'erc721' &&
-          <Select
+        {tokenInfo?.type === 'erc721' && (
+          <Erc721IdField
             {...form.fields.id}
-            label={t('NFT_ID')}
-            options={withdrawalNftsList.map((item: string) => ({ value: item, label: item }))}
+            nftsList={withdrawalNftsList}
             hint={t('AVAILABLE_TO_WITHDRAW', { amount: withdrawalNftsList.length })}
-            placeholder={t('NFT_ID')}
-          />}
+          />
+        )}
         {(tokenInfo?.type === 'erc20' || tokenInfo?.type === 'native') &&
           <Input
             {...form.fields.amount}

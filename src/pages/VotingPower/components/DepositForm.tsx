@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
-import { media, Select } from '@q-dev/q-ui-kit';
+import { media } from '@q-dev/q-ui-kit';
 import { formatAsset } from '@q-dev/utils';
 import styled from 'styled-components';
 
@@ -12,6 +12,8 @@ import Input from 'components/Input';
 import { useSignConstitution } from 'hooks';
 import useApproveToken from 'hooks/useApproveToken';
 import useProposalActionsInfo from 'hooks/useProposalActionsInfo';
+
+import Erc721IdField from './Erc721IdField';
 
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
@@ -128,15 +130,14 @@ function DepositForm () {
       <p className="text-md color-secondary">{t('FROM_WALLET_TO_VAULT')}</p>
 
       <div className="transfer-form-main">
-        {tokenInfo?.type === 'erc721' &&
-          <Select
+        {tokenInfo?.type === 'erc721' && (
+          <Erc721IdField
             {...form.fields.id}
+            nftsList={walletNftsList}
             disabled={isDepositedNft}
-            label={t('NFT_ID')}
-            options={walletNftsList.map((item: string) => ({ value: item, label: item }))}
             hint={isDepositedNft ? t('MULTIPLE_NFT_DEPOSIT_WARNING') : t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
-            placeholder={t('NFT_ID')}
-          />}
+          />
+        )}
         {(tokenInfo?.type === 'erc20' || tokenInfo?.type === 'native') &&
           <Input
             {...form.fields.amount}

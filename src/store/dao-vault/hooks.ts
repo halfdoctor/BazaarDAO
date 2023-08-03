@@ -172,7 +172,7 @@ export function useDaoVault () {
       };
       const walletNftsList = await Promise.all(fillArray(Number(walletBalance))
         .map(item => getTokenOfOwnerByIndexErc721(searchAddress, item)));
-      dispatch(setWalletNftsList(walletNftsList));
+      dispatch(setWalletNftsList(walletNftsList.filter(item => item)));
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       dispatch(setWalletNftsList([]));

@@ -65,13 +65,13 @@ export const setApprovalForAllErc721 = async (address: string, status: boolean) 
 };
 
 export async function getTokenOfOwnerByIndexErc721 (selectedAddress: string, index: string | number) {
-  if (!erc721ContractInstance || !selectedAddress) return '0';
+  if (!erc721ContractInstance || !selectedAddress) return '';
   try {
     const tokenOfOwnerByIndex = await erc721ContractInstance?.tokenOfOwnerByIndex(selectedAddress, index);
     return tokenOfOwnerByIndex.toString();
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
-    return '0';
+    return '';
   }
 }
 export async function getIsApprovedForAllErc721 (tokenAddress: string, selectedAddress: string) {
