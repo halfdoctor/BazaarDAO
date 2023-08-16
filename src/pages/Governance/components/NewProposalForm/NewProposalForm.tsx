@@ -30,11 +30,11 @@ import { useTransaction } from 'store/transaction/hooks';
 import { RoutePaths } from 'constants/routes';
 
 const DEFAULT_VALUES: NewProposalFormType = {
-  type: 'constitution',
+  type: '',
   panel: '',
   hash: '',
   candidateAddress: '',
-  externalLink: '',
+  remark: '',
   membershipSituationType: 'add-member',
   generalSituationType: 'raise-topic',
   isParamsChanged: false,
@@ -188,7 +188,11 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
 
   return (
     <NewProposalContext.Provider value={form}>
-      <MultiStepForm stepIndex={form.stepIndex} steps={steps} />
+      <MultiStepForm
+        stepIndex={form.stepIndex}
+        steps={steps}
+        isStepperDisplayed={Boolean(form.values.type)}
+      />
     </NewProposalContext.Provider>
   );
 }

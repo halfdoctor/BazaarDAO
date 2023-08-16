@@ -1,7 +1,6 @@
 import { HTMLInputTypeAttribute, InputHTMLAttributes, ReactNode } from 'react';
 
 import { Input as UiInput } from '@q-dev/q-ui-kit';
-import styled from 'styled-components';
 
 import InfoTooltip from 'components/InfoTooltip';
 
@@ -25,13 +24,6 @@ interface Props extends Omit<InputProps, 'onChange' | 'prefix' | 'value'> {
   labelTooltip?: string;
 }
 
-const InputWrapperStyled = styled.div`
-  .input-wrapper__label {
-    display: flex;
-    margin-bottom: 16px;
-  }
-`;
-
 function Input ({
   value,
   label,
@@ -47,56 +39,39 @@ function Input ({
   onChange,
   alwaysEnabled,
   labelTooltip,
-  className,
   ...rest
 }: Props) {
   const { currentProvider, isRightNetwork } = useProviderStore();
 
   const isDisabled = disabled || (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
 
-  return (labelTooltip
-    ? (
-      <InputWrapperStyled className={className || ''}>
-        <div className="input-wrapper__label">
-          <p className="text-md">
-            {label}
-          </p>
-          <InfoTooltip description={labelTooltip} />
-        </div>
-        <UiInput
-          value={value}
-          error={error}
-          type={type}
-          disabled={isDisabled}
-          decimals={decimals}
-          hint={hint}
-          max={max}
-          prefix={prefix}
-          onChange={onChange}
-          {...rest}
-        >
-          {children}
-        </UiInput>
-      </InputWrapperStyled>
-    )
-    : (
-      <UiInput
-        value={value}
-        label={label}
-        error={error}
-        type={type}
-        disabled={isDisabled}
-        decimals={decimals}
-        labelTip={labelTip}
-        hint={hint}
-        max={max}
-        prefix={prefix}
-        onChange={onChange}
-        {...rest}
-      >
-        {children}
-      </UiInput>
-    )
+  return (
+    <UiInput
+      value={value}
+      label={labelTooltip
+        ? (
+          <div style={{ display: 'flex' }}>
+            <span>
+              {label}
+            </span>
+            <InfoTooltip description={labelTooltip} />
+          </div>
+        )
+        : label
+      }
+      error={error}
+      type={type}
+      disabled={isDisabled}
+      decimals={decimals}
+      labelTip={labelTip}
+      hint={hint}
+      max={max}
+      prefix={prefix}
+      onChange={onChange}
+      {...rest}
+    >
+      {children}
+    </UiInput>
   );
 };
 

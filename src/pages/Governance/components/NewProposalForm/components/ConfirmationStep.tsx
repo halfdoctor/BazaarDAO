@@ -14,8 +14,7 @@ import { useNewProposalForm } from '../NewProposalForm';
 function ConfirmationStep () {
   const { t } = useTranslation();
   const { values, goBack, confirm, updateStep } = useNewProposalForm();
-  const { proposalSteps } = useProposalSteps();
-  const proposalType = proposalSteps.find(item => item.value === values.type);
+  const { proposalOptionsMap } = useProposalSteps();
 
   return (
     <FormStep
@@ -28,7 +27,7 @@ function ConfirmationStep () {
         onAction={() => updateStep(0)}
       >
         <p className="text-lg">
-          {proposalType?.label}
+          {proposalOptionsMap[values.type]?.label}
         </p>
       </FormBlock>
 
@@ -44,8 +43,8 @@ function ConfirmationStep () {
           </div>
 
           <div>
-            <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-            <p className="text-lg ellipsis">{values.externalLink}</p>
+            <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
+            <p className="text-lg pre-line">{values.remark}</p>
           </div>
         </FormBlock>
       )}
@@ -85,8 +84,8 @@ function ConfirmationStep () {
           onAction={() => updateStep(1)}
         >
           <div>
-            <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-            <p className="text-lg ellipsis">{values.externalLink}</p>
+            <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
+            <p className="text-lg pre-line">{values.remark}</p>
           </div>
         </FormBlock>)}
 
@@ -107,8 +106,8 @@ function ConfirmationStep () {
             <p className="text-lg ellipsis">{values.candidateAddress}</p>
           </div>
           <div>
-            <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-            <p className="text-lg ellipsis">{values.externalLink}</p>
+            <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
+            <p className="text-lg pre-line">{values.remark}</p>
           </div>
         </FormBlock>)}
       {values.type === DefaultVotingSituations.DAORegistry && (
@@ -119,8 +118,8 @@ function ConfirmationStep () {
             onAction={() => updateStep(1)}
           >
             <div>
-              <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-              <p className="text-lg ellipsis">{values.externalLink}</p>
+              <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
+              <p className="text-lg pre-line">{values.remark}</p>
             </div>
           </FormBlock>
           <FormBlock

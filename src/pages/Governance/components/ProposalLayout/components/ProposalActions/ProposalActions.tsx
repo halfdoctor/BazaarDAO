@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
+import { DecodedData, DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -25,9 +25,10 @@ import { unixToDate } from 'utils/date';
 interface Props {
   proposal: ProposalBaseInfo;
   title: string;
+  decodedCallData: DecodedData | null;
 }
 
-function ProposalActions ({ proposal, title }: Props) {
+function ProposalActions ({ proposal, title, decodedCallData }: Props) {
   const { t } = useTranslation();
   const { userAddress } = useProviderStore();
   const { submitTransaction } = useTransaction();
@@ -56,21 +57,12 @@ function ProposalActions ({ proposal, title }: Props) {
     return isMembershipSituation && isConstitutionSignNeeded;
   }, [isMembershipSituation, isConstitutionSignNeeded]);
 
-  const membershipSituationsDecodedCallData = useMemo(() => {
-    if (!isMembershipSituation) return null;
-    try {
-      return getDecodeData('DAOMemberStorage', proposal.callData) || null;
-    } catch (_) {
-      return null;
-    }
-  }, [proposal.callData, isMembershipSituation]);
-
   const canExecute = useMemo(() => {
     if (proposal.votingStatus !== PROPOSAL_STATUS.passed) return false;
-    if (membershipSituationsDecodedCallData?.functionName !== 'addMember') return true;
+    if (!decodedCallData || (isMembershipSituation && decodedCallData?.functionName !== 'addMember')) return true;
 
-    return Boolean(userAddress) && membershipSituationsDecodedCallData.arguments?.member_ === userAddress;
-  }, [proposal.votingStatus, userAddress, membershipSituationsDecodedCallData]);
+    return Boolean(userAddress) && decodedCallData.arguments?.member_ === userAddress;
+  }, [proposal.votingStatus, userAddress, decodedCallData, isMembershipSituation]);
 
   const executeOrSignConstitution = () => {
     isSignNeeded

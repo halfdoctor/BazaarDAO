@@ -6,6 +6,7 @@ import { MultiStepFormContainer } from './styles';
 
 interface Props {
   stepIndex: number;
+  isStepperDisplayed?: boolean;
   steps: {
     id: string;
     name: string;
@@ -15,7 +16,7 @@ interface Props {
   }[];
 }
 
-function MultiStepForm ({ stepIndex, steps }: Props) {
+function MultiStepForm ({ stepIndex, steps, isStepperDisplayed = true }: Props) {
   return (
     <MultiStepFormContainer $step={stepIndex + 1}>
       {steps.map((step, i) => (
@@ -31,7 +32,9 @@ function MultiStepForm ({ stepIndex, steps }: Props) {
           <div className="multi-step-form__step-content">{step.children}</div>
         </div>
       ))}
-      <Stepper current={stepIndex} steps={steps} />
+      {isStepperDisplayed && (
+        <Stepper current={stepIndex} steps={steps} />
+      )}
     </MultiStepFormContainer>
   );
 }

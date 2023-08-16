@@ -100,6 +100,17 @@ export const getErc5484Owner = async () => {
   }
 };
 
+export const getErc5484OwnerOf = async (id: string) => {
+  if (!erc5484ContractInstance) return '';
+
+  try {
+    return await erc5484ContractInstance.ownerOf(id);
+  } catch (error) {
+    ErrorHandler.processWithoutFeedback(error);
+    return '';
+  }
+};
+
 export const getErc5484Symbol = async () => {
   if (!erc5484ContractInstance) return;
 

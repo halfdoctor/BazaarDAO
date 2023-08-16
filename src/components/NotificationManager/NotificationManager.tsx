@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { ComponentProps, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast, ToastContainer, TypeOptions } from 'react-toastify';
 
@@ -11,6 +11,8 @@ import { Bus, NotificationObjectPayload } from 'utils';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './styles.css';
+
+type IconName = ComponentProps<typeof Icon>['name'];
 
 export const NOTIFICATION_TYPE: { [key: string]: TypeOptions } = {
   success: 'success',
@@ -30,7 +32,7 @@ const NotificationManager = () => {
     ) => {
       let title = '';
       let message = '';
-      let iconName: string | undefined;
+      let iconName: IconName | undefined;
 
       const defaultTitles = {
         [NOTIFICATION_TYPE.success]: t('NOTIFICATIONS_DEFAULT_TITLE_SUCCESS'),
@@ -47,7 +49,7 @@ const NotificationManager = () => {
         [NOTIFICATION_TYPE.default]: t('NOTIFICATIONS_DEFAULT_MESSAGE_DEFAULT'),
       };
 
-      const defaultIconNames = {
+      const defaultIconNames: Record<string, IconName> = {
         [NOTIFICATION_TYPE.default]: 'info',
         [NOTIFICATION_TYPE.info]: 'info',
         [NOTIFICATION_TYPE.success]: 'check-circle',
@@ -60,7 +62,7 @@ const NotificationManager = () => {
 
         title = msgPayload.title || '';
         message = msgPayload.message;
-        iconName = msgPayload?.iconName;
+        iconName = msgPayload?.iconName as IconName;
       } else if (payload) {
         message = payload as string;
       } else {

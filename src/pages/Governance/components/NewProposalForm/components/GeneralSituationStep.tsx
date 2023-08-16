@@ -4,12 +4,13 @@ import { useForm } from '@q-dev/form-hooks';
 import { RadioGroup, RadioOptions } from '@q-dev/q-ui-kit';
 import { GeneralSituationType, NewProposalForm } from 'typings/forms';
 
-import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
+import Textarea from 'components/Textarea';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
-import { required, url } from 'utils/validators';
+import { MAX_FIELD_LENGTH } from 'constants/fields';
+import { required } from 'utils/validators';
 
 function GeneralSituationStep () {
   const { t } = useTranslation();
@@ -18,11 +19,11 @@ function GeneralSituationStep () {
   const form = useForm({
     initialValues: {
       generalSituationType: 'raise-topic' as GeneralSituationType,
-      externalLink: '',
+      remark: '',
     },
     validators: {
       generalSituationType: [required],
-      externalLink: [required, url],
+      remark: [required],
     },
     onSubmit: (form) => {
       goNext(form as NewProposalForm);
@@ -47,11 +48,13 @@ function GeneralSituationStep () {
         name="param-panel-type"
         options={panelTypeOptions}
       />
-      <Input
-        {...form.fields.externalLink}
-        label={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE')}
-        labelTooltip={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE_TOOLTIP')}
-        placeholder={t('LINK')}
+
+      <Textarea
+        {...form.fields.remark}
+        label={t('DESCRIPTION')}
+        labelTooltip={t('PROPOSAL_DESCRIPTION_TOOLTIP')}
+        placeholder={t('DESCRIPTION')}
+        maxLength={MAX_FIELD_LENGTH.proposalRemark}
       />
     </FormStep>
   );
