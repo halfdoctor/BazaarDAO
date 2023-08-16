@@ -129,6 +129,17 @@ export const getOwnerErc721 = async () => {
   }
 };
 
+export const getErc721OwnerOf = async (id: string) => {
+  if (!erc721ContractInstance) return '';
+
+  try {
+    return await erc721ContractInstance?.ownerOf(id);
+  } catch (error) {
+    ErrorHandler.processWithoutFeedback(error);
+    return '';
+  }
+};
+
 export const getBaseUriErc721 = async () => {
   if (!erc721ContractInstance) return '';
 

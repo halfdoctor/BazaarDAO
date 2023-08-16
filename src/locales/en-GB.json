@@ -361,9 +361,9 @@
   "MINT_TOKENS": "Mint Tokens",
   "MINTED_ALL_TOKEN": "Minted all tokens in the system",
   "DAO_DASHBOARD": "DAO Dashboard",
-  "TOKEN_URI": "Token URI",
+  "TOKEN_URI_OPTIONAL": "Token URI (optional)",
   "TOKEN_URI_PLACEHOLDER": "Input Token URI",
-  "TOKEN_URI_TOOLTIP": "The URI provides a link to the Token's metadata",
+  "TOKEN_URI_TOOLTIP": "The URI is used to link to the NFT metadata. This could for example be a picture of your avatar. If you do not provide an URI, your NFT still functions like before, but it will not represent any data or image.",
   "NEW_CONSTITUTION_HASH_TOOLTIP": "If your DAO does not have a constitution, input 'Zero hash' in the field below.",
   "BALANCE": "Balance",
   "DAO_NOT_SUPPORTED": "This DAO doesn't seem to exist. Please check if you are searched wrong address.",
@@ -384,5 +384,15 @@
   "UPGRADES": "Upgrades",
   "REFERENCE_LINK_TO_EXTERNAL_SOURCE_TOOLTIP": "Here you can add a link to explain your proposal. The explanation should include a description of the changes you want to propose and reasons for why you believe that the changes should be made.",
   "CONFIG_PARAMETER_VOTE_TIP": "Propose a change to configure how this Expert Panel functions.",
-  "Q_TESTNET_FAUCET": "Q Testnet Faucet"
+  "Q_TESTNET_FAUCET": "Q Testnet Faucet",
+  "UPLOAD_CONSTITUTION_TOOLTIP": "Upload your constitution file to get the hash",
+  "FILE_UPLOADED_SUCCESSFUL": "File uploaded successfully",
+  "ADD_MEMBER": "Add Member",
+  "CANDIDATE": "Candidate",
+  "VOTING_TARGET_PARAM_WARNING_TIP": "If you change the voting target, you will be permanently disabling this proposal type. This cannot be undone!",
+  "TOKEN_ID": "Token ID",
+  "TOKEN_ID_PLACEHOLDER": "Input integer ID",
+  "TOKEN_ID_EXISTS_ERROR": "This token ID already exists",
+  "DESCRIPTION": "Description",
+  "PROPOSAL_DESCRIPTION_TOOLTIP": "Please describe what you want to vote on. Be aware, that this proposal will be stored completely on the blockchain. To save on gas fees, it's recommended to provide a link to an external source with a detailed description."
 }

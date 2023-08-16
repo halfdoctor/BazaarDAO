@@ -6,13 +6,14 @@ import { FormParameter, NewProposalForm, ParameterSituationType } from 'typings/
 
 import Button from 'components/Button';
 import FormBlock from 'components/FormBlock';
-import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterForm from 'components/ParameterForm';
+import Textarea from 'components/Textarea';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
-import { required, url } from 'utils/validators';
+import { MAX_FIELD_LENGTH } from 'constants/fields';
+import { required } from 'utils/validators';
 
 interface Props {
   panelName: string;
@@ -25,10 +26,10 @@ function ParameterSituation ({ panelName, situation }: Props) {
 
   const form = useForm({
     initialValues: {
-      externalLink: '',
+      remark: '',
     },
     validators: {
-      externalLink: [required, url],
+      remark: [required],
     },
     onSubmit: (form) => {
       goNext(form as NewProposalForm);
@@ -55,11 +56,12 @@ function ParameterSituation ({ panelName, situation }: Props) {
       onNext={handleSubmit}
       onBack={goBack}
     >
-      <Input
-        {...form.fields.externalLink}
-        label={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE')}
-        labelTooltip={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE_TOOLTIP')}
-        placeholder={t('LINK')}
+      <Textarea
+        {...form.fields.remark}
+        label={t('DESCRIPTION')}
+        labelTooltip={t('PROPOSAL_DESCRIPTION_TOOLTIP')}
+        placeholder={t('DESCRIPTION')}
+        maxLength={MAX_FIELD_LENGTH.proposalRemark}
       />
 
       {formArray.forms.map((form, i) => (

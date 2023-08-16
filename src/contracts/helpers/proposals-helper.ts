@@ -16,7 +16,7 @@ export async function createMembershipSituationProposal (form: NewProposalForm) 
   if (!daoInstance) return;
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
   const votingParams: CreateVotingParameters = {
-    remark: form.externalLink,
+    remark: form.remark,
     situation: DefaultVotingSituations.Membership,
     callData: getEncodedData(
       'DAOMemberStorage',
@@ -32,7 +32,7 @@ export async function createGeneralSituationProposal (form: NewProposalForm) {
 
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
   const votingParams: CreateVotingParameters = {
-    remark: form.externalLink,
+    remark: form.remark,
     situation: DefaultVotingSituations.General,
     callData: '0x'
   };
@@ -44,7 +44,7 @@ export async function createConstitutionProposal (form: NewProposalForm) {
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
-    remark: form.externalLink,
+    remark: form.remark,
     situation: DefaultVotingSituations.Constitution,
     callData: getEncodedData('DAOParameterStorage', 'setDAOParameters', [
       getParameter('constitution.hash', form.hash, ParameterType.BYTES),
@@ -65,7 +65,7 @@ export async function createParameterSituationProposal (
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
-    remark: form.externalLink,
+    remark: form.remark,
     situation: situation,
     callData: getEncodedData(
       'DAOParameterStorage',
@@ -83,7 +83,7 @@ export async function createDAORegistryProposal (form: NewProposalForm) {
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
-    remark: form.externalLink,
+    remark: form.remark,
     situation: DefaultVotingSituations.DAORegistry,
     callData: getEncodedData(
       'DAORegistry',

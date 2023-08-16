@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { DAO_RESERVED_NAME, DefaultVotingSituations } from '@q-dev/gdk-sdk';
+import { DAO_RESERVED_NAME, DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -33,6 +33,19 @@ function ProposalLayout ({ proposal }: {
       proposal.relatedExpertPanel === DAO_RESERVED_NAME;
   }, [proposal.relatedExpertPanel, proposal.relatedVotingSituation]);
 
+  const isMembershipSituation = useMemo(() => {
+    return proposal.relatedVotingSituation === DefaultVotingSituations.Membership;
+  }, [proposal.relatedVotingSituation]);
+
+  const membershipSituationsDecodedCallData = useMemo(() => {
+    if (!isMembershipSituation) return null;
+    try {
+      return getDecodeData('DAOMemberStorage', proposal.callData) || null;
+    } catch (_) {
+      return null;
+    }
+  }, [proposal.callData, isMembershipSituation]);
+
   return (
     <PageLayout
       title={`#${proposal.id} ${proposal.relatedVotingSituation}`}
@@ -40,10 +53,14 @@ function ProposalLayout ({ proposal }: {
       action={<ProposalActions
         proposal={proposal}
         title={proposal.remark}
+        decodedCallData={membershipSituationsDecodedCallData}
       />}
     >
       <ProposalLayoutContainer>
-        <ProposalDetails proposal={proposal} />
+        <ProposalDetails
+          proposal={proposal}
+          membershipSituationsDecodedCallData={membershipSituationsDecodedCallData}
+        />
         {isDAORegistryProposal && (
           <DAORegistryCallData callData={proposal.callData}/>
         )}

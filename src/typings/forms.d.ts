@@ -24,7 +24,7 @@ interface NewProposalForm {
   membershipSituationType: MembershipSituationType;
   candidateAddress: string;
   hash: string;
-  externalLink: string;
+  remark: string;
   isParamsChanged: boolean;
   params: FormParameter[];
   callData: string[];

@@ -7,12 +7,14 @@ import { MembershipSituationType } from 'typings/forms';
 
 import Input from 'components/Input';
 import { FormStep } from 'components/MultiStepForm';
+import Textarea from 'components/Textarea';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
-import { address, addressInGroup, addressOutGroup, required, url } from 'utils/validators';
+import { MAX_FIELD_LENGTH } from 'constants/fields';
+import { address, addressInGroup, addressOutGroup, required } from 'utils/validators';
 
 function MembershipSituationStep ({ panelName }: { panelName: string }) {
   const { t } = useTranslation();
@@ -25,10 +27,10 @@ function MembershipSituationStep ({ panelName }: { panelName: string }) {
   const form = useForm({
     initialValues: {
       candidateAddress: '',
-      externalLink: '',
+      remark: '',
     },
     validators: {
-      externalLink: [required, url],
+      remark: [required],
       candidateAddress: [
         required,
         address,
@@ -81,11 +83,12 @@ function MembershipSituationStep ({ panelName }: { panelName: string }) {
         label={t('CANDIDATE_ADDRESS')}
         placeholder={t('ADDRESS_PLACEHOLDER')}
       />
-      <Input
-        {...form.fields.externalLink}
-        label={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE')}
-        labelTooltip={t('REFERENCE_LINK_TO_EXTERNAL_SOURCE_TOOLTIP')}
-        placeholder={t('LINK')}
+      <Textarea
+        {...form.fields.remark}
+        label={t('DESCRIPTION')}
+        labelTooltip={t('PROPOSAL_DESCRIPTION_TOOLTIP')}
+        placeholder={t('DESCRIPTION')}
+        maxLength={MAX_FIELD_LENGTH.proposalRemark}
       />
     </FormStep>
   );

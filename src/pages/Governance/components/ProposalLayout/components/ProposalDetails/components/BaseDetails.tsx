@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ProposalBaseInfo } from 'typings/proposals';
 
-import LinkViewer from '../../LinkViewer';
+import RemarkViewer from '../../RemarkViewer';
 
 interface Props {
   proposal: ProposalBaseInfo;
@@ -15,7 +15,7 @@ function BaseDetails ({ proposal }: Props) {
     <div className="details-list-item">
       <div className="details-item">
         <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
-        <LinkViewer link={proposal.remark} />
+        <RemarkViewer remark={proposal.remark} />
       </div>
     </div>
   );
