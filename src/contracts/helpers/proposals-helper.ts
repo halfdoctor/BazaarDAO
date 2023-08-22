@@ -101,6 +101,7 @@ export const getStatusState = (status: PROPOSAL_STATUS): TagState => {
       return 'pending';
     case PROPOSAL_STATUS.rejected:
     case PROPOSAL_STATUS.expired:
+    case PROPOSAL_STATUS.obsolete:
       return 'rejected';
     default:
       return 'approved';
