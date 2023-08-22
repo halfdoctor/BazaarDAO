@@ -22,7 +22,7 @@ const WrapContainer = styled.form`
   padding: 24px;
 
   .dao-address-form__btn { 
-    margin-top: 40px;
+    margin-top: 32px;
   }
 
   ${media.lessThan('medium')} {
