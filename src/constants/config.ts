@@ -8,6 +8,7 @@ interface NetworkConfig {
   name: string;
   networkName: NetworkName;
   dAppUrl: string;
+  daoAppUrl: string;
   rpcUrl: string;
   indexerUrl: string;
   explorerUrl: string;
@@ -25,6 +26,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     name: 'Q Mainnet',
     networkName: 'mainnet',
     dAppUrl: 'https://hq.q.org',
+    daoAppUrl: 'http://hq.q-dao.tools',
     rpcUrl: 'https://rpc.q.org',
     indexerUrl: 'https://indexer.q.org',
     explorerUrl: 'https://explorer.q.org',
@@ -40,6 +42,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     name: 'Q Testnet',
     networkName: 'testnet',
     dAppUrl: 'https://hq.qtestnet.org',
+    daoAppUrl: 'http://hq.q-dao.tools',
     rpcUrl: 'https://rpc.qtestnet.org',
     indexerUrl: 'https://indexer.qtestnet.org',
     explorerUrl: 'https://explorer.qtestnet.org',
@@ -55,6 +58,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     name: 'Q Devnet',
     networkName: 'devnet',
     dAppUrl: 'https://hq.qdevnet.org',
+    daoAppUrl: 'http://dao-hq.qdevnet.org',
     rpcUrl: 'https://rpc.qdevnet.org',
     indexerUrl: 'https://indexer.qdevnet.org',
     explorerUrl: 'https://explorer.qdevnet.org',

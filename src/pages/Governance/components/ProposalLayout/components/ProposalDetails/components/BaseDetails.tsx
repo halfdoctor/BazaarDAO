@@ -14,7 +14,7 @@ function BaseDetails ({ proposal }: Props) {
   return (
     <div className="details-list-item">
       <div className="details-item">
-        <p className="text-md color-secondary">{t('EXTERNAL_SOURCE')}</p>
+        <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
         <RemarkViewer remark={proposal.remark} />
       </div>
     </div>

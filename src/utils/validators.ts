@@ -13,6 +13,7 @@ import { ZERO_ADDRESS } from 'constants/boundaries';
 const HASH_REGEX = /^0x[a-fA-F0-9]{64}$/;
 const BYTES_REGEX = /^0x[a-fA-F0-9]{2,64}$/;
 const VAULT_ID_REGEX = /^[0-9]{1,18}$/;
+const INTEGER_REGEX = /^[0-9]+$/;
 const NAME_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9_\-. ]*[A-Za-z0-9]+$/;
 export const URL_REGEX = /^(https?:\/\/)?(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
@@ -187,7 +188,7 @@ export const number: Validator = val => ({
 });
 
 export const integer: Validator = val => ({
-  isValid: Number.isInteger(Number(val)),
+  isValid: INTEGER_REGEX.test(String(val)) && Number.isInteger(Number(val)),
   message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
 });
 

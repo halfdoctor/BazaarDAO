@@ -15,8 +15,8 @@ function Network () {
   const { initDefaultProvider } = useWeb3Context();
 
   const isDevnet = ![
-    networkConfigsMap.mainnet.dAppUrl,
-    networkConfigsMap.testnet.dAppUrl,
+    networkConfigsMap.mainnet.daoAppUrl,
+    networkConfigsMap.testnet.daoAppUrl,
   ].includes(window.location.origin);
 
   const networkOptions = [

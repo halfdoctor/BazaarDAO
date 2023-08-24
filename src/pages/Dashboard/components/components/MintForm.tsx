@@ -47,7 +47,7 @@ function MintForm ({ onSubmit }: Props) {
   const { tokenInfo } = useDaoTokenStore();
   const { loadAdditionalInfo } = useLoadDao();
   const [isLoading, setIsLoading] = useState(false);
-  const [isValidTokenId, setIsValidTokenId] = useState(false);
+  const [isNewTokenId, setIsNewTokenId] = useState(false);
 
   const maxMintValue = useMemo(() => {
     if (!tokenInfo) return '0';
@@ -97,8 +97,8 @@ function MintForm ({ onSubmit }: Props) {
   });
 
   const isSubmitDisabled = useMemo(() => {
-    return !form.isValid || !isCanMint || (isNftLike && (!isValidTokenId || isLoading));
-  }, [form.isValid, isCanMint, isNftLike, isValidTokenId, isLoading]);
+    return !form.isValid || !isCanMint || (isNftLike && (!isNewTokenId || isLoading));
+  }, [form.isValid, isCanMint, isNftLike, isNewTokenId, isLoading]);
 
   const checkTokenId = async () => {
     setIsLoading(true);
@@ -107,13 +107,17 @@ function MintForm ({ onSubmit }: Props) {
       : await getErc5484OwnerOf(form.values.tokenId);
 
     if (owner) form.setError('tokenId', t('TOKEN_ID_EXISTS_ERROR'));
-    setIsValidTokenId(!owner);
+    setIsNewTokenId(!owner);
     setIsLoading(false);
   };
 
   useEffect(() => {
-    if (isNftLike && form.values.tokenId && !form.fields.tokenId.error) {
-      checkTokenId();
+    if (isNftLike) {
+      if (form.values.tokenId && !form.fields.tokenId.error) {
+        checkTokenId();
+      } else {
+        setIsNewTokenId(false);
+      }
     }
   }, [isNftLike, tokenInfo, form.values.tokenId, form.fields.tokenId.error]);
 
@@ -129,7 +133,7 @@ function MintForm ({ onSubmit }: Props) {
   return (
     <StyledMintForm
       noValidate
-      $isIdValid={isValidTokenId}
+      $isIdValid={isNewTokenId && !form.fields.tokenId.error}
       onSubmit={form.submit}
     >
       <MintDetails isCanMint={isCanMint} availableMintValue={maxMintValue} />
@@ -153,7 +157,7 @@ function MintForm ({ onSubmit }: Props) {
                   ? <Spinner />
                   : <Icon
                     className="mint-form__validation-icon"
-                    name={isValidTokenId ? 'double-check' : 'cross'}
+                    name={isNewTokenId && !form.fields.tokenId.error ? 'double-check' : 'cross'}
                   />
               )}
             />
