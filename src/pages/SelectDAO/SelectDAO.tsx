@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import PageLayout from 'components/PageLayout';
 
 import DaoAddressForm from './components/DaoAddressForm';
-import DaosList from './components/DaosList';
+// import DaosList from './components/DaosList';
 
 function SelectDao () {
   const { t } = useTranslation();
@@ -13,7 +13,8 @@ function SelectDao () {
       title={t('DAOS_TITLE')}
     >
       <DaoAddressForm />
-      <DaosList />
+      {/* TODO: to activate `DaosList` when the real DAOs show up. */}
+      {/* <DaosList /> */}
     </PageLayout>
   );
 }
