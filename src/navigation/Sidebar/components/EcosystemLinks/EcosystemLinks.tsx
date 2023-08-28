@@ -15,6 +15,10 @@ function EcosystemLinks () {
     { href: gnosisSafeUrl, icon: 'gnosis-safe' },
     { href: explorerUrl, icon: 'explorer' },
     { href: qBridgeUrl, icon: 'bridge' },
+    {
+      href: 'https://discord.com/channels/902893347239247952/1142002248298287194',
+      icon: 'discord',
+    },
   ];
 
   return (
@@ -32,7 +36,7 @@ function EcosystemLinks () {
             icon
             look="ghost"
           >
-            <Icon name={icon} className="ecosystem-link-icon" />
+            <Icon name={icon} />
           </Button>
         </a>
       ))}

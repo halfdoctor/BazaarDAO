@@ -780,10 +780,10 @@
     dotenv "^16.0.3"
     ethers "^5.7.2"
 
-"@q-dev/q-ui-kit@^1.0.0-rc.4":
-  version "1.0.0-rc.4"
-  resolved "https://registry.yarnpkg.com/@q-dev/q-ui-kit/-/q-ui-kit-1.0.0-rc.4.tgz#d6f71bcb104778b8e44f9de6529f0584d62337b8"
-  integrity sha512-wWyxaPBWcgvftoJQVVG8JolUq5g+dKWEQxy29VuXxisca7Ih55Zettf/AOf9JaWTZW6OX/d4cCAaDmt8xLuU8w==
+"@q-dev/q-ui-kit@^1.0.0-rc.6":
+  version "1.0.0-rc.6"
+  resolved "https://registry.yarnpkg.com/@q-dev/q-ui-kit/-/q-ui-kit-1.0.0-rc.6.tgz#ca6a6170ecc500fa7ad7a1f330206f1e9aabd6bc"
+  integrity sha512-sgq7124ILOl/1My8/t3lIC7iCNlBf/Mraj233KupOt5lhg1Z7qh8eCpraOpRaFhSEJhBXY419uzD5CSH+H+TXg==
   dependencies:
     lodash "^4.17.21"
     react-datepicker "^3.8.0"
