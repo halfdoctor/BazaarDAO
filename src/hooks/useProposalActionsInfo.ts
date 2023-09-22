@@ -46,10 +46,9 @@ function useProposalActionsInfo () {
     try {
       if (!daoInstance || !currentProvider?.selectedAddress) return false;
       const permissionManagerInstance = await daoInstance.getPermissionManagerInstance();
-      const isUserTokenHolder = await checkIsUserTokenHolder();
       const vetoGroupMembers = await permissionManagerInstance
         .instance.getVetoGroupMembers(target);
-      return vetoGroupMembers.includes(currentProvider.selectedAddress) && isUserTokenHolder;
+      return vetoGroupMembers.includes(currentProvider.selectedAddress);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       return false;
