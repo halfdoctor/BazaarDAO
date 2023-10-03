@@ -95,8 +95,8 @@ export const connectorParametersMap = Object.values(networkConfigsMap)
   }, {} as { [key: string]: Chain });
 
 const originToNetworkMap: { [key: string]: NetworkName } = {
-  'https://factory.q-dao.tools': 'mainnet',
-  'https://dao-factory.qdevnet.org': 'testnet',
+  'https://hq.q-dao.tools': 'mainnet',
+  'https://dao-hq.qdevnet.org': 'testnet',
   'http://localhost:3000': 'devnet',
 };
 

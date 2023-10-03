@@ -71,10 +71,10 @@ function SupportedDaoNetworks ({ networkOptions }: Props) {
   return (
     <StyledWrapper className="block">
       <p className="text-xl font-semibold">
-        {t('NETWORK_WARNING_HEADER')}
+        {t('SUPPORTED_DAO_NETWORKS_HEADER')}
       </p>
       <p className="network-warning__message text-md color-secondary">
-        {t('NETWORK_WARNING_MESSAGE')}
+        {t('SUPPORTED_DAO_NETWORKS_MESSAGE')}
       </p>
       <div className="network-warning__actions">
         {
@@ -85,7 +85,9 @@ function SupportedDaoNetworks ({ networkOptions }: Props) {
               className="network-warning__button"
               onClick={() => handleChangeNetwork(item)}
             >
-              {t(chainIdToNetworkMap[item.chainId].toUpperCase())}
+              {t('SWITCH_TO_Q_NETWORK', {
+                network: t(chainIdToNetworkMap[item.chainId].toUpperCase())
+              })}
             </Button>
           )
         }

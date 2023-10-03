@@ -6,6 +6,8 @@ import { Wrap } from 'context/Web3ContextProvider/styles';
 import { motion } from 'framer-motion';
 import { ErrorHandler, getDaoSupportedNetworks } from 'helpers';
 
+import NetworkWarning from 'components/NetworkWarning';
+
 import useLoadDao from 'hooks/useLoadDao';
 
 import { useConstitution } from 'store/constitution/hooks';
@@ -88,6 +90,12 @@ function DaoInitializer ({ children }: Props) {
   useEffect(() => {
     initDaoAddress();
   }, [pathname]);
+
+  if (isWeb3Loaded && storeProvider?.isConnected && !isRightNetwork) {
+    return (
+      <NetworkWarning />
+    );
+  }
 
   if (!isWeb3Loaded || !isInfoLoaded || !storeProvider?.provider || !isDaoAddressChecked) {
     return (
