@@ -1,19 +1,24 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getDecodeData } from '@q-dev/gdk-sdk';
+import { DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
 import startCase from 'lodash/startCase';
 import styled, { css } from 'styled-components';
+
+import { ABI_NAME_BY_SITUATION_MAP } from 'constants/proposal';
 
 interface Props {
   callData: string;
   index: number;
+  votingSituation: string;
   block?: boolean;
 }
 
-export const DAORegistryCallDataViewerContainer = styled.div<{ $block: boolean }>`
-  display: grid;
+export const DecodedCallDataViewerContainer = styled.div<{ $block: boolean }>`
+  display: flex;
+  flex-direction: column;
   gap: 16px;
+  height: 100%;
   padding: 16px 16px 0;
   border-top: 1px solid ${({ theme }) => theme.colors.borderSecondary};
 
@@ -24,24 +29,37 @@ export const DAORegistryCallDataViewerContainer = styled.div<{ $block: boolean }
   `}
 `;
 
-function DAORegistryCallDataViewer ({
+function DecodedCallDataViewer ({
   callData,
   index,
+  votingSituation,
   block = false,
 }: Props) {
   const { t } = useTranslation();
 
+  const header = useMemo(() => {
+    switch (votingSituation) {
+      case DefaultVotingSituations.PermissionManager:
+        return t('PERMISSION_INDEX', { index: index + 1 });
+      case DefaultVotingSituations.DAORegistry:
+        return t('UPGRADE_INDEX', { index: index + 1 });
+      default:
+        return t('UPDATE_INDEX', { index: index + 1 });
+    }
+  }, [votingSituation, index, t]);
+
   const decodedCallData = useMemo(() => {
     try {
-      if (!callData) return null;
+      const abiName = ABI_NAME_BY_SITUATION_MAP[votingSituation as DefaultVotingSituations];
+      if (!callData || !abiName) return null;
 
-      const data = getDecodeData('DAORegistry', callData);
+      const data = getDecodeData(abiName, callData);
 
       if (!data) return null;
 
       return {
-        functionLabel: t('UPGRADE_TYPE'),
-        functionHumanizeName: startCase(data?.functionName),
+        functionLabel: t('FUNCTION'),
+        functionName: data?.functionName,
         args: Object.entries(data.arguments).map(([key, value]) => ({
           label: startCase(key),
           value: String(value)
@@ -50,14 +68,14 @@ function DAORegistryCallDataViewer ({
     } catch (e) {
       return null;
     }
-  }, [callData]);
+  }, [callData, t]);
 
   const isValidCallData = Boolean(decodedCallData);
 
   return (
-    <DAORegistryCallDataViewerContainer $block={block}>
+    <DecodedCallDataViewerContainer $block={block}>
       <p className={'text-lg font-semibold'}>
-        {t('UPGRADE_INDEX', { index: index + 1 })}
+        {header}
       </p>
 
       {isValidCallData && (
@@ -65,7 +83,7 @@ function DAORegistryCallDataViewer ({
           <div>
             <p className="text-md color-secondary">{decodedCallData?.functionLabel}</p>
             <p className="text-lg break-word">
-              {decodedCallData?.functionHumanizeName}
+              {decodedCallData?.functionName}
             </p>
           </div>
 
@@ -87,8 +105,8 @@ function DAORegistryCallDataViewer ({
           {callData}
         </p>
       </div>
-    </DAORegistryCallDataViewerContainer>
+    </DecodedCallDataViewerContainer>
   );
 }
 
-export default DAORegistryCallDataViewer;
+export default DecodedCallDataViewer;

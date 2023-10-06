@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 
-import DAORegistryCallDataViewer from 'components/DAORegistryCallDataViewer';
+import DecodedCallDataViewer from 'components/DecodedCallDataViewer';
 import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
 import ParameterViewer from 'components/ParameterViewer';
@@ -128,10 +128,11 @@ function ConfirmationStep () {
             onAction={() => updateStep(2)}
           >
             {values.callData.map((callData, index) => (
-              <DAORegistryCallDataViewer
+              <DecodedCallDataViewer
                 key={index}
                 callData={callData}
                 index={index}
+                votingSituation={values.type}
               />
             ))}
           </FormBlock>
