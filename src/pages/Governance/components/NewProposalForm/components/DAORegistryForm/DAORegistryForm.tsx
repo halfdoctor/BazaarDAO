@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Form, useForm } from '@q-dev/form-hooks';
 import { getDecodeData } from '@q-dev/gdk-sdk';
 import { Select, Switch } from '@q-dev/q-ui-kit';
-import startCase from 'lodash/startCase';
 import styled from 'styled-components';
 import { FormDAORegistry, FormValidatesMap } from 'typings/forms';
 
@@ -47,7 +46,7 @@ function DAORegistryForm ({ onChange, formValidatesMap, formId, abiName }: Props
 
   const upgradeNameOptions = useMemo(() => {
     return Object.values(DAO_REGISTRY_AVAILABLE_FUNCTIONS).map((name) => ({
-      label: startCase(name),
+      label: name,
       value: name
     }));
   }, []);
@@ -99,8 +98,8 @@ function DAORegistryForm ({ onChange, formValidatesMap, formId, abiName }: Props
           : <>
             <Select
               {...form.fields.upgradeName}
-              label={t('UPGRADE_TYPE')}
-              placeholder={t('TYPE')}
+              label={t('FUNCTION')}
+              placeholder={t('FUNCTION')}
               options={upgradeNameOptions}
             />
             <DAORegistryArgsForm

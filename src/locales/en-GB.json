@@ -375,7 +375,6 @@
   "DAO_REGISTRY_TIP": "DAO Registry Vote updates the core of the system on which DAO is built",
   "CALL_DATA": "Call Data",
   "RAW_MODE": "Raw mode",
-  "UPGRADE_TYPE": "Upgrade Type",
   "INVALID_CALL_DATA": "Invalid Call Data",
   "UPGRADE_INDEX": "Upgrade {{ index }}",
   "ADD_UPGRADE": "Add Update",
@@ -394,5 +393,10 @@
   "PROPOSAL_DESCRIPTION_TOOLTIP": "Please describe what you want to vote on. Be aware, that this proposal will be stored completely on the blockchain. To save on gas fees, it's recommended to provide a link to an external source with a detailed description.",
   "SUPPORTED_DAO_NETWORKS_HEADER": "Wrong DAO network",
   "SUPPORTED_DAO_NETWORKS_MESSAGE": "The DAO you're looking for seems to be deployed on a different network. Please, switch the supported network to get access to the DAO.",
-  "SWITCH_TO_Q_NETWORK": "Switch to Q {{network}}"
+  "SWITCH_TO_Q_NETWORK": "Switch to Q {{network}}",
+  "UPDATES": "Updates",
+  "UPDATE_INDEX": "Update {{index}}",
+  "FUNCTION": "Function",
+  "PERMISSIONS": "Permissions",
+  "PERMISSION_INDEX": "Permission {{index}}"
 }

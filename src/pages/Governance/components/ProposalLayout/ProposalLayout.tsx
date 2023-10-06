@@ -2,13 +2,12 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { DAO_RESERVED_NAME, DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
+import { DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import PageLayout from 'components/PageLayout';
 
-import DAORegistryCallData from './components/DAORegistryCallData';
 import ProposalActions from './components/ProposalActions';
 import ProposalDetails from './components/ProposalDetails';
 import ProposalTurnout from './components/ProposalTurnout';
@@ -18,6 +17,7 @@ import { ProposalLayoutContainer } from './styles';
 
 import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 
+import { ABI_NAME_BY_SITUATION_MAP } from 'constants/proposal';
 import { PROPOSAL_STATUS } from 'constants/statuses';
 
 function ProposalLayout ({ proposal }: {
@@ -28,23 +28,15 @@ function ProposalLayout ({ proposal }: {
     return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
   }, [proposal.votingStatus, t]);
 
-  const isDAORegistryProposal = useMemo(() => {
-    return proposal.relatedVotingSituation === DefaultVotingSituations.DAORegistry &&
-      proposal.relatedExpertPanel === DAO_RESERVED_NAME;
-  }, [proposal.relatedExpertPanel, proposal.relatedVotingSituation]);
-
-  const isMembershipSituation = useMemo(() => {
-    return proposal.relatedVotingSituation === DefaultVotingSituations.Membership;
-  }, [proposal.relatedVotingSituation]);
-
-  const membershipSituationsDecodedCallData = useMemo(() => {
-    if (!isMembershipSituation) return null;
+  const decodedCallData = useMemo(() => {
+    const abiName = ABI_NAME_BY_SITUATION_MAP[proposal.relatedVotingSituation as DefaultVotingSituations];
+    if (!abiName) return null;
     try {
-      return getDecodeData('DAOMemberStorage', proposal.callData) || null;
+      return getDecodeData(abiName, proposal.callData) || null;
     } catch (_) {
       return null;
     }
-  }, [proposal.callData, isMembershipSituation]);
+  }, [proposal.callData, proposal.relatedVotingSituation]);
 
   return (
     <PageLayout
@@ -53,17 +45,14 @@ function ProposalLayout ({ proposal }: {
       action={<ProposalActions
         proposal={proposal}
         title={proposal.remark}
-        decodedCallData={membershipSituationsDecodedCallData}
+        decodedCallData={decodedCallData}
       />}
     >
       <ProposalLayoutContainer>
         <ProposalDetails
           proposal={proposal}
-          membershipSituationsDecodedCallData={membershipSituationsDecodedCallData}
+          decodedCallData={decodedCallData}
         />
-        {isDAORegistryProposal && (
-          <DAORegistryCallData callData={proposal.callData}/>
-        )}
 
         <div className="proposal-layout__voting">
           <ProposalTurnout proposal={proposal} />
