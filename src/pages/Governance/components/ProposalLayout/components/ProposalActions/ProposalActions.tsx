@@ -59,9 +59,10 @@ function ProposalActions ({ proposal, title, decodedCallData }: Props) {
 
   const canExecute = useMemo(() => {
     if (proposal.votingStatus !== PROPOSAL_STATUS.passed) return false;
-    if (!decodedCallData || (isMembershipSituation && decodedCallData?.functionName !== 'addMember')) return true;
-
-    return Boolean(userAddress) && decodedCallData.arguments?.member_ === userAddress;
+    if (decodedCallData && isMembershipSituation && decodedCallData?.functionName === 'addMember') {
+      return Boolean(userAddress) && decodedCallData.arguments?.member_ === userAddress;
+    }
+    return true;
   }, [proposal.votingStatus, userAddress, decodedCallData, isMembershipSituation]);
 
   const executeOrSignConstitution = () => {
