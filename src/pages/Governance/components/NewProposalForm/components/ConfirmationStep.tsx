@@ -110,7 +110,8 @@ function ConfirmationStep () {
             <p className="text-lg pre-line">{values.remark}</p>
           </div>
         </FormBlock>)}
-      {values.type === DefaultVotingSituations.DAORegistry && (
+      {(values.type === DefaultVotingSituations.DAORegistry ||
+        values.type === DefaultVotingSituations.PermissionManager) && (
         <>
           <FormBlock
             icon="edit"

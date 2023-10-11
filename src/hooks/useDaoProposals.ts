@@ -15,9 +15,9 @@ import { useProviderStore } from 'store/provider/hooks';
 import { daoInstance } from 'contracts/contract-instance';
 import {
   createConstitutionProposal,
-  createDAORegistryProposal,
   createGeneralSituationProposal,
   createMembershipSituationProposal,
+  createMultiCallProposal,
   createParameterSituationProposal,
 } from 'contracts/helpers/proposals-helper';
 
@@ -183,7 +183,9 @@ export function useDaoProposals () {
       case DefaultVotingSituations.ConfigurationParameter:
         return createParameterSituationProposal(form, DefaultVotingSituations.ConfigurationParameter);
       case DefaultVotingSituations.DAORegistry:
-        return createDAORegistryProposal(form);
+        return createMultiCallProposal(form, 'DAORegistry');
+      case DefaultVotingSituations.PermissionManager:
+        return createMultiCallProposal(form, 'PermissionManager');
     }
   }
 

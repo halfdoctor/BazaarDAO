@@ -12,13 +12,13 @@ import { useNewProposalForm } from '../NewProposalForm';
 import { MAX_FIELD_LENGTH } from 'constants/fields';
 import { required } from 'utils/validators';
 
-const DAORegistryBasicStepContainer = styled.div`
+const BasicDetailsStepContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
 `;
 
-function DAORegistryBasicStep () {
+function BasicDetailsStep () {
   const { t } = useTranslation();
   const { goNext, goBack } = useNewProposalForm();
 
@@ -40,7 +40,7 @@ function DAORegistryBasicStep () {
       onNext={form.submit}
       onBack={goBack}
     >
-      <DAORegistryBasicStepContainer>
+      <BasicDetailsStepContainer>
         <Textarea
           {...form.fields.remark}
           label={t('DESCRIPTION')}
@@ -48,9 +48,9 @@ function DAORegistryBasicStep () {
           placeholder={t('DESCRIPTION')}
           maxLength={MAX_FIELD_LENGTH.proposalRemark}
         />
-      </DAORegistryBasicStepContainer>
+      </BasicDetailsStepContainer>
     </FormStep>
   );
 }
 
-export default DAORegistryBasicStep;
+export default BasicDetailsStep;
