@@ -14,11 +14,11 @@ import { useDaoProposals } from 'hooks/useDaoProposals';
 
 import { ListEmptyStub } from '../Proposals/styles';
 
+import BasicDetailsStep from './components/BasicDetailsStep';
+import CallDataStep from './components/CallDataStep';
 import ConfirmationStep from './components/ConfirmationStep';
 import ConstitutionHashStep from './components/ConstitutionHashStep';
 import ConstitutionSituationStep from './components/ConstitutionSituationStep';
-import DAORegistryBasicStep from './components/DAORegistryBasicStep';
-import DAORegistrySituationStep from './components/DAORegistrySituationStep';
 import GeneralSituationStep from './components/GeneralSituationStep';
 import MembershipSituationStep from './components/MembershipSituationStep';
 import ParameterSituationStep from './components/ParameterSituationStep';
@@ -96,13 +96,30 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
               id: 'dao-registry-basic',
               name: t('BASIC_DETAILS'),
               title: t('BASIC_DETAILS'),
-              children: <DAORegistryBasicStep />
+              children: <BasicDetailsStep />
             },
             {
               id: 'dao-registry-situation',
               name: t('DETAILS'),
               title: t('DETAILS'),
-              children: <DAORegistrySituationStep />
+              children: <CallDataStep situation={form.values.type} />
+            }
+          ]
+          : []
+        ),
+        ...(form.values.type === DefaultVotingSituations.PermissionManager
+          ? [
+            {
+              id: 'permission-manager-basic',
+              name: t('BASIC_DETAILS'),
+              title: t('BASIC_DETAILS'),
+              children: <BasicDetailsStep />
+            },
+            {
+              id: 'permission-manager-situation',
+              name: t('DETAILS'),
+              title: t('DETAILS'),
+              children: <CallDataStep situation={form.values.type} />
             }
           ]
           : []

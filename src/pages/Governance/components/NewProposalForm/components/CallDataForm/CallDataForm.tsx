@@ -5,51 +5,51 @@ import { Form, useForm } from '@q-dev/form-hooks';
 import { getDecodeData } from '@q-dev/gdk-sdk';
 import { Select, Switch } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
-import { FormDAORegistry, FormValidatesMap } from 'typings/forms';
+import { CallDataProposalForm, FormValidatesMap } from 'typings/forms';
 
 import Textarea from 'components/Textarea';
 
-import DAORegistryArgsForm from './DAORegistryArgsForm';
+import FunctionArgsForm from './FunctionArgsForm';
 
-import { DAO_REGISTRY_AVAILABLE_FUNCTIONS } from 'constants/dao-registry';
 import { callData, required } from 'utils/validators';
 
 interface Props {
   formId: string;
   formValidatesMap: MutableRefObject<FormValidatesMap>;
   abiName: string;
-  onChange: (form: Form<FormDAORegistry>) => void;
+  availableFunctions: string[];
+  onChange: (form: Form<CallDataProposalForm>) => void;
 }
 
-export const DAORegistryFormContainer = styled.div`
+export const CallDataFormContainer = styled.div`
   display: grid;
   gap: 16px;
 `;
 
-function DAORegistryForm ({ onChange, formValidatesMap, formId, abiName }: Props) {
+function CallDataForm ({ onChange, formValidatesMap, formId, abiName, availableFunctions }: Props) {
   const { t } = useTranslation();
   const [isRawMode, setIsRawMode] = useState(false);
 
   const form = useForm({
     initialValues: {
-      upgradeName: '',
+      functionName: '',
       callData: '',
     },
     validators: {
-      upgradeName: [required],
+      functionName: [required],
       callData: [required, callData({
-        functionNames: Object.values(DAO_REGISTRY_AVAILABLE_FUNCTIONS),
+        functionNames: availableFunctions,
         abiName: abiName,
       })],
     },
   });
 
-  const upgradeNameOptions = useMemo(() => {
-    return Object.values(DAO_REGISTRY_AVAILABLE_FUNCTIONS).map((name) => ({
+  const functionNameOptions = useMemo(() => {
+    return availableFunctions.map((name) => ({
       label: name,
       value: name
     }));
-  }, []);
+  }, [availableFunctions]);
 
   const decodedCallData = useMemo(() => {
     try {
@@ -58,30 +58,30 @@ function DAORegistryForm ({ onChange, formValidatesMap, formId, abiName }: Props
 
       if (!decodedData) return null;
 
-      return upgradeNameOptions.some(({ value }) => value === decodedData?.functionName)
+      return functionNameOptions.some(({ value }) => value === decodedData?.functionName)
         ? decodedData
         : null;
     } catch (e) {
       return null;
     }
-  }, [form.values.callData, upgradeNameOptions, abiName]);
+  }, [form.values.callData, functionNameOptions, abiName]);
 
   useEffect(() => {
     if (isRawMode) {
       if (decodedCallData) {
-        form.fields.upgradeName.onChange(decodedCallData?.functionName || '');
-      } else if (form.values.upgradeName) {
-        form.fields.upgradeName.onChange('');
+        form.fields.functionName.onChange(decodedCallData?.functionName || '');
+      } else if (form.values.functionName) {
+        form.fields.functionName.onChange('');
       }
     }
-  }, [form.values.upgradeName, decodedCallData, isRawMode]);
+  }, [form.values.functionName, decodedCallData, isRawMode]);
 
   useEffect(() => {
     onChange(form);
   }, [form.values, onChange]);
 
   return (
-    <DAORegistryFormContainer>
+    <CallDataFormContainer>
       <Switch
         value={isRawMode}
         label={t('RAW_MODE')}
@@ -97,24 +97,24 @@ function DAORegistryForm ({ onChange, formValidatesMap, formId, abiName }: Props
           />
           : <>
             <Select
-              {...form.fields.upgradeName}
+              {...form.fields.functionName}
               label={t('FUNCTION')}
               placeholder={t('FUNCTION')}
-              options={upgradeNameOptions}
+              options={functionNameOptions}
             />
-            <DAORegistryArgsForm
-              key={form.values.upgradeName}
+            <FunctionArgsForm
+              key={form.values.functionName}
               formId={formId}
               formValidatesMap={formValidatesMap}
-              functionName={form.values.upgradeName}
+              functionName={form.values.functionName}
               setCallData={form.fields.callData.onChange}
               decodedCallData={decodedCallData}
               abiName={abiName}
             />
           </>
       }
-    </DAORegistryFormContainer>
+    </CallDataFormContainer>
   );
 }
 
-export default DAORegistryForm;
+export default CallDataForm;

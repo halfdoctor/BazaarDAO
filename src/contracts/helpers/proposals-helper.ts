@@ -78,15 +78,15 @@ export async function createParameterSituationProposal (
   return daoInstance.createVoting(votingInstance, votingParams);
 }
 
-export async function createDAORegistryProposal (form: NewProposalForm) {
+export async function createMultiCallProposal (form: NewProposalForm, abiName: string) {
   if (!daoInstance) return;
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
 
   const votingParams: CreateVotingParameters = {
     remark: form.remark,
-    situation: DefaultVotingSituations.DAORegistry,
+    situation: form.type,
     callData: getEncodedData(
-      'DAORegistry',
+      abiName,
       'multicall',
       form.callData
     )

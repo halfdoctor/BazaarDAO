@@ -30,9 +30,9 @@ interface NewProposalForm {
   callData: string[];
 }
 
-interface FormDAORegistry {
+interface CallDataProposalForm {
   callData: string;
-  upgradeName: string;
+  functionName: string;
 }
 
 type FormValidatesMap = Record<string, () => boolean>;

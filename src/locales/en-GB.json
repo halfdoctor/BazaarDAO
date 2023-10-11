@@ -398,5 +398,7 @@
   "UPDATE_INDEX": "Update {{index}}",
   "FUNCTION": "Function",
   "PERMISSIONS": "Permissions",
-  "PERMISSION_INDEX": "Permission {{index}}"
+  "PERMISSION_INDEX": "Permission {{index}}",
+  "PERMISSION_MANAGER_VOTE": "Permissions Manager Vote",
+  "PERMISSION_MANAGER_TIP": "Permission Manager Vote facilitates the integration of modules into the DAO"
 }

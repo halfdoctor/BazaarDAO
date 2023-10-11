@@ -30,6 +30,10 @@ function useProposalSteps () {
       label: t('DAO_REGISTRY_VOTE'),
       tip: t('DAO_REGISTRY_TIP')
     },
+    [DefaultVotingSituations.PermissionManager]: {
+      label: t('PERMISSION_MANAGER_VOTE'),
+      tip: t('PERMISSION_MANAGER_TIP')
+    }
   };
 
   return { proposalOptionsMap };

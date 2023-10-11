@@ -18,7 +18,7 @@ interface Props {
   setCallData: (value: string) => void;
 }
 
-function DAORegistryArgsForm ({
+function FunctionArgsForm ({
   functionName,
   formId,
   formValidatesMap,
@@ -85,4 +85,4 @@ function DAORegistryArgsForm ({
   );
 }
 
-export default DAORegistryArgsForm;
+export default FunctionArgsForm;
