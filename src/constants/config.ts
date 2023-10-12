@@ -18,6 +18,7 @@ interface NetworkConfig {
   constitutionUrl: string;
   gasBuffer: number;
   masterDaoRegistryAddress: string;
+  faucetUrl: string;
 }
 
 export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
@@ -36,6 +37,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     constitutionUrl: 'https://constitution.q.org',
     gasBuffer: 1.5,
     masterDaoRegistryAddress: '0x66127ec6bacFF7480a6AC2B142aC82d2B0D16DCD',
+    faucetUrl: 'https://faucet.q.org',
   },
   testnet: {
     chainId: 35443,
@@ -52,6 +54,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     constitutionUrl: 'https://constitution.qtestnet.org',
     gasBuffer: 2,
     masterDaoRegistryAddress: '0xFc8F4f8b41975C21Ec615324908452E5A0cF538f',
+    faucetUrl: 'https://faucet.qtestnet.org',
   },
   devnet: {
     chainId: 35442,
@@ -68,6 +71,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     constitutionUrl: 'https://constitution.qdevnet.org',
     gasBuffer: 1.5,
     masterDaoRegistryAddress: '0xe3b73e059943e339c2641606451dFca1B2F18Ae2',
+    faucetUrl: 'https://faucet.qdevnet.org',
   },
 };
 

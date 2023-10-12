@@ -2,15 +2,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Icon } from '@q-dev/q-ui-kit';
 
+import useNetworkConfig from 'hooks/useNetworkConfig';
+
 import { ReferencesContainer } from './styles';
-
-import { useProviderStore } from 'store/provider/hooks';
-
-import { networkConfigsMap } from 'constants/config';
 
 function References () {
   const { t } = useTranslation();
-  const { currentProvider } = useProviderStore();
+  const { faucetUrl } = useNetworkConfig();
 
   const referenceLinks = [
     {
@@ -21,13 +19,10 @@ function References () {
       title: t('DOCUMENTATION'),
       href: 'https://docs.q-dao.tools',
     },
-    ...(Number(currentProvider?.chainId) === networkConfigsMap.testnet.chainId
-      ? [{
-        title: t('Q_TESTNET_FAUCET'),
-        href: 'https://faucet.qtestnet.org',
-      }]
-      : []
-    )
+    {
+      title: t('GET_Q_TOKENS'),
+      href: faucetUrl,
+    }
   ];
 
   return (
