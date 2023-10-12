@@ -380,7 +380,6 @@
   "ADD_UPGRADE": "Add Update",
   "UPGRADES": "Upgrades",
   "CONFIG_PARAMETER_VOTE_TIP": "Propose a change to configure how this Expert Panel functions.",
-  "Q_TESTNET_FAUCET": "Q Testnet Faucet",
   "UPLOAD_CONSTITUTION_TOOLTIP": "Upload your constitution file to get the hash",
   "FILE_UPLOADED_SUCCESSFUL": "File uploaded successfully",
   "ADD_MEMBER": "Add Member",
@@ -400,5 +399,6 @@
   "PERMISSIONS": "Permissions",
   "PERMISSION_INDEX": "Permission {{index}}",
   "PERMISSION_MANAGER_VOTE": "Permissions Manager Vote",
-  "PERMISSION_MANAGER_TIP": "Permission Manager Vote facilitates the integration of modules into the DAO"
+  "PERMISSION_MANAGER_TIP": "Permission Manager Vote facilitates the integration of modules into the DAO",
+  "GET_Q_TOKENS": "Get Q Tokens"
 }
