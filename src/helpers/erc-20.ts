@@ -98,7 +98,7 @@ export const getDecimalsErc20 = async () => {
 };
 
 export async function getTotalSupplyCapErc20 () {
-  if (!erc20ContractInstance) return;
+  if (!erc20ContractInstance) return '';
 
   try {
     const totalSupplyCap = await erc20ContractInstance?.totalSupplyCap();
