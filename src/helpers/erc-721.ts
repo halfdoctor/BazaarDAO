@@ -97,14 +97,14 @@ export const getBalanceOfErc721 = async (address: string) => {
 };
 
 export async function getTotalSupplyCapErc721 () {
-  if (!erc721ContractInstance || !erc721ContractInstance?.totalSupplyCap) return '0';
+  if (!erc721ContractInstance || !erc721ContractInstance?.totalSupplyCap) return '';
 
   try {
     const totalSupplyCap = await erc721ContractInstance.totalSupplyCap();
     return totalSupplyCap.toString();
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
-    return '0';
+    return '';
   }
 }
 

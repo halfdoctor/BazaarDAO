@@ -50,20 +50,15 @@ function MintForm ({ onSubmit }: Props) {
   const [isNewTokenId, setIsNewTokenId] = useState(false);
 
   const maxMintValue = useMemo(() => {
-    if (!tokenInfo) return '0';
+    if (!tokenInfo?.totalSupplyCap) return '0';
     const mintValue = toBigNumber(tokenInfo.totalSupplyCap).minus(tokenInfo.totalSupply);
     return mintValue.isGreaterThan(0)
       ? fromWeiWithDecimals(mintValue.toString(), tokenInfo.decimals)
       : '0';
   }, [tokenInfo]);
 
-  const isCanMint = useMemo(() => {
-    return !!tokenInfo?.totalSupplyCap && Boolean(+maxMintValue);
-  }, [maxMintValue]);
-
-  const isNftLike = useMemo(() => {
-    return tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721';
-  }, [tokenInfo]);
+  const isCanMint = !tokenInfo?.totalSupplyCap || Boolean(+maxMintValue);
+  const isNftLike = tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721';
 
   const form = useForm({
     initialValues: {
@@ -74,7 +69,9 @@ function MintForm ({ onSubmit }: Props) {
     },
     validators: {
       recipient: [required],
-      amount: isNftLike ? [] : [required, number, ...maxMintValue ? [amount(maxMintValue)] : []],
+      amount: isNftLike
+        ? []
+        : [required, number, ...(tokenInfo?.totalSupplyCap && maxMintValue ? [amount(maxMintValue)] : [])],
       tokenURI: isNftLike ? [url] : [],
       tokenId: isNftLike ? [required, number, min(0), integer] : []
     },

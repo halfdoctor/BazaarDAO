@@ -68,14 +68,14 @@ export const getErc5484BalanceOf = async (address: string) => {
 };
 
 export async function getErc5484TotalSupplyCap () {
-  if (!erc5484ContractInstance || !erc5484ContractInstance?.totalSupplyCap) return '0';
+  if (!erc5484ContractInstance || !erc5484ContractInstance?.totalSupplyCap) return '';
 
   try {
     const totalSupplyCap = await erc5484ContractInstance.totalSupplyCap();
     return totalSupplyCap.toString();
   } catch (error) {
     ErrorHandler.processWithoutFeedback(error);
-    return '0';
+    return '';
   }
 }
 
