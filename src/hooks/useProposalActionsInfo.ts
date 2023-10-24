@@ -3,13 +3,13 @@ import { useCallback } from 'react';
 
 import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 
 import { useDaoProposals } from './useDaoProposals';
 
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useProviderStore } from 'store/provider/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 
@@ -19,13 +19,13 @@ function useProposalActionsInfo () {
   const { vaultBalance } = useDaoVault();
   const { getPanelSituationInfo, getAccountStatuses } = useDaoProposals();
   const { tokenInfo } = useDaoTokenStore();
-  const { currentProvider } = useProviderStore();
+  const { address: accountAddress } = useWeb3Context();
 
   async function checkIsUserMember (panelName: string) {
     try {
-      if (!daoInstance || panelName === DAO_RESERVED_NAME || !currentProvider?.selectedAddress) return false;
+      if (!daoInstance || panelName === DAO_RESERVED_NAME || !accountAddress) return false;
       const memberStorageInstance = await daoInstance.getMemberStorageInstance(panelName);
-      return memberStorageInstance.instance.isMember(currentProvider.selectedAddress);
+      return memberStorageInstance.instance.isMember(accountAddress);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       return false;
@@ -33,7 +33,7 @@ function useProposalActionsInfo () {
   }
   async function checkIsUserTokenHolder () {
     try {
-      if (!currentProvider?.selectedAddress) return false;
+      if (!accountAddress) return false;
       const accountStatuses = await getAccountStatuses();
       return accountStatuses.includes(DAO_RESERVED_NAME);
     } catch (error) {
@@ -44,11 +44,11 @@ function useProposalActionsInfo () {
 
   async function checkIsUserCanVeto (target: string) {
     try {
-      if (!daoInstance || !currentProvider?.selectedAddress) return false;
+      if (!daoInstance || !accountAddress) return false;
       const permissionManagerInstance = await daoInstance.getPermissionManagerInstance();
       const vetoGroupMembers = await permissionManagerInstance
         .instance.getVetoGroupMembers(target);
-      return vetoGroupMembers.includes(currentProvider.selectedAddress);
+      return vetoGroupMembers.includes(accountAddress);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
       return false;

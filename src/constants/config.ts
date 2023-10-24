@@ -1,5 +1,5 @@
+import { Chain, CHAIN_TYPES } from '@distributedlab/w3p';
 import { utils } from 'ethers';
-import { Chain } from 'typings';
 
 export type NetworkName = 'mainnet' | 'testnet' | 'devnet';
 
@@ -84,16 +84,18 @@ export const chainIdToNetworkMap: { [key: string]: NetworkName } = {
 export const connectorParametersMap = Object.values(networkConfigsMap)
   .reduce((acc, config) => {
     acc[config.chainId] = {
-      chainId: utils.hexlify(config.chainId),
-      chainName: config.name,
-      rpcUrls: [config.rpcUrl],
-      blockExplorerUrls: [config.explorerUrl],
-      nativeCurrency: {
+      id: utils.hexlify(config.chainId),
+      name: config.name,
+      rpcUrl: config.rpcUrl,
+      explorerUrl: config.explorerUrl,
+      token: {
         name: 'Q',
         // HACK: MetaMask requires the symbol to have at least 2 characters
         symbol: 'Q ',
         decimals: 18,
       },
+      type: CHAIN_TYPES.EVM,
+      icon: ''
     };
     return acc;
   }, {} as { [key: string]: Chain });

@@ -1,25 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { PROVIDERS } from '@distributedlab/w3p';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler, isMobile } from 'helpers';
 
 import Button from 'components/Button';
 
-import { PROVIDERS } from 'constants/providers';
-
 const METAMASK_DOWNLOAD_LINK = 'https://metamask.io/download';
 
 function ConnectButtons () {
   const { t } = useTranslation();
-  const { connect } = useWeb3Context();
+  const { init } = useWeb3Context();
   const [isLoading, setIsLoading] = useState(false);
   const METAMASK_APP_CONNECT_URL = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
 
   const connectWallet = async (provider: PROVIDERS) => {
     setIsLoading(true);
     try {
-      await connect(provider);
+      await init(provider);
     } catch (error) {
       ErrorHandler.process(error, t('ERROR_WHILE_CONNECTING_TO_WALLET'));
     }
@@ -43,7 +42,7 @@ function ConnectButtons () {
           <Button
             alwaysEnabled
             style={{ width: '100%' }}
-            onClick={() => connectWallet(PROVIDERS.metamask)}
+            onClick={() => connectWallet(PROVIDERS.Metamask)}
           >
             <img
               src="/icons/metamask.svg"

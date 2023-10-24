@@ -1,15 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 import styled from 'styled-components';
 
 import Button from 'components/Button';
 
 import useNetworkConfig from 'hooks/useNetworkConfig';
-
-import { useProviderStore } from 'store/provider/hooks';
-
-import { connectorParametersMap } from 'constants/config';
 
 export const StyledWrapper = styled.div`
   position: fixed;
@@ -34,15 +31,13 @@ export const StyledWrapper = styled.div`
 
 function NetworkWarning () {
   const { t } = useTranslation();
-  const { currentProvider } = useProviderStore();
+  const { switchNetwork } = useWeb3Context();
 
   const { chainId } = useNetworkConfig();
 
   const handleSwitch = async () => {
-    if (!currentProvider) return;
     try {
-      const qNetwork = connectorParametersMap[chainId];
-      await currentProvider.switchNetwork(qNetwork.chainId, qNetwork);
+      await switchNetwork(chainId);
     } catch (error) {
       ErrorHandler.process(error);
     }

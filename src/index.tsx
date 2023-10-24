@@ -16,10 +16,10 @@ import { store } from './store';
 import '@mdi/font/css/materialdesignicons.min.css';
 
 ReactDOM.render(
-  <Provider store={store}>
-    <StyleProvider>
-      <LanguageProvider>
-        <Web3ContextProvider>
+  <StyleProvider>
+    <LanguageProvider>
+      <Web3ContextProvider>
+        <Provider store={store}>
           <BrowserRouter>
             <DaoInitializer>
               <Layout>
@@ -27,10 +27,10 @@ ReactDOM.render(
               </Layout>
             </DaoInitializer>
           </BrowserRouter>
-        </Web3ContextProvider>
-        <NotificationManager />
-      </LanguageProvider>
-    </StyleProvider>
-  </Provider>,
+        </Provider>
+      </Web3ContextProvider>
+      <NotificationManager />
+    </LanguageProvider>
+  </StyleProvider>,
   document.getElementById('root')
 );

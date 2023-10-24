@@ -1,8 +1,7 @@
 import { HTMLAttributes } from 'react';
 
 import { Search as UiSearch } from '@q-dev/q-ui-kit';
-
-import { useProviderStore } from 'store/provider/hooks';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 
 interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: string;
@@ -18,8 +17,8 @@ function Search ({
   alwaysEnabled,
   ...rest
 }: Props) {
-  const { currentProvider, isRightNetwork } = useProviderStore();
-  const isDisabled = disabled || (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
+  const { isConnected, isRightNetwork } = useWeb3Context();
+  const isDisabled = disabled || (!alwaysEnabled && (!isConnected || !isRightNetwork));
 
   return (
     <UiSearch

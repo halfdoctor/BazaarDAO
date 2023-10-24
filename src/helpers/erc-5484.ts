@@ -1,9 +1,8 @@
-
+import { EthProviderRpcError, handleEthError } from '@distributedlab/w3p';
 import { QSBT } from '@q-dev/gdk-sdk';
 import { QSBT__factory as Erc5484 } from '@q-dev/gdk-sdk/lib/ethers-contracts/factories/QSBT__factory';
 import { providers, Signer } from 'ethers';
-import { ErrorHandler, handleEthError } from 'helpers';
-import { EthProviderRpcError, UseProvider } from 'typings';
+import { ErrorHandler } from 'helpers';
 
 export let erc5484ContractInstance: QSBT | null = null;
 export let erc5484ContractSigner: QSBT | null = null;
@@ -18,7 +17,7 @@ export const getErc5484ContractSigner = (address: string, signer?: Signer) => {
   return erc5484ContractSigner;
 };
 
-export const loadErc5484Details = async (provider: UseProvider) => {
+export const loadErc5484Details = async (address: string) => {
   try {
     const [_name, _owner, _symbol, _totalSupply, _balance, _totalSupplyCap, _baseUri] =
       await Promise.all([
@@ -26,7 +25,7 @@ export const loadErc5484Details = async (provider: UseProvider) => {
         getErc5484Owner(),
         getErc5484Symbol(),
         getErc5484TotalSupply(),
-        provider?.selectedAddress ? getErc5484BalanceOf(provider.selectedAddress) : '0',
+        getErc5484BalanceOf(address),
         getErc5484TotalSupplyCap(),
         getErc5484BaseUri()
       ]);

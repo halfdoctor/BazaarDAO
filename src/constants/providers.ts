@@ -1,3 +1,5 @@
+import { networkConfigsMap } from 'constants/config';
+
 export enum PROVIDERS {
   default = 'default',
   fallback = 'fallback',
@@ -11,14 +13,23 @@ export enum PROVIDERS {
   solflare = 'solflare',
 }
 
-export enum PROVIDERS_CHECKS {
-  fallback = 'isWeb3',
-  metamask = 'isMetaMask',
-  coinbase = 'isCoinbaseWallet',
-  trust = 'isTrust',
-  walletConnect = 'isWalletConnect',
-  brave = 'isBraveWallet',
-  ledger = 'isLedger',
-  phantom = 'isPhantom',
-  solflare = 'isSolflare',
+export enum FALLBACK_PROVIDER_NAMES {
+  mainnetFallback = 'mainnetfallback',
+  testnetFallback = 'testnetfallback',
+  devnetFallback = 'devnetfallback'
 }
+
+export const FALLBACK_PROVIDERS = Object.freeze({
+  mainnetFallback: {
+    name: FALLBACK_PROVIDER_NAMES.mainnetFallback,
+    rpcUrl: networkConfigsMap.mainnet.rpcUrl,
+  },
+  testnetFallback: {
+    name: FALLBACK_PROVIDER_NAMES.testnetFallback,
+    rpcUrl: networkConfigsMap.testnet.rpcUrl,
+  },
+  devnetFallback: {
+    name: FALLBACK_PROVIDER_NAMES.devnetFallback,
+    rpcUrl: networkConfigsMap.devnet.rpcUrl,
+  },
+});

@@ -2,6 +2,8 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import { useWeb3Context } from 'context/Web3ContextProvider';
+
 import logo from 'assets/img/logo.png';
 import Button from 'components/Button';
 
@@ -13,7 +15,6 @@ import WalletDropdown from './components/WalletDropdown';
 import { StyledHeader } from './styles';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useProviderStore } from 'store/provider/hooks';
 
 interface Props {
   onMenuClick: () => void;
@@ -22,7 +23,7 @@ interface Props {
 
 function Header ({ onMenuClick }: Props) {
   const { t } = useTranslation();
-  const { currentProvider } = useProviderStore();
+  const { isConnected } = useWeb3Context();
   const { isShowDao, isDaoSupportingToken } = useDaoStore();
 
   return (
@@ -59,7 +60,7 @@ function Header ({ onMenuClick }: Props) {
             <div className="header__actions-network">
               <Network />
             </div>}
-          {currentProvider?.isConnected
+          {isConnected
             ? (
               <>
                 {isDaoSupportingToken && <Balance />}

@@ -4,15 +4,11 @@ import { SegmentedButton } from '@q-dev/q-ui-kit';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 
-import { useProviderStore } from 'store/provider/hooks';
-
-import { connectorParametersMap, networkConfigsMap } from 'constants/config';
-import { PROVIDERS } from 'constants/providers';
+import { networkConfigsMap } from 'constants/config';
 
 function Network () {
-  const { currentProvider } = useProviderStore();
+  const { switchNetwork, chainId } = useWeb3Context();
   const { t } = useTranslation();
-  const { initDefaultProvider } = useWeb3Context();
 
   const isDevnet = ![
     networkConfigsMap.mainnet.daoAppUrl,
@@ -26,21 +22,15 @@ function Network () {
   ];
 
   const handleChangeNetwork = async (chainId: number) => {
-    if (!currentProvider) return;
     try {
-      if (currentProvider.selectedProvider !== PROVIDERS.default) {
-        const chainInfo = connectorParametersMap[chainId];
-        await currentProvider.switchNetwork(chainId, chainInfo);
-        return;
-      }
-      await initDefaultProvider(chainId);
+      await switchNetwork(chainId);
     } catch (error) {
-      ErrorHandler.process(error);
+      ErrorHandler.process(error, t('SWITCH_NETWORK_ERROR'));
     }
   };
 
   return <SegmentedButton
-    value={Number(currentProvider?.chainId)}
+    value={Number(chainId)}
     options={networkOptions}
     onChange={handleChangeNetwork}
   />;

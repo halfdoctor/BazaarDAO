@@ -6,8 +6,6 @@ import { useWeb3Context } from 'context/Web3ContextProvider/Web3ContextProvider'
 import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
 
-import { useProviderStore } from 'store/provider/hooks';
-
 const WalletBaseInfoWrapper = styled.div`
    .wallet-base-info__address-button {
     padding: 12px 20px;
@@ -35,13 +33,12 @@ interface Props {
 
 function WalletBaseInfo ({ onClick }: Props) {
   const { t } = useTranslation();
-  const { currentProvider } = useProviderStore();
-  const { disconnect } = useWeb3Context();
+  const { disconnect, address } = useWeb3Context();
   const [isCopied, setIsCopied] = useState(false);
 
   function copyAddress () {
-    if (!currentProvider) return;
-    copy(currentProvider.selectedAddress);
+    if (!address) return;
+    copy(address);
     setIsCopied(true);
 
     setTimeout(() => {

@@ -1,149 +1,201 @@
 import { createContext, FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 
+import {
+  Chain,
+  ChainId,
+  CoinbaseProvider,
+  EthereumProvider,
+  MetamaskProvider,
+  ProviderDetector,
+  ProviderProxyConstructor,
+  PROVIDERS,
+} from '@distributedlab/w3p';
 import { useLocalStorage } from '@q-dev/react-hooks';
-import { ErrorHandler } from 'helpers';
+import { ethers } from 'ethers';
+import { motion } from 'framer-motion';
+import { DevnetFallback, ErrorHandler, MainnetFallback, TestnetFallback } from 'helpers';
+import { ProviderWrapper, SupportedProviders } from 'typings';
 
-import { UseProvider, useProvider, useWeb3 } from 'hooks';
+import { useProvider } from 'hooks';
 
 import { Wrap } from './styles';
 
-import { chainIdToNetworkMap, networkConfigsMap, ORIGIN_NETWORK_NAME } from 'constants/config';
-import { PROVIDERS } from 'constants/providers';
+import { chainIdToNetworkMap, ORIGIN_NETWORK_NAME } from 'constants/config';
+import { FALLBACK_PROVIDER_NAMES, FALLBACK_PROVIDERS } from 'constants/providers';
+import { LOAD_TYPES } from 'constants/statuses';
 
-export type Web3Data = {
-  currentProvider: UseProvider;
+export interface Web3Data extends Omit<ProviderWrapper, 'init' | 'switchNetwork'> {
+  init: (providerType?: SupportedProviders) => Promise<void>;
+  switchNetwork: (chainId: ChainId) => Promise<void> | undefined;
   isRightNetwork: boolean;
-  isWeb3Loaded: boolean;
-  connect: (provider: PROVIDERS) => Promise<void>;
-  initDefaultProvider: (rpc: number) => Promise<void>;
-  disconnect: () => void;
+  providerDetector: ProviderDetector<FALLBACK_PROVIDER_NAMES>;
 };
+
+function getFallbackProviderType (chainId?: number | string) {
+  const networkName = chainId
+    ? chainIdToNetworkMap[+chainId] || ORIGIN_NETWORK_NAME
+    : ORIGIN_NETWORK_NAME;
+  switch (networkName) {
+    case 'mainnet':
+      return FALLBACK_PROVIDER_NAMES.mainnetFallback;
+    case 'testnet':
+      return FALLBACK_PROVIDER_NAMES.testnetFallback;
+    case 'devnet':
+      return FALLBACK_PROVIDER_NAMES.devnetFallback;
+  }
+}
 
 export const Web3Context = createContext({} as Web3Data);
 
 const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const web3 = useWeb3();
-  const metamaskProvider = useProvider();
-  const defaultProvider = useProvider();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isLoadFailed, setIsLoadFailed] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useLocalStorage<undefined | PROVIDERS>('selectedProvider', undefined);
+  const providerDetector = useMemo(
+    () => new ProviderDetector<FALLBACK_PROVIDER_NAMES>(),
+    []);
+  const provider = useProvider();
 
-  const providers = useMemo(
-    () => [metamaskProvider, defaultProvider],
-    [metamaskProvider, defaultProvider],
-  );
+  const [loadAppType, setLoadAppType] = useState(LOAD_TYPES.loading);
+  const [storeProviderType, setStoreProviderType] = useLocalStorage<SupportedProviders>('providerType', getFallbackProviderType());
 
-  const currentProvider = useMemo(() => {
-    const selectProvider = providers.find(el => el?.selectedProvider === selectedProvider && el.selectedAddress);
-    return selectProvider || defaultProvider;
-  }, [metamaskProvider, defaultProvider, selectedProvider]);
+  const isRightNetwork = useMemo(() => Boolean(provider.chainId && chainIdToNetworkMap[provider.chainId]), [provider]);
 
-  const isRightNetwork = useMemo(() => Boolean(currentProvider?.chainId &&
-    chainIdToNetworkMap[currentProvider?.chainId]), [currentProvider]);
-
-  const initWeb3Providers = async () => {
+  async function init (providerType?: SupportedProviders) {
+    setLoadAppType(LOAD_TYPES.loading);
     try {
-      await web3.init();
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-      setIsLoadFailed(true);
-    }
-  };
+      await providerDetector.init();
 
-  const initProviderWrappers = async () => {
-    if (!web3.isWeb3Init) return;
-    setIsLoaded(false);
-    try {
-      const metamaskBrowserProvider = web3.providers.find(
-        (el: { name: PROVIDERS }) => el.name === PROVIDERS.metamask,
-      );
-      if (metamaskBrowserProvider) {
-        await metamaskProvider.init(metamaskBrowserProvider);
+      addFallbackProvider();
+
+      const supportedProviders: {
+        [key in SupportedProviders]?: ProviderProxyConstructor
+      } = {
+        [FALLBACK_PROVIDER_NAMES.mainnetFallback]: MainnetFallback,
+        [FALLBACK_PROVIDER_NAMES.testnetFallback]: TestnetFallback,
+        [FALLBACK_PROVIDER_NAMES.devnetFallback]: DevnetFallback,
+        [PROVIDERS.Metamask]: MetamaskProvider,
+        [PROVIDERS.Coinbase]: CoinbaseProvider,
+      };
+
+      const currentProviderType: SupportedProviders = providerType ?? storeProviderType;
+
+      const providerProxyConstructor: ProviderProxyConstructor =
+        supportedProviders[currentProviderType]!;
+
+      const { isConnected } = await provider.init(providerProxyConstructor, {
+        providerDetector,
+        listeners: {
+          onDisconnect: (e) => {
+            const providerType = getFallbackProviderType(e?.chainId);
+            setStoreProviderType(providerType);
+          },
+        }
+      });
+
+      if (!isConnected) {
+        await provider.connect();
       }
 
-      await initDefaultProvider(networkConfigsMap[ORIGIN_NETWORK_NAME].chainId);
+      setStoreProviderType(currentProviderType);
+      setLoadAppType(LOAD_TYPES.loaded);
     } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-      setIsLoadFailed(true);
+      setStoreProviderType(getFallbackProviderType());
+      setLoadAppType(LOAD_TYPES.loaded); // TODO: need handle errors like "User reject"
+      throw error;
     }
-    setIsLoaded(true);
-  };
-
-  const initProviderWrapper = async (provider: UseProvider) => {
-    if (!web3.isWeb3Init) return;
-    try {
-      const browserProvider = web3.providers.find(
-        (el: { name: PROVIDERS }) => el.name === provider.selectedProvider,
-      );
-      if (browserProvider) {
-        await provider.init(browserProvider);
-      }
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-    }
-  };
-
-  const initDefaultProvider = async (network: number) => {
-    if (!web3.isWeb3Init) return;
-    try {
-      const selectedNetworkName = chainIdToNetworkMap[network];
-      await defaultProvider.init({ name: PROVIDERS.default, instance: networkConfigsMap[selectedNetworkName].rpcUrl });
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-    }
-  };
-
-  const connect = async (provider: PROVIDERS) => {
-    const foundProvider = providers.find(item => item.selectedProvider === provider);
-    if (foundProvider && !foundProvider?.provider) {
-      await initProviderWrapper(foundProvider);
-    }
-    if (foundProvider && !foundProvider.isConnected) {
-      await foundProvider.connect();
-    }
-    setSelectedProvider(provider);
-  };
-
-  const disconnect = () => {
-    const filteredProviders = providers.filter(item => item.selectedProvider !== currentProvider.selectedProvider);
-    setSelectedProvider(filteredProviders[0].selectedProvider);
-    currentProvider.disconnect();
-  };
-
-  useEffect(() => {
-    initWeb3Providers();
-  }, []);
-
-  useEffect(() => {
-    initProviderWrappers();
-  }, [web3.providers, web3.isWeb3Init]);
-
-  if (isLoadFailed) {
-    return (
-      <Wrap>
-        <div>
-          <p>Init error</p>
-          <p>Please, refresh the page</p>
-        </div>
-      </Wrap>
-    );
   }
 
-  return (
-    <Web3Context.Provider
-      value={{
-        currentProvider,
-        isRightNetwork,
-        isWeb3Loaded: isLoaded,
-        connect,
-        initDefaultProvider,
-        disconnect
-      }}
-    >
-      {children}
-    </Web3Context.Provider>
-  );
+  function addFallbackProvider () {
+    Object.values(FALLBACK_PROVIDERS).forEach(({ name, rpcUrl }) => {
+      if (providerDetector.providers?.[name]) return;
+      providerDetector.addProvider({
+        name,
+        instance: new ethers.providers.JsonRpcProvider(
+          rpcUrl,
+          'any',
+        ) as unknown as EthereumProvider,
+      });
+    });
+  }
+
+  async function disconnect () {
+    const providerType = getFallbackProviderType(provider.chainId || 0);
+    try {
+      await provider.disconnect();
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+    }
+
+    await init(providerType);
+  }
+
+  async function switchNetwork (chainId: ChainId, chain?: Chain) {
+    if (provider) {
+      switch (provider.providerType) {
+        case FALLBACK_PROVIDER_NAMES.mainnetFallback:
+        case FALLBACK_PROVIDER_NAMES.testnetFallback:
+        case FALLBACK_PROVIDER_NAMES.devnetFallback:
+          const providerType = getFallbackProviderType(chainId);
+          if (!providerType || provider.providerType === providerType) return;
+          init(providerType);
+          return;
+        default:
+          return provider?.switchNetwork(chainId, chain);
+      }
+    }
+  }
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  switch (loadAppType) {
+    case LOAD_TYPES.initError:
+      return (
+        <Wrap>
+          <div>
+            <p>Init error</p>
+            <p>Please, refresh the page</p>
+          </div>
+        </Wrap>
+      );
+    case LOAD_TYPES.loaded:
+      return (
+        <Web3Context.Provider
+          key={provider.chainId + provider.address + provider.isConnected}
+          value={{
+            ...provider,
+            switchNetwork,
+            isRightNetwork,
+            init,
+            disconnect,
+            providerDetector,
+          }}
+        >
+          {children}
+        </Web3Context.Provider>
+      );
+    case LOAD_TYPES.loading:
+    default:
+      return (
+        <Wrap>
+          <motion.div
+            className="breathing-q"
+            animate={{ scale: 1.2 }}
+            transition={{
+              repeat: Infinity,
+              repeatType: 'reverse',
+              ease: 'easeOut',
+              duration: 0.5
+            }}
+          >
+            <img
+              className="breathing-q__logo"
+              src="/logo.png"
+              alt="q"
+            />
+          </motion.div>
+        </Wrap>
+      );
+  }
 };
 
 export const useWeb3Context = () => useContext(Web3Context);

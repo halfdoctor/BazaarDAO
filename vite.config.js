@@ -20,7 +20,11 @@ export default defineConfig(({ mode }) => {
     ],
     optimizeDeps: {
       esbuildOptions: {
+        target: 'esnext',
         define: { global: 'globalThis' },
+      },
+      supported: {
+        bigint: true
       },
     },
     resolve: {

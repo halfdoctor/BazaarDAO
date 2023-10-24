@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 
 import { useForm } from '@q-dev/form-hooks';
 import { Icon, RadioGroup, Spinner, Tooltip } from '@q-dev/q-ui-kit';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
 
 import { FormStep } from 'components/MultiStepForm';
@@ -14,7 +15,6 @@ import useProposalSteps from 'hooks/useProposalSteps';
 import { useNewProposalForm } from '../NewProposalForm';
 
 import { useDaoStore } from 'store/dao/hooks';
-import { useProviderStore } from 'store/provider/hooks';
 
 import { AVAILABLE_VOTING_SITUATIONS } from 'constants/proposal';
 import { RoutePaths } from 'constants/routes';
@@ -47,7 +47,7 @@ interface ProposalPermissions {
 function TypeStep ({ situations, panelName }: { situations: string[]; panelName: string }) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDaoStore();
-  const { currentProvider } = useProviderStore();
+  const { address: accountAddress } = useWeb3Context();
   const { goNext, onChange } = useNewProposalForm();
   const { proposalOptionsMap } = useProposalSteps();
   const { checkIsUserCanCreateProposal } = useProposalActionsInfo();
@@ -94,7 +94,7 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
   }, [panelName, situations]);
 
   useEffect(() => {
-    if (proposalPermissions.length && currentProvider?.selectedAddress) {
+    if (proposalPermissions.length && accountAddress) {
       const proposal = proposalPermissions.find((i) =>
         !i.isComingSoon && i.isUserHasVotingPower && i.isUserMember
       );
@@ -102,7 +102,7 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
         form.fields.type.onChange(proposal.value);
       }
     }
-  }, [proposalPermissions, panelName, currentProvider?.selectedAddress]);
+  }, [proposalPermissions, panelName, accountAddress]);
 
   const options = proposalPermissions.map((item) => ({
     value: item.value,
@@ -110,7 +110,7 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
     disabled: item.isComingSoon || !item.isUserHasVotingPower || !item.isUserMember,
     label: item.isComingSoon
       ? item.value
-      : (item.isUserHasVotingPower && item.isUserMember) || !currentProvider?.selectedAddress
+      : (item.isUserHasVotingPower && item.isUserMember) || !accountAddress
         ? proposalOptionsMap[item.value].label
         : (
           <RadioGroupLabel key={item.value}>
