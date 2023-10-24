@@ -19,8 +19,8 @@ function Textarea ({
   label,
   ...rest
 }: Props) {
-  const { currentProvider, isRightNetwork } = useWeb3Context();
-  const isDisabled = disabled || (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
+  const { isRightNetwork, isConnected } = useWeb3Context();
+  const isDisabled = disabled || (!alwaysEnabled && (!isConnected || !isRightNetwork));
 
   return (
     <UiTextarea

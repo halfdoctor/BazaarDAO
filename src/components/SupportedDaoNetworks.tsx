@@ -9,10 +9,7 @@ import NotFound from 'pages/NotFound/NotFound';
 
 import Button from './Button';
 
-import { useProviderStore, } from 'store/provider/hooks';
-
-import { chainIdToNetworkMap, connectorParametersMap } from 'constants/config';
-import { PROVIDERS } from 'constants/providers';
+import { chainIdToNetworkMap } from 'constants/config';
 
 export const StyledWrapper = styled.div`
   position: fixed;
@@ -46,21 +43,14 @@ interface Props {
 }
 
 function SupportedDaoNetworks ({ networkOptions }: Props) {
-  const { currentProvider } = useProviderStore();
-  const { initDefaultProvider } = useWeb3Context();
+  const { switchNetwork } = useWeb3Context();
   const { t } = useTranslation();
 
-  const handleChangeNetwork = async (chain: SupportedDaoNetwork) => {
-    if (!currentProvider) return;
+  const handleChangeNetwork = async (chainId: number) => {
     try {
-      if (currentProvider.selectedProvider !== PROVIDERS.default) {
-        const chainInfo = connectorParametersMap[chain.chainId];
-        await currentProvider.switchNetwork(chain.chainId, chainInfo);
-        return;
-      }
-      await initDefaultProvider(chain.chainId);
+      await switchNetwork(chainId);
     } catch (error) {
-      ErrorHandler.process(error);
+      ErrorHandler.process(error, t('SWITCH_NETWORK_ERROR'));
     }
   };
 
@@ -83,7 +73,7 @@ function SupportedDaoNetworks ({ networkOptions }: Props) {
               key={item.chainId}
               alwaysEnabled
               className="network-warning__button"
-              onClick={() => handleChangeNetwork(item)}
+              onClick={() => handleChangeNetwork(item.chainId)}
             >
               {t('SWITCH_TO_Q_NETWORK', {
                 network: t(chainIdToNetworkMap[item.chainId].toUpperCase())

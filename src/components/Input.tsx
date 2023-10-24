@@ -1,10 +1,9 @@
 import { HTMLInputTypeAttribute, InputHTMLAttributes, ReactNode } from 'react';
 
 import { Input as UiInput } from '@q-dev/q-ui-kit';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 
 import InfoTooltip from 'components/InfoTooltip';
-
-import { useProviderStore } from 'store/provider/hooks';
 
 type InputProps = InputHTMLAttributes<HTMLInputElement>;
 interface Props extends Omit<InputProps, 'onChange' | 'prefix' | 'value'> {
@@ -41,9 +40,9 @@ function Input ({
   labelTooltip,
   ...rest
 }: Props) {
-  const { currentProvider, isRightNetwork } = useProviderStore();
+  const { isConnected, isRightNetwork } = useWeb3Context();
 
-  const isDisabled = disabled || (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
+  const isDisabled = disabled || (!alwaysEnabled && (!isConnected || !isRightNetwork));
 
   return (
     <UiInput

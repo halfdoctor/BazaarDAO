@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 import { SupportedDaoNetwork } from 'typings/dao';
 
@@ -11,16 +12,19 @@ import { useDaoTokenStore } from 'store/dao-token/hooks';
 
 export function useDaoStore () {
   const dispatch = useDispatch();
+  const { chainId } = useWeb3Context();
   const { loadDaoVotingToken, getToken, loadDaoInstance } = useDaoTokenStore();
 
   const daoAddress = useAppSelector(({ dao }) => dao.daoAddress);
   const isDaoAddressExist = useAppSelector(({ dao }) => Boolean(dao.daoAddress));
   const isDaoSupportingToken = useAppSelector(({ dao, daoToken }) =>
     Boolean(dao.daoAddress && daoToken.tokenInfo));
+
   const supportedNetworks: SupportedDaoNetwork[] = useAppSelector(({ dao }) => dao.supportedNetworks);
-  const isDaoOnSupportedNetwork = useAppSelector(({ dao, provider }) => dao.supportedNetworks
-    .some((item: SupportedDaoNetwork) => item.chainId === provider.currentProvider?.chainId) && Boolean(dao.daoAddress)
-  );
+
+  const isDaoOnSupportedNetwork = supportedNetworks.some((item: SupportedDaoNetwork) =>
+    item.chainId === Number(chainId)) && isDaoAddressExist;
+
   const isSelectPage = useMemo(() =>
     !isDaoAddressExist || (isDaoOnSupportedNetwork && isDaoSupportingToken),
   [isDaoAddressExist, isDaoOnSupportedNetwork, isDaoSupportingToken]);

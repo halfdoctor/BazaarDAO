@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { DAO_RESERVED_NAME, DefaultVotingSituations } from '@q-dev/gdk-sdk';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 import { NewProposalForm } from 'typings/forms';
 import {
@@ -9,8 +10,6 @@ import {
   ProposalBaseInfo,
   VotingActionType
 } from 'typings/proposals';
-
-import { useProviderStore } from 'store/provider/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
 import {
@@ -24,7 +23,7 @@ import {
 import { PROPOSAL_STATUS } from 'constants/statuses';
 
 export function useDaoProposals () {
-  const { currentProvider } = useProviderStore();
+  const { address: accountAddress } = useWeb3Context();
 
   async function getPanelSituations (panelName: string) {
     try {
@@ -69,12 +68,12 @@ export function useDaoProposals () {
 
   async function getUserVotingStats (proposal: DaoProposal) {
     try {
-      if (!daoInstance || !currentProvider?.selectedAddress) return { isUserVoted: false, isUserVetoed: false };
+      if (!daoInstance || !accountAddress) return { isUserVoted: false, isUserVetoed: false };
       const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
       const isUserVoted = await votingInstance.instance
-        .hasUserVoted(Number(proposal.id), currentProvider.selectedAddress);
+        .hasUserVoted(Number(proposal.id), accountAddress);
       const isUserVetoed = await votingInstance.instance
-        .hasUserVetoed(Number(proposal.id), currentProvider.selectedAddress);
+        .hasUserVetoed(Number(proposal.id), accountAddress);
       return { isUserVoted, isUserVetoed };
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -109,9 +108,9 @@ export function useDaoProposals () {
   }
   async function getAccountStatuses () {
     try {
-      if (!daoInstance || !currentProvider?.selectedAddress) return [];
+      if (!daoInstance || !accountAddress) return [];
       return await daoInstance.DAORegistryInstance.getAccountStatuses(
-        currentProvider.selectedAddress
+        accountAddress
       );
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -198,26 +197,24 @@ export function useDaoProposals () {
     type: VotingActionType;
     isVotedFor?: boolean;
   }) {
-    if (!daoInstance || !currentProvider) return;
+    if (!daoInstance || !accountAddress) return;
     const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
-    const userAddress = currentProvider?.selectedAddress;
 
     if (type === 'vote') {
       return isVotedFor
-        ? votingInstance.voteFor(Number(proposal.id), { from: userAddress })
-        : votingInstance.voteAgainst(Number(proposal.id), { from: userAddress });
+        ? votingInstance.voteFor(Number(proposal.id), { from: accountAddress })
+        : votingInstance.voteAgainst(Number(proposal.id), { from: accountAddress });
     }
 
-    return votingInstance.veto(Number(proposal.id), { from: userAddress });
+    return votingInstance.veto(Number(proposal.id), { from: accountAddress });
   }
 
   async function executeProposal (proposal: DaoProposal) {
-    if (!daoInstance || !currentProvider) return;
+    if (!daoInstance || !accountAddress) return;
     const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
-    const userAddress = currentProvider?.selectedAddress;
     const promiseStatus = await votingInstance.instance.getProposalStatus(Number(proposal.id));
     return promiseStatus === PROPOSAL_STATUS.passed && !proposal.executed
-      ? votingInstance.executeProposal(Number(proposal.id), { from: userAddress })
+      ? votingInstance.executeProposal(Number(proposal.id), { from: accountAddress })
       : undefined;
   }
 

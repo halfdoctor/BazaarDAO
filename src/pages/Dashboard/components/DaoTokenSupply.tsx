@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button, Dropdown, Icon, Modal } from '@q-dev/q-ui-kit';
 import { formatNumberCompact } from '@q-dev/utils';
-import { ErrorHandler } from 'helpers';
+import { useWeb3Context } from 'context/Web3ContextProvider';
+import { providers } from 'ethers';
+import { ErrorHandler, requestAddErc20 } from 'helpers';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
@@ -11,7 +13,6 @@ import ExplorerAddress from 'components/Custom/ExplorerAddress';
 import MintForm from './components/MintForm';
 
 import { useDaoTokenStore } from 'store/dao-token/hooks';
-import { useProviderStore } from 'store/provider/hooks';
 
 import { fromWeiWithDecimals } from 'utils/numbers';
 
@@ -77,18 +78,17 @@ const StyledWrapper = styled.div`
 
 function DaoTokenSupply () {
   const { t } = useTranslation();
-  const { currentProvider } = useProviderStore();
+  const { address: accountAddress, currentProvider } = useWeb3Context();
   const { tokenInfo } = useDaoTokenStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const isErc20Token = useMemo(() => tokenInfo?.type === 'erc20', [tokenInfo]);
-  const isTokenOwner = useMemo(() => tokenInfo?.owner === currentProvider?.selectedAddress,
-    [tokenInfo, currentProvider?.selectedAddress]);
+  const isErc20Token = tokenInfo?.type === 'erc20';
+  const isTokenOwner = tokenInfo?.owner === accountAddress;
 
   async function addTokenToWallet () {
-    if (!currentProvider?.provider || !tokenInfo || !isErc20Token) return;
+    if (!(currentProvider instanceof providers.Web3Provider) || !tokenInfo || !isErc20Token) return;
     try {
-      await currentProvider.addToken(
+      await requestAddErc20(currentProvider,
         {
           address: tokenInfo.address,
           symbol: tokenInfo.symbol,

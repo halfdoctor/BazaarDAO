@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { fillArray } from '@q-dev/utils';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { errors } from 'errors';
 import { utils } from 'ethers';
 import { ErrorHandler, getErc5484BalanceOf } from 'helpers';
@@ -29,6 +30,8 @@ import { fromWeiWithDecimals, toWeiWithDecimals } from 'utils/numbers';
 
 export function useDaoVault () {
   const dispatch = useDispatch();
+  const { currentProvider, currentSigner, address: accountAddress } = useWeb3Context();
+
   const vaultBalance: string = useAppSelector(({ qVault }) => qVault.vaultBalance);
   const walletBalance: string = useAppSelector(({ qVault }) => qVault.walletBalance);
   const chainBalance: string = useAppSelector(({ qVault }) => qVault.chainBalance);
@@ -41,11 +44,9 @@ export function useDaoVault () {
 
   async function loadConstitutionData () {
     try {
-      const { currentProvider } = getState().provider;
-      const address = currentProvider?.selectedAddress;
-      if (!daoInstance || !address) throw new errors.DefaultEmptyError();
+      if (!daoInstance || !accountAddress) throw new errors.DefaultEmptyError();
       const vaultInstance = await daoInstance.getVaultInstance();
-      const { isSigned, signedAt } = await vaultInstance.getUserConstitutionData(address);
+      const { isSigned, signedAt } = await vaultInstance.getUserConstitutionData(accountAddress);
       dispatch(setConstitutionData({
         isSigned,
         signedAt: signedAt.toString()
@@ -58,22 +59,20 @@ export function useDaoVault () {
   async function loadWalletBalance () {
     try {
       const { tokenInfo } = getState().daoToken;
-      const { currentProvider } = getState().provider;
-      const userAddress = currentProvider?.selectedAddress;
-      if (!tokenInfo || !userAddress) throw new errors.DefaultEmptyError();
+      if (!tokenInfo || !accountAddress) throw new errors.DefaultEmptyError();
       let balance;
       switch (tokenInfo.type) {
         case 'native':
-          balance = await currentProvider.provider?.getBalance(userAddress);
+          balance = await currentProvider?.getBalance(accountAddress);
           break;
         case 'erc20':
-          balance = await getBalanceOfErc20(userAddress);
+          balance = await getBalanceOfErc20(accountAddress);
           break;
         case 'erc721':
-          balance = await getBalanceOfErc721(userAddress);
+          balance = await getBalanceOfErc721(accountAddress);
           break;
         case 'erc5484':
-          balance = await getErc5484BalanceOf(userAddress);
+          balance = await getErc5484BalanceOf(accountAddress);
           break;
         default:
           throw new Error('Unknown token type');
@@ -87,13 +86,10 @@ export function useDaoVault () {
   }
   async function loadChainBalance () {
     try {
-      const { currentProvider } = getState().provider;
-
-      const userAddress = currentProvider?.selectedAddress;
-      if (!userAddress || !currentProvider?.provider) {
+      if (!accountAddress || !currentProvider) {
         throw new errors.DefaultEmptyError();
       };
-      const balance = await currentProvider.provider.getBalance(userAddress);
+      const balance = await currentProvider.getBalance(accountAddress);
       dispatch(setChainBalance(fromWeiWithDecimals(balance.toString(), Q_TOKEN_INFO.decimals)));
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -103,15 +99,14 @@ export function useDaoVault () {
 
   async function loadVaultBalance (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
       const { votingToken, tokenInfo } = getState().daoToken;
-      if (!daoInstance || !votingToken || !currentProvider?.selectedAddress || !tokenInfo) {
+      if (!daoInstance || !votingToken || !accountAddress || !tokenInfo) {
         throw new errors.DefaultEmptyError();
       };
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const balance = tokenInfo?.type === 'erc721' || tokenInfo?.type === 'erc5484'
-        ? await daoVaultInstance.instance.getUserVotingPower(address || currentProvider.selectedAddress, votingToken)
-        : await daoVaultInstance.instance.userTokenBalance(address || currentProvider.selectedAddress, votingToken);
+        ? await daoVaultInstance.instance.getUserVotingPower(address || accountAddress, votingToken)
+        : await daoVaultInstance.instance.userTokenBalance(address || accountAddress, votingToken);
       dispatch(setVaultBalance(fromWeiWithDecimals(balance.toString(), tokenInfo.decimals)));
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -121,15 +116,14 @@ export function useDaoVault () {
 
   async function loadWithdrawalAmount (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
       const { votingToken, tokenInfo } = getState().daoToken;
-      if (!daoInstance || !votingToken || !tokenInfo || !currentProvider?.selectedAddress) {
+      if (!daoInstance || !votingToken || !tokenInfo || !accountAddress) {
         throw new errors.DefaultEmptyError();
       };
       const daoVaultInstance = await daoInstance.getVaultInstance();
 
       const balance = await daoVaultInstance
-        .getTimeLockInfo(address || currentProvider.selectedAddress, votingToken);
+        .getTimeLockInfo(address || accountAddress, votingToken);
 
       dispatch(setWithdrawalBalance((fromWeiWithDecimals(balance.withdrawalAmount.toString(), tokenInfo.decimals))));
       dispatch(setLockedBalance(tokenInfo?.type === 'erc721' && Number(balance.unlockTime)
@@ -146,14 +140,13 @@ export function useDaoVault () {
 
   async function loadVaultNftsList (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
       const { tokenInfo } = getState().daoToken;
-      if (!daoInstance || !tokenInfo || tokenInfo?.type !== 'erc721' || !currentProvider?.selectedAddress) {
+      if (!daoInstance || !tokenInfo || tokenInfo?.type !== 'erc721' || !accountAddress) {
         throw new errors.DefaultEmptyError();
       };
       const daoVaultInstance = await daoInstance.getVaultInstance();
       const withdrawalNftsList = await daoVaultInstance.instance
-        .getUserNFTs(address || currentProvider.selectedAddress, tokenInfo.address);
+        .getUserNFTs(address || accountAddress, tokenInfo.address);
       dispatch(setWithdrawalNftsList(withdrawalNftsList.map(item => item.toString())));
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -163,10 +156,9 @@ export function useDaoVault () {
 
   async function loadWalletNftsList (address?: string) {
     try {
-      const { currentProvider } = getState().provider;
       const { tokenInfo } = getState().daoToken;
       const { walletBalance } = getState().qVault;
-      const searchAddress = address || currentProvider?.selectedAddress;
+      const searchAddress = address || accountAddress;
       if (tokenInfo?.type !== 'erc721' || !searchAddress) {
         throw new errors.DefaultEmptyError();
       };
@@ -195,31 +187,28 @@ export function useDaoVault () {
   }
 
   async function signConstitution () {
-    const { currentProvider } = getState().provider;
-    if (!daoInstance || !currentProvider?.signer || !currentProvider?.selectedAddress) return;
+    if (!daoInstance || !currentSigner || !accountAddress) return;
 
     const constitutionHash = await daoInstance.getConstitutionHash();
     const bytes = utils.arrayify(constitutionHash);
-    const signedHash = await currentProvider.signer.signMessage(bytes);
+    const signedHash = await currentSigner.signMessage(bytes);
 
     const daoVaultInstance = await daoInstance.getVaultInstance();
-    return daoVaultInstance.signConstitution(currentProvider.selectedAddress, signedHash);
+    return daoVaultInstance.signConstitution(accountAddress, signedHash);
   }
 
   async function depositToVault ({ amount, erc721Id }: {
     amount: string;
     erc721Id: string; }) {
     const { tokenInfo } = getState().daoToken;
-    const { currentProvider } = getState().provider;
-    const userAddress = currentProvider?.selectedAddress;
-    if (!daoInstance || !tokenInfo || !userAddress) return;
+    if (!daoInstance || !tokenInfo || !accountAddress) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
 
     switch (tokenInfo.type) {
       case 'native':
         return daoVaultInstance.depositNative(
           {
-            from: userAddress,
+            from: accountAddress,
             value: toWeiWithDecimals(amount, tokenInfo.decimals)
           }
         );
@@ -227,12 +216,12 @@ export function useDaoVault () {
         return daoVaultInstance.depositERC20(
           tokenInfo.address,
           toWeiWithDecimals(amount, tokenInfo.decimals),
-          { from: userAddress }
+          { from: accountAddress }
         );
       case 'erc721':
-        return daoVaultInstance.depositNFT(tokenInfo.address, erc721Id, { from: userAddress });
+        return daoVaultInstance.depositNFT(tokenInfo.address, erc721Id, { from: accountAddress });
       case 'erc5484':
-        return daoVaultInstance.authorizeBySBT(tokenInfo.address, { from: userAddress });
+        return daoVaultInstance.authorizeBySBT(tokenInfo.address, { from: accountAddress });
       default:
         throw new Error('Unknown token type');
     }
@@ -243,16 +232,14 @@ export function useDaoVault () {
     erc721Id: string;
   }) {
     const { tokenInfo } = getState().daoToken;
-    const { currentProvider } = getState().provider;
-    const userAddress = currentProvider?.selectedAddress;
-    if (!daoInstance || !tokenInfo || !userAddress) return;
+    if (!daoInstance || !tokenInfo || !accountAddress) return;
     const daoVaultInstance = await daoInstance.getVaultInstance();
     switch (tokenInfo.type) {
       case 'native':
         return daoVaultInstance.withdrawNative(
           toWeiWithDecimals(amount, tokenInfo.decimals),
           {
-            from: userAddress,
+            from: accountAddress,
             value: toWeiWithDecimals(amount, tokenInfo.decimals)
           }
         );
@@ -260,12 +247,12 @@ export function useDaoVault () {
         return daoVaultInstance.withdrawERC20(
           tokenInfo.address,
           toWeiWithDecimals(amount, tokenInfo.decimals),
-          { from: userAddress }
+          { from: accountAddress }
         );
       case 'erc721':
-        return daoVaultInstance.withdrawNFT(tokenInfo.address, erc721Id, { from: userAddress });
+        return daoVaultInstance.withdrawNFT(tokenInfo.address, erc721Id, { from: accountAddress });
       case 'erc5484':
-        return daoVaultInstance.revokeSBTAuthorization(tokenInfo.address, { from: userAddress });
+        return daoVaultInstance.revokeSBTAuthorization(tokenInfo.address, { from: accountAddress });
       default:
         throw new Error('Unknown token type');
     }

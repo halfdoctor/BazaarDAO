@@ -1,9 +1,8 @@
-
+import { EthProviderRpcError, handleEthError } from '@distributedlab/w3p';
 import { QRC721 } from '@q-dev/gdk-sdk';
 import { QRC721__factory as Erc721 } from '@q-dev/gdk-sdk/lib/ethers-contracts/factories/QRC721__factory';
 import { providers, Signer } from 'ethers';
-import { ErrorHandler, handleEthError } from 'helpers';
-import { EthProviderRpcError, UseProvider } from 'typings';
+import { ErrorHandler } from 'helpers';
 
 export let erc721ContractInstance: QRC721 | null = null;
 export let erc721ContractSigner: QRC721 | null = null;
@@ -18,7 +17,7 @@ export const getErc721ContractSigner = (address: string, signer?: Signer) => {
   return erc721ContractSigner;
 };
 
-export const loadDetailsErc721 = async (provider: UseProvider) => {
+export const loadDetailsErc721 = async (address: string) => {
   try {
     const [_name, _owner, _symbol, _totalSupply, _balance, _totalSupplyCap, _baseUri] =
       await Promise.all([
@@ -26,7 +25,7 @@ export const loadDetailsErc721 = async (provider: UseProvider) => {
         getOwnerErc721(),
         getSymbolErc721(),
         getTotalSupplyErc721(),
-        provider?.selectedAddress ? getBalanceOfErc721(provider.selectedAddress) : '0',
+        getBalanceOfErc721(address),
         getTotalSupplyCapErc721(),
         getBaseUriErc721()
       ]);

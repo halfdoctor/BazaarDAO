@@ -13,9 +13,6 @@ import useLoadDao from 'hooks/useLoadDao';
 import { useConstitution } from 'store/constitution/hooks';
 import { useDaoStore } from 'store/dao/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
-import { useProviderStore } from 'store/provider/hooks';
-
-import { PROVIDERS } from 'constants/providers';
 
 interface Props {
   children: ReactNode;
@@ -25,15 +22,14 @@ function DaoInitializer ({ children }: Props) {
   const { pathname } = useLocation();
   const [isInfoLoaded, setIsInfoLoaded] = useState(false);
   const [isDaoAddressChecked, setIsDaoAddressChecked] = useState(false);
-  const { currentProvider, isWeb3Loaded, initDefaultProvider } = useWeb3Context();
-  const { setDaoAddress, daoAddress, setSupportedNetworks, supportedNetworks } = useDaoStore();
-  const { setProviderValue, currentProvider: storeProvider, isRightNetwork } = useProviderStore();
+  const { currentProvider, isRightNetwork, isConnected } = useWeb3Context();
+  const { setDaoAddress, daoAddress, setSupportedNetworks } = useDaoStore();
   const { loadConstitutionData } = useDaoVault();
   const { loadAdditionalInfo } = useLoadDao();
   const { loadConstitutionHash } = useConstitution();
 
   const loadAppDetails = async () => {
-    if (!isWeb3Loaded || !storeProvider || !isDaoAddressChecked || !isRightNetwork) return;
+    if (!currentProvider || !isDaoAddressChecked || !isRightNetwork) return;
 
     setIsInfoLoaded(false);
     try {
@@ -64,40 +60,21 @@ function DaoInitializer ({ children }: Props) {
     }
   };
 
-  const tryInitProvider = async () => {
-    try {
-      if (storeProvider?.selectedProvider !== PROVIDERS.default) return;
-      const isDaoInitOnSupportedChain = supportedNetworks.find(item => item.chainId === storeProvider.chainId);
-      if (isDaoInitOnSupportedChain && supportedNetworks.length) {
-        await initDefaultProvider(isDaoInitOnSupportedChain.chainId);
-      }
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-    }
-  };
-
-  useEffect(() => {
-    if (currentProvider?.provider) {
-      setProviderValue(currentProvider);
-      tryInitProvider();
-    }
-  }, [currentProvider]);
-
   useEffect(() => {
     loadAppDetails();
-  }, [storeProvider, isDaoAddressChecked, isRightNetwork]);
+  }, [currentProvider, isDaoAddressChecked, isRightNetwork]);
 
   useEffect(() => {
     initDaoAddress();
   }, [pathname]);
 
-  if (isWeb3Loaded && storeProvider?.isConnected && !isRightNetwork) {
+  if (isConnected && !isRightNetwork) {
     return (
       <NetworkWarning />
     );
   }
 
-  if (!isWeb3Loaded || !isInfoLoaded || !storeProvider?.provider || !isDaoAddressChecked) {
+  if (!isInfoLoaded || !currentProvider || !isDaoAddressChecked) {
     return (
       <Wrap>
         <motion.div

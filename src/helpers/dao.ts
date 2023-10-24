@@ -1,8 +1,7 @@
 
 import { DAO_REGISTRY_NAME, MasterDAORegistryInstance } from '@q-dev/gdk-sdk';
-import { ethers } from 'ethers';
+import { providers } from 'ethers';
 import { ErrorHandler, isAddress } from 'helpers';
-import { UseProvider } from 'typings';
 
 import { chainIdToNetworkMap, networkConfigsMap, NetworkName } from 'constants/config';
 
@@ -14,7 +13,7 @@ export const getDaoSupportedNetworks = async (address: string) => {
       availableNetworks.map(async (name) => {
         const currentNetworkConfig = networkConfigsMap[name];
         try {
-          const currentProvider = new ethers.providers.JsonRpcProvider(currentNetworkConfig.rpcUrl);
+          const currentProvider = new providers.JsonRpcProvider(currentNetworkConfig.rpcUrl);
           const masterDaoRegistry = new MasterDAORegistryInstance(
             currentProvider, currentNetworkConfig.masterDaoRegistryAddress
           );
@@ -33,11 +32,15 @@ export const getDaoSupportedNetworks = async (address: string) => {
   }
 };
 
-export const checkDaoInRegistry = async (provider: UseProvider | null, address: string) => {
+export const checkDaoInRegistry = async (
+  address: string,
+  chainId: number,
+  provider?: providers.Web3Provider | providers.JsonRpcProvider,
+) => {
   try {
-    if (!provider?.provider) return false;
-    const { masterDaoRegistryAddress } = networkConfigsMap[chainIdToNetworkMap[provider?.chainId]];
-    const masterDaoRegistry = new MasterDAORegistryInstance(provider.provider, masterDaoRegistryAddress);
+    if (!provider) return false;
+    const { masterDaoRegistryAddress } = networkConfigsMap[chainIdToNetworkMap[chainId]];
+    const masterDaoRegistry = new MasterDAORegistryInstance(provider, masterDaoRegistryAddress);
     const check = await masterDaoRegistry.instance.containsPool(DAO_REGISTRY_NAME, address);
     return check;
   } catch (error) {

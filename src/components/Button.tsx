@@ -2,8 +2,7 @@ import { HTMLAttributes } from 'react';
 
 import { Button as UiButton } from '@q-dev/q-ui-kit';
 import { ButtonLook } from '@q-dev/q-ui-kit/dist/components/Button/Button';
-
-import { useProviderStore } from 'store/provider/hooks';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 
 interface Props extends HTMLAttributes<HTMLButtonElement> {
   type?: 'button' | 'submit' | 'reset';
@@ -32,10 +31,10 @@ function Button ({
   onClick,
   ...rest
 }: Props) {
-  const { currentProvider, isRightNetwork } = useProviderStore();
+  const { isConnected, isRightNetwork } = useWeb3Context();
 
   const isDisabled = disabled ||
-    (!alwaysEnabled && (!currentProvider?.isConnected || !isRightNetwork));
+    (!alwaysEnabled && (!isConnected || !isRightNetwork));
 
   return (
     <UiButton

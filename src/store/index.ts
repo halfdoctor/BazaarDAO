@@ -7,7 +7,6 @@ import dao from './dao/reducer';
 import daoToken from './dao-token/reducer';
 import qVault from './dao-vault/reducer';
 import expertPanels from './expert-panels/reducer';
-import provider from './provider/reducer';
 import transaction from './transaction/reducer';
 
 export const store = configureStore({
@@ -17,16 +16,7 @@ export const store = configureStore({
     dao,
     expertPanels,
     constitution,
-    provider,
     daoToken
-  },
-  middleware: getDefaultMiddleware => {
-    return getDefaultMiddleware({ // Hack for provider
-      serializableCheck: {
-        ignoredActions: ['provider-slice/setProvider'],
-        ignoredPaths: ['provider.currentProvider']
-      },
-    });
   },
 });
 

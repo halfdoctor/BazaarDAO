@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { DecodedData, DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Modal, Tooltip } from '@q-dev/q-ui-kit';
+import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
@@ -16,7 +17,6 @@ import useEndTime from '../../hooks/useEndTime';
 
 import VoteForm from './components/VoteForm';
 
-import { useProviderStore } from 'store/provider/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
@@ -30,7 +30,7 @@ interface Props {
 
 function ProposalActions ({ proposal, title, decodedCallData }: Props) {
   const { t } = useTranslation();
-  const { userAddress } = useProviderStore();
+  const { address: accountAddress } = useWeb3Context();
   const { submitTransaction } = useTransaction();
   const { voteForProposal, executeProposal } = useDaoProposals();
   const { checkIsUserCanVeto, checkIsUserCanVoting } = useProposalActionsInfo();
@@ -60,10 +60,10 @@ function ProposalActions ({ proposal, title, decodedCallData }: Props) {
   const canExecute = useMemo(() => {
     if (proposal.votingStatus !== PROPOSAL_STATUS.passed) return false;
     if (decodedCallData && isMembershipSituation && decodedCallData?.functionName === 'addMember') {
-      return Boolean(userAddress) && decodedCallData.arguments?.member_ === userAddress;
+      return Boolean(accountAddress) && decodedCallData.arguments?.member_ === accountAddress;
     }
     return true;
-  }, [proposal.votingStatus, userAddress, decodedCallData, isMembershipSituation]);
+  }, [proposal.votingStatus, accountAddress, decodedCallData, isMembershipSituation]);
 
   const executeOrSignConstitution = () => {
     isSignNeeded
