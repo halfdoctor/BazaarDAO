@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PROVIDERS } from '@distributedlab/w3p';
@@ -7,13 +7,29 @@ import { ErrorHandler, isMobile } from 'helpers';
 
 import Button from 'components/Button';
 
-const METAMASK_DOWNLOAD_LINK = 'https://metamask.io/download';
-
-function ConnectButtons () {
+function ConnectButton () {
   const { t } = useTranslation();
-  const { init } = useWeb3Context();
+  const { init, providerDetector } = useWeb3Context();
   const [isLoading, setIsLoading] = useState(false);
-  const METAMASK_APP_CONNECT_URL = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+
+  const buttons = [
+    {
+      name: 'MetaMask',
+      downloadLink: 'https://metamask.io/download',
+      appConnectUrl: `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`,
+      iconSrc: '/icons/metamask.svg',
+      provider: PROVIDERS.Metamask,
+      isProviderDetected: Boolean(providerDetector.providers?.metamask),
+    },
+    {
+      name: 'Coinbase',
+      downloadLink: 'https://www.coinbase.com/wallet/downloads',
+      appConnectUrl: `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(window.location.host + window.location.pathname)}`,
+      iconSrc: '/icons/coinbase.png',
+      provider: PROVIDERS.Coinbase,
+      isProviderDetected: Boolean(providerDetector.providers?.coinbase),
+    }
+  ];
 
   const connectWallet = async (provider: PROVIDERS) => {
     setIsLoading(true);
@@ -37,43 +53,52 @@ function ConnectButtons () {
 
   return (
     <div className="connect-buttons">
-      {window.ethereum?.isMetaMask
-        ? (
-          <Button
-            alwaysEnabled
-            style={{ width: '100%' }}
-            onClick={() => connectWallet(PROVIDERS.Metamask)}
-          >
-            <img
-              src="/icons/metamask.svg"
-              alt="metamask"
-              className="connect-buttons__icon"
-            />
-            <span>{t('CONNECT_WITH_METAMASK')}</span>
-          </Button>
-        )
-        : (
-          <a
-            href={isMobile() ? METAMASK_APP_CONNECT_URL : METAMASK_DOWNLOAD_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Button
-              alwaysEnabled
-              block
-              style={{ width: '100%' }}
-            >
-              <img
-                src="/icons/metamask.svg"
-                alt="metamask"
-                className="connect-buttons__icon"
-              />
-              <span>{isMobile() ? t('GO_TO_METAMASK') : t('INSTALL_METAMASK')}</span>
-            </Button>
-          </a>
-        )}
+      {buttons.map((item, index) => (
+        <Fragment key={index}>
+          {item.isProviderDetected
+            ? (
+              <Button
+                alwaysEnabled
+                style={{ width: '100%' }}
+                onClick={() => connectWallet(item.provider)}
+              >
+                <img
+                  src={item.iconSrc}
+                  alt={item.name}
+                  className="connect-buttons__icon"
+                />
+                <span>{t('CONNECT_WITH_PROVIDER', { name: item.name })}</span>
+              </Button>
+            )
+            : (
+              <a
+                href={isMobile() ? item.appConnectUrl : item.downloadLink}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button
+                  alwaysEnabled
+                  block
+                  style={{ width: '100%' }}
+                >
+                  <img
+                    src={item.iconSrc}
+                    alt={item.name}
+                    className="connect-buttons__icon"
+                  />
+                  <span>
+                    {isMobile()
+                      ? t('GO_TO_PROVIDER', { name: item.name })
+                      : t('INSTALL_PROVIDER', { name: item.name })
+                    }
+                  </span>
+                </Button>
+              </a>
+            )}
+        </Fragment>
+      ))}
     </div>
   );
 }
 
-export default ConnectButtons;
+export default ConnectButton;

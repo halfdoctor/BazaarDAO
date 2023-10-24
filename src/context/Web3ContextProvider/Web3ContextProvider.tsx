@@ -1,7 +1,6 @@
 import { createContext, FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 
 import {
-  Chain,
   ChainId,
   CoinbaseProvider,
   EthereumProvider,
@@ -20,7 +19,7 @@ import { useProvider } from 'hooks';
 
 import { Wrap } from './styles';
 
-import { chainIdToNetworkMap, ORIGIN_NETWORK_NAME } from 'constants/config';
+import { chainIdToNetworkMap, connectorParametersMap, ORIGIN_NETWORK_NAME } from 'constants/config';
 import { FALLBACK_PROVIDER_NAMES, FALLBACK_PROVIDERS } from 'constants/providers';
 import { LOAD_TYPES } from 'constants/statuses';
 
@@ -127,7 +126,7 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
     await init(providerType);
   }
 
-  async function switchNetwork (chainId: ChainId, chain?: Chain) {
+  async function switchNetwork (chainId: ChainId) {
     if (provider) {
       switch (provider.providerType) {
         case FALLBACK_PROVIDER_NAMES.mainnetFallback:
@@ -135,10 +134,10 @@ const Web3ContextProvider: FC<{ children: ReactElement }> = ({ children }) => {
         case FALLBACK_PROVIDER_NAMES.devnetFallback:
           const providerType = getFallbackProviderType(chainId);
           if (!providerType || provider.providerType === providerType) return;
-          init(providerType);
-          return;
+          return init(providerType);
         default:
-          return provider?.switchNetwork(chainId, chain);
+          const chainInfo = connectorParametersMap[+chainId];
+          return provider?.switchNetwork(chainId, chainInfo);
       }
     }
   }

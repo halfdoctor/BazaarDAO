@@ -16,8 +16,8 @@ export function getEthErrorMessage (error: Error): string {
   switch (error.constructor) {
     case errors.ProviderChainNotFoundError:
       return t('ERROR_PROVIDER_CHAIN_NOT_FOUND');
-    case errors.ProviderNotSupportedError:
-      return t('ERROR_PROVIDER_NOT_SUPPORTED');
+    case errors.ProviderNotInitializedError:
+      return t('ERROR_PROVIDER_NOT_INITIALIZED');
     case errors.ProviderUserRejectedRequest:
       return t('ERROR_PROVIDER_USER_REJECTED_REQUEST');
     case errors.ProviderUnauthorized:
@@ -52,8 +52,6 @@ export function getEthErrorMessage (error: Error): string {
       return t('ERROR_PROVIDER_LIMIT_EXCEEDED');
     case errors.ProviderJsonRpcVersionNotSupported:
       return t('ERROR_PROVIDER_JSON_RPC_VERSION_NOT_SUPPORTED');
-    case errors.ProviderWrapperMethodNotFoundError:
-      return t('ERROR_PROVIDER_WRAPPER_METHOD_NOT_FOUND');
     default:
       return t('ERROR_DEFAULT');
   }
