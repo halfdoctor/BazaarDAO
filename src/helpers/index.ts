@@ -10,3 +10,4 @@ export * from './ethereum';
 export * from './promise';
 export * from './provider';
 export * from './time-locks';
+export * from './voting-situation';

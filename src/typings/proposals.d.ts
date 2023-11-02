@@ -1,8 +1,18 @@
+import { VotingSituationInfo as BaseVotingSituationInfo } from '@q-dev/gdk-sdk';
 import { BigNumber } from 'ethers';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
 
 export type VotingActionType = 'vote' | 'veto';
+
+export interface ExternalVotingSituationInfo {
+  abi: string[];
+  description: string;
+}
+
+export interface VotingSituation extends BaseVotingSituationInfo {
+  externalInfo: ExternalVotingSituationInfo | null;
+}
 
 export interface DaoProposalVotingInfo {
   votingStatus: PROPOSAL_STATUS;

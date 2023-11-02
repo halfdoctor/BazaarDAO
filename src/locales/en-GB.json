@@ -396,5 +396,6 @@
   "PERMISSION_INDEX": "Permission {{index}}",
   "PERMISSION_MANAGER_VOTE": "Permissions Manager Vote",
   "PERMISSION_MANAGER_TIP": "Permission Manager Vote facilitates the integration of modules into the DAO",
-  "GET_Q_TOKENS": "Get Q Tokens"
+  "GET_Q_TOKENS": "Get Q Tokens",
+  "UPDATE": "Update"
 }

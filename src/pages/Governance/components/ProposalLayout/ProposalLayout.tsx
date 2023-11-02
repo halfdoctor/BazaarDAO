@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { DefaultVotingSituations, getDecodeData } from '@q-dev/gdk-sdk';
+import { DefaultVotingSituations, getDecodeData, getDecodeDataByABI } from '@q-dev/gdk-sdk';
 import { Tag } from '@q-dev/q-ui-kit';
 import { ProposalBaseInfo } from 'typings/proposals';
 
@@ -20,9 +20,13 @@ import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
 import { ABI_NAME_BY_SITUATION_MAP } from 'constants/proposal';
 import { PROPOSAL_STATUS } from 'constants/statuses';
 
-function ProposalLayout ({ proposal }: {
+interface Props {
   proposal: ProposalBaseInfo;
-}) {
+  externalAbi?: string[];
+  isExternalProposalSituation: boolean;
+}
+
+function ProposalLayout ({ proposal, externalAbi, isExternalProposalSituation }: Props) {
   const { t } = useTranslation();
   const status = useMemo(() => {
     return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
@@ -30,13 +34,15 @@ function ProposalLayout ({ proposal }: {
 
   const decodedCallData = useMemo(() => {
     const abiName = ABI_NAME_BY_SITUATION_MAP[proposal.relatedVotingSituation as DefaultVotingSituations];
-    if (!abiName) return null;
+    if (!abiName && !externalAbi?.length) return null;
     try {
-      return getDecodeData(abiName, proposal.callData) || null;
+      return abiName
+        ? getDecodeData(abiName, proposal.callData) || null
+        : getDecodeDataByABI(externalAbi, proposal.callData) || null;
     } catch (_) {
       return null;
     }
-  }, [proposal.callData, proposal.relatedVotingSituation]);
+  }, [proposal.callData, proposal.relatedVotingSituation, externalAbi]);
 
   return (
     <PageLayout
@@ -51,7 +57,9 @@ function ProposalLayout ({ proposal }: {
       <ProposalLayoutContainer>
         <ProposalDetails
           proposal={proposal}
+          externalAbi={externalAbi}
           decodedCallData={decodedCallData}
+          isExternalProposalSituation={isExternalProposalSituation}
         />
 
         <div className="proposal-layout__voting">

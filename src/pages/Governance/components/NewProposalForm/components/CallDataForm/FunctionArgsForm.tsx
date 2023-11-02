@@ -1,48 +1,58 @@
-import { MutableRefObject, useEffect } from 'react';
+import { memo, MutableRefObject, useEffect, useMemo } from 'react';
 
 import { useForm } from '@q-dev/form-hooks';
-import { getEncodedData } from '@q-dev/gdk-sdk';
+import { DecodedData, getEncodedDataByABI } from '@q-dev/gdk-sdk';
 import { generateInitialFieldsByABI } from 'helpers/dao-form';
-import { DecodedCallData } from 'typings/dao';
 import { FormValidatesMap } from 'typings/forms';
 
 import Input from 'components/Input';
 import Textarea from 'components/Textarea';
 
+import { formatFunctionMinimalAbi } from 'contracts/helpers/interface-helper';
+
 interface Props {
-  abiName: string;
+  abi: string[];
   formId: string;
   formValidatesMap: MutableRefObject<FormValidatesMap>;
-  functionName: string;
-  decodedCallData: DecodedCallData | null;
+  abiFunction: string;
+  decodedCallData: DecodedData | null;
   setCallData: (value: string) => void;
 }
 
 function FunctionArgsForm ({
-  functionName,
+  abiFunction,
   formId,
   formValidatesMap,
   setCallData,
   decodedCallData,
-  abiName,
+  abi,
 }: Props) {
   const { initialValues, validators, fieldsInfo } = generateInitialFieldsByABI({
-    abiName,
-    functionName,
+    abiFunction,
     decodedCallData
   });
+
+  const name = useMemo(() => {
+    return formatFunctionMinimalAbi([abiFunction])[0]?.replace('function ', '') || '';
+  }, [abiFunction]);
 
   const form = useForm<string, string>({
     initialValues,
     validators
   });
 
-  const fieldValues = fieldsInfo.map(({ key }) => form.values[key]);
+  const fieldValues = useMemo(() => {
+    return fieldsInfo.map(({ key, isArrayType }) =>
+      isArrayType
+        ? form.values[key].trim().split(/\s+/)
+        : form.values[key]
+    );
+  }, [form.values]);
 
   useEffect(() => {
     try {
       if (fieldsInfo.length && fieldsInfo.every(({ key }) => form.validateByKey(key, true))) {
-        const callData = getEncodedData(abiName, functionName, ...fieldValues);
+        const callData = getEncodedDataByABI(abi, name, ...fieldValues);
         setCallData(callData);
       } else {
         setCallData('');
@@ -50,7 +60,7 @@ function FunctionArgsForm ({
     } catch (e) {
       setCallData('');
     }
-  }, [...fieldValues, abiName, functionName]);
+  }, [...fieldValues, abi, abiFunction, name]);
 
   useEffect(() => {
     formValidatesMap.current[formId] = form.validate;
@@ -62,13 +72,14 @@ function FunctionArgsForm ({
 
   return (
     <>
-      {fieldsInfo.map(({ key, label, placeholder, type }, index) =>
-        type === 'bytes'
+      {fieldsInfo.map(({ key, label, placeholder, type, isArrayType }, index) =>
+        type === 'bytes' || isArrayType
           ? (
             <Textarea
               {...form.fields[key]}
               key={index + key}
               label={label}
+              rows={5}
               placeholder={placeholder}
             />
           )
@@ -85,4 +96,4 @@ function FunctionArgsForm ({
   );
 }
 
-export default FunctionArgsForm;
+export default memo(FunctionArgsForm);

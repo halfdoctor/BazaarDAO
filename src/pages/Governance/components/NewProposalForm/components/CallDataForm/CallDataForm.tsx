@@ -1,8 +1,8 @@
-import { MutableRefObject, useEffect, useMemo, useState } from 'react';
+import { memo, MutableRefObject, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Form, useForm } from '@q-dev/form-hooks';
-import { getDecodeData } from '@q-dev/gdk-sdk';
+import { getDecodeDataByABI } from '@q-dev/gdk-sdk';
 import { Select, Switch } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 import { CallDataProposalForm, FormValidatesMap } from 'typings/forms';
@@ -16,8 +16,7 @@ import { callData, required } from 'utils/validators';
 interface Props {
   formId: string;
   formValidatesMap: MutableRefObject<FormValidatesMap>;
-  abiName: string;
-  availableFunctions: string[];
+  abi: string[];
   onChange: (form: Form<CallDataProposalForm>) => void;
 }
 
@@ -26,55 +25,51 @@ export const CallDataFormContainer = styled.div`
   gap: 16px;
 `;
 
-function CallDataForm ({ onChange, formValidatesMap, formId, abiName, availableFunctions }: Props) {
+function CallDataForm ({ onChange, formValidatesMap, formId, abi }: Props) {
   const { t } = useTranslation();
   const [isRawMode, setIsRawMode] = useState(false);
 
   const form = useForm({
     initialValues: {
-      functionName: '',
+      abiFunction: '',
       callData: '',
     },
     validators: {
-      functionName: [required],
-      callData: [required, callData({
-        functionNames: availableFunctions,
-        abiName: abiName,
-      })],
+      abiFunction: [required],
+      callData: [required, callData(abi)],
     },
   });
 
-  const functionNameOptions = useMemo(() => {
-    return availableFunctions.map((name) => ({
-      label: name,
-      value: name
+  const abiFunctionOptions = useMemo(() => {
+    return abi.map(func => ({
+      label: func.match(/^function ([a-zA-Z0-9]*)/)?.[1] || func,
+      value: func
     }));
-  }, [availableFunctions]);
+  }, [abi]);
 
   const decodedCallData = useMemo(() => {
     try {
       if (!form.validateByKey('callData', true)) return null;
-      const decodedData = getDecodeData(abiName, form.values.callData);
-
+      const decodedData = getDecodeDataByABI(abi, form.values.callData);
       if (!decodedData) return null;
 
-      return functionNameOptions.some(({ value }) => value === decodedData?.functionName)
+      return abiFunctionOptions.some(({ value }) => value === decodedData?.abiFunction)
         ? decodedData
         : null;
     } catch (e) {
       return null;
     }
-  }, [form.values.callData, functionNameOptions, abiName]);
+  }, [form.values.callData, abiFunctionOptions, abi]);
 
   useEffect(() => {
     if (isRawMode) {
       if (decodedCallData) {
-        form.fields.functionName.onChange(decodedCallData?.functionName || '');
-      } else if (form.values.functionName) {
-        form.fields.functionName.onChange('');
+        form.fields.abiFunction.onChange(decodedCallData?.abiFunction || '');
+      } else if (form.values.abiFunction) {
+        form.fields.abiFunction.onChange('');
       }
     }
-  }, [form.values.functionName, decodedCallData, isRawMode]);
+  }, [form.values.abiFunction, decodedCallData, isRawMode]);
 
   useEffect(() => {
     onChange(form);
@@ -88,33 +83,34 @@ function CallDataForm ({ onChange, formValidatesMap, formId, abiName, availableF
         onChange={() => setIsRawMode(!isRawMode)}
       />
 
-      {
-        isRawMode
-          ? <Textarea
-            {...form.fields.callData}
-            label={t('CALL_DATA')}
-            maxLength={1000}
+      {isRawMode
+        ? (<Textarea
+          {...form.fields.callData}
+          label={t('CALL_DATA')}
+          maxLength={10000}
+        />)
+        : (<>
+          <Select
+            {...form.fields.abiFunction}
+            label={t('FUNCTION')}
+            placeholder={t('FUNCTION')}
+            options={abiFunctionOptions}
           />
-          : <>
-            <Select
-              {...form.fields.functionName}
-              label={t('FUNCTION')}
-              placeholder={t('FUNCTION')}
-              options={functionNameOptions}
-            />
+          {form.fields.abiFunction.value !== '' && (
             <FunctionArgsForm
-              key={form.values.functionName}
+              key={form.values.abiFunction}
               formId={formId}
               formValidatesMap={formValidatesMap}
-              functionName={form.values.functionName}
+              abiFunction={form.values.abiFunction}
               setCallData={form.fields.callData.onChange}
               decodedCallData={decodedCallData}
-              abiName={abiName}
+              abi={abi}
             />
-          </>
+          )}
+        </>)
       }
     </CallDataFormContainer>
   );
 }
 
-export default CallDataForm;
+export default memo(CallDataForm);

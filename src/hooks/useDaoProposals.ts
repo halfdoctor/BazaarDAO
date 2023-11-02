@@ -14,6 +14,7 @@ import {
 import { daoInstance } from 'contracts/contract-instance';
 import {
   createConstitutionProposal,
+  createExternalProposal,
   createGeneralSituationProposal,
   createMembershipSituationProposal,
   createMultiCallProposal,
@@ -29,7 +30,7 @@ export function useDaoProposals () {
     try {
       if (!daoInstance) return;
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
-      return votingInstance.instance.getVotingSituations();
+      return await votingInstance.getVotingSituations();
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }
@@ -39,7 +40,7 @@ export function useDaoProposals () {
     try {
       if (!daoInstance) return;
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
-      const votingSituationInfo = await votingInstance.instance.getVotingSituationInfo(situation);
+      const votingSituationInfo = await votingInstance.getBasicVotingSituationInfo(situation);
       return votingSituationInfo;
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -50,7 +51,7 @@ export function useDaoProposals () {
     try {
       if (!daoInstance) return;
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
-      return votingInstance.getProposalList(offset, limit);
+      return await votingInstance.getProposalList(offset, limit);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }
@@ -60,9 +61,20 @@ export function useDaoProposals () {
     try {
       if (!daoInstance) return;
       const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
-      return votingInstance.getProposal(Number(proposalId));
+      return await votingInstance.getProposal(Number(proposalId));
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
+    }
+  }
+
+  async function getProposalSituationLink (panelName: string, proposalId: string | number) {
+    try {
+      if (!daoInstance) return '';
+      const votingInstance = await daoInstance.getDAOVotingInstance(panelName);
+      return await votingInstance.proposalSituationLink(Number(proposalId));
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return '';
     }
   }
 
@@ -169,7 +181,11 @@ export function useDaoProposals () {
     }
   }
 
-  async function createNewProposal (form: NewProposalForm) {
+  async function createNewProposal (form: NewProposalForm, isExternalSituation?: boolean) {
+    if (isExternalSituation) {
+      return createExternalProposal(form);
+    }
+
     switch (form.type) {
       case DefaultVotingSituations.General:
         return createGeneralSituationProposal(form);
@@ -224,6 +240,7 @@ export function useDaoProposals () {
     executeProposal: useCallback(executeProposal, []),
     getProposal: useCallback(getProposal, []),
     getProposalsList: useCallback(getProposalsList, []),
+    getProposalSituationLink: useCallback(getProposalSituationLink, []),
     getProposalVotingDetails: useCallback(getProposalVotingDetails, []),
     getPanelSituations: useCallback(getPanelSituations, []),
     getUserVotingStats: useCallback(getUserVotingStats, []),

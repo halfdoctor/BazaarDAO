@@ -16,29 +16,45 @@ import CallDataForm from './CallDataForm';
 
 import { DAO_REGISTRY_AVAILABLE_FUNCTIONS, PERMISSION_MANAGER_AVAILABLE_FUNCTIONS } from 'constants/proposal';
 
+interface Props {
+  situation: string;
+  abi?: string[];
+  maxFormCount?: number;
+}
+
 const MAX_UPGRADES_COUNT = 10;
 
 const AVAILABLE_SITUATIONS_INFO_MAP = {
   [DefaultVotingSituations.DAORegistry as string]: {
     titleKey: 'UPGRADE_INDEX',
-    abiName: 'DAORegistry',
-    functions: Object.values(DAO_REGISTRY_AVAILABLE_FUNCTIONS)
+    abi: DAO_REGISTRY_AVAILABLE_FUNCTIONS as string[]
   },
   [DefaultVotingSituations.PermissionManager as string]: {
     titleKey: 'PERMISSION_INDEX',
-    abiName: 'PermissionManager',
-    functions: Object.values(PERMISSION_MANAGER_AVAILABLE_FUNCTIONS)
+    abi: PERMISSION_MANAGER_AVAILABLE_FUNCTIONS as string[]
   },
 };
 
-function CallDataStep ({ situation }: { situation: string}) {
+function getSituationInfo (situationName: string, externalAbi?: string[]) {
+  const availableSituationInfo = AVAILABLE_SITUATIONS_INFO_MAP[situationName];
+  if (availableSituationInfo) return availableSituationInfo;
+  if (!externalAbi?.length) return null;
+
+  return {
+    abi: externalAbi,
+    titleKey: 'UPDATE_INDEX',
+  };
+}
+
+function CallDataStep ({ situation, abi, maxFormCount = MAX_UPGRADES_COUNT }: Props) {
   const { t } = useTranslation();
   const { goNext, goBack } = useNewProposalForm();
   const formValidatesMap = useRef<FormValidatesMap>({});
+  const isSingleForm = maxFormCount <= 1;
 
   const formArray = useFormArray<CallDataProposalForm>({
     minCount: 1,
-    maxCount: MAX_UPGRADES_COUNT,
+    maxCount: maxFormCount,
     onSubmit: (forms) => {
       goNext({ callData: forms.map(i => i.callData) });
     },
@@ -52,8 +68,7 @@ function CallDataStep ({ situation }: { situation: string}) {
     formArray.submit();
   };
 
-  const situationsInfo = AVAILABLE_SITUATIONS_INFO_MAP[situation];
-
+  const situationsInfo = getSituationInfo(situation, abi);
   if (!situationsInfo) return null;
 
   return (
@@ -65,14 +80,14 @@ function CallDataStep ({ situation }: { situation: string}) {
       {formArray.forms.map((form, i) => (
         <FormBlock
           key={form.id}
-          title={t(situationsInfo.titleKey, { index: i + 1 })}
+          title={isSingleForm ? undefined : t(situationsInfo.titleKey, { index: i + 1 }) }
           icon={formArray.forms.length > 1 ? 'delete' : undefined}
+          block={!isSingleForm}
           onAction={() => formArray.removeForm(form.id)}
         >
           <CallDataForm
             key={form.id}
-            abiName={situationsInfo.abiName}
-            availableFunctions={situationsInfo.functions}
+            abi={situationsInfo.abi}
             formValidatesMap={formValidatesMap}
             formId={form.id}
             onChange={form.onChange}
@@ -80,7 +95,7 @@ function CallDataStep ({ situation }: { situation: string}) {
         </FormBlock>
       ))}
 
-      {formArray.forms.length < MAX_UPGRADES_COUNT && (
+      {formArray.forms.length < maxFormCount && (
         <Button
           look="ghost"
           onClick={formArray.appendForm}
