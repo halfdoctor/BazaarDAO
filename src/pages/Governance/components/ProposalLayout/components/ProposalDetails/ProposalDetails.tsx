@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import BaseDetails from './components/BaseDetails';
+import ExternalCallDataDetails from './components/ExternalCallDataDetails';
 import MembershipSituationsProposalDetails from './components/MembershipSituationsProposalDetails';
 import MultiCallList from './components/MultiCallList';
 import ParamsList from './components/ParamsList';
@@ -17,9 +18,11 @@ export const ProposalDetailsContainer = styled.div`
 interface Props {
   proposal: ProposalBaseInfo;
   decodedCallData: DecodedData | null;
+  externalAbi?: string[];
+  isExternalProposalSituation: boolean;
 }
 
-function ProposalDetails ({ proposal, decodedCallData }: Props) {
+function ProposalDetails ({ proposal, decodedCallData, externalAbi, isExternalProposalSituation }: Props) {
   const { t } = useTranslation();
 
   const hasParamsList = decodedCallData !== null && (
@@ -57,9 +60,18 @@ function ProposalDetails ({ proposal, decodedCallData }: Props) {
       {hasParamsList && (
         <ParamsList decodedCallData={decodedCallData} />
       )}
+
       {hasMultiCallList && (
         <MultiCallList
           decodedCallData={decodedCallData}
+          votingSituation={proposal.relatedVotingSituation}
+        />
+      )}
+
+      {isExternalProposalSituation && (
+        <ExternalCallDataDetails
+          callData={proposal.callData}
+          externalAbi={externalAbi}
           votingSituation={proposal.relatedVotingSituation}
         />
       )}

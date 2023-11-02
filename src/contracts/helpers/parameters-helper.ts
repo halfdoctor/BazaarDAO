@@ -1,4 +1,4 @@
-import { DAO_RESERVED_NAME, filterParameter, getParametersValue, ParameterType } from '@q-dev/gdk-sdk';
+import { DAO_RESERVED_NAME, filterParameter, getParameterValues, ParameterType } from '@q-dev/gdk-sdk';
 import { ErrorHandler } from 'helpers';
 import { ParameterKey } from 'typings/forms';
 import { ParameterValue } from 'typings/parameters';
@@ -34,7 +34,7 @@ export async function getParameters (
     const filteredParameters = parameterType
       ? filterParameter(panelParameters, parameterType)
       : panelParameters;
-    const parametersNormalValue = getParametersValue(filteredParameters);
+    const parametersNormalValue = getParameterValues(filteredParameters);
     return filteredParameters.map((item: ParameterKey, index: number) => {
       return { ...item, normalValue: parametersNormalValue[index] };
     });

@@ -32,7 +32,7 @@ interface NewProposalForm {
 
 interface CallDataProposalForm {
   callData: string;
-  functionName: string;
+  abiFunction: string;
 }
 
 type FormValidatesMap = Record<string, () => boolean>;

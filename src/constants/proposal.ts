@@ -20,18 +20,18 @@ export const ABI_NAME_BY_SITUATION_MAP: Record<DefaultVotingSituations, string> 
   [DefaultVotingSituations.DAORegistry]: 'DAORegistry',
 });
 
-export const DAO_REGISTRY_AVAILABLE_FUNCTIONS = Object.freeze({
-  injectDependencies: 'injectDependencies',
-  upgradeContract: 'upgradeContract',
-  upgradeContractAndCall: 'upgradeContractAndCall',
-  addContract: 'addContract',
-  addProxyContract: 'addProxyContract',
-  justAddProxyContract: 'justAddProxyContract',
-  removeContract: 'removeContract'
-});
+export const DAO_REGISTRY_AVAILABLE_FUNCTIONS = Object.freeze([
+  'function addContract(string name_, address contractAddress_)',
+  'function addProxyContract(string name_, address contractAddress_)',
+  'function injectDependencies(string name_)',
+  'function justAddProxyContract(string name_, address contractAddress_)',
+  'function removeContract(string name_)',
+  'function upgradeContract(string name_, address newImplementation_)',
+  'function upgradeContractAndCall(string name_, address newImplementation_, bytes data_)',
+]);
 
-export const PERMISSION_MANAGER_AVAILABLE_FUNCTIONS = Object.freeze({
-  confExternalModule: 'confExternalModule',
-  addVetoGroup: 'addVetoGroup',
-  removeVetoGroup: 'removeVetoGroup',
-});
+export const PERMISSION_MANAGER_AVAILABLE_FUNCTIONS = Object.freeze([
+  'function addVetoGroup(address target_, address linkedMemberStorage_)',
+  'function confExternalModule(address dao_, string moduleName_)',
+  'function removeVetoGroup(address target_)'
+]);

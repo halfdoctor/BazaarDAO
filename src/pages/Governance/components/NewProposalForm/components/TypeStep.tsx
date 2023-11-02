@@ -3,9 +3,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 
 import { useForm } from '@q-dev/form-hooks';
+import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Icon, RadioGroup, Spinner, Tooltip } from '@q-dev/q-ui-kit';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 import styled from 'styled-components';
+import { VotingSituation } from 'typings/proposals';
 
 import { FormStep } from 'components/MultiStepForm';
 
@@ -19,6 +21,14 @@ import { useDaoStore } from 'store/dao/hooks';
 import { AVAILABLE_VOTING_SITUATIONS } from 'constants/proposal';
 import { RoutePaths } from 'constants/routes';
 import { required } from 'utils/validators';
+
+const DEFAULT_VOTING_SITUATIONS_LIST = Object.values(DefaultVotingSituations);
+
+const HAS_COMING_SOON_SITUATION = new Set(
+  [
+    ...AVAILABLE_VOTING_SITUATIONS,
+    ...DEFAULT_VOTING_SITUATIONS_LIST
+  ]).size !== DEFAULT_VOTING_SITUATIONS_LIST.length;
 
 const SpinnerWrap = styled.div`
   width: fit-content;
@@ -37,14 +47,22 @@ const RadioGroupLabel = styled.div`
   }
 `;
 
+interface Props {
+  situations: VotingSituation[];
+  panelName: string;
+}
+
 interface ProposalPermissions {
   value: string;
   isComingSoon: boolean;
   isUserHasVotingPower: boolean;
   isUserMember: boolean;
+  isExternal: boolean;
+  description: string;
+  isDisabled: boolean;
 }
 
-function TypeStep ({ situations, panelName }: { situations: string[]; panelName: string }) {
+function TypeStep ({ situations, panelName }: Props) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDaoStore();
   const { address: accountAddress } = useWeb3Context();
@@ -69,20 +87,22 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
 
   const loadPermissions = async () => {
     setIsLoading(true);
-    const availableProposals = situations.map(item => {
-      const proposalStep = AVAILABLE_VOTING_SITUATIONS.find(el => el === item);
+    const allPermissions = await Promise.all(situations.map(async (item) => {
+      let isComingSoon = false;
+      if (HAS_COMING_SOON_SITUATION && !item.isExternal) {
+        isComingSoon = !AVAILABLE_VOTING_SITUATIONS.find(el => el === item.name);
+      }
+
+      const { isUserHasVotingPower, isUserMember } = await checkIsUserCanCreateProposal(panelName, item.name);
       return {
-        value: proposalStep || item,
-        isComingSoon: !proposalStep,
-      };
-    });
-    const allPermissions = await Promise.all(availableProposals.map(async (item) => {
-      const { isUserHasVotingPower, isUserMember } = await checkIsUserCanCreateProposal(panelName, item.value);
-      return {
+        value: item.name,
+        isExternal: item.isExternal,
         isUserMember,
         isUserHasVotingPower,
-        value: item.value,
-        isComingSoon: item?.isComingSoon || false
+        isComingSoon,
+        description: item.externalInfo?.description || '',
+        isDisabled: (item.isExternal && !item.externalInfo?.abi) ||
+          isComingSoon || !isUserHasVotingPower || !isUserMember
       };
     }));
     setProposalPermissions(allPermissions);
@@ -95,27 +115,29 @@ function TypeStep ({ situations, panelName }: { situations: string[]; panelName:
 
   useEffect(() => {
     if (proposalPermissions.length && accountAddress) {
-      const proposal = proposalPermissions.find((i) =>
-        !i.isComingSoon && i.isUserHasVotingPower && i.isUserMember
-      );
-      if (proposal) {
-        form.fields.type.onChange(proposal.value);
+      const permission = proposalPermissions.find(i => !i.isDisabled);
+      if (permission) {
+        form.fields.type.onChange(permission.value);
       }
     }
   }, [proposalPermissions, panelName, accountAddress]);
 
   const options = proposalPermissions.map((item) => ({
     value: item.value,
-    tip: item.isComingSoon ? t('COMING_SOON') : proposalOptionsMap[item.value].tip,
-    disabled: item.isComingSoon || !item.isUserHasVotingPower || !item.isUserMember,
-    label: item.isComingSoon
+    tip: item.isComingSoon
+      ? t('COMING_SOON')
+      : item.isExternal
+        ? item.description
+        : proposalOptionsMap[item.value]?.tip,
+    disabled: item.isDisabled,
+    label: item.isComingSoon || item.isExternal
       ? item.value
       : (item.isUserHasVotingPower && item.isUserMember) || !accountAddress
-        ? proposalOptionsMap[item.value].label
+        ? proposalOptionsMap[item.value]?.label
         : (
           <RadioGroupLabel key={item.value}>
             <span className="text-lg font-semibold">
-              {proposalOptionsMap[item.value].label}
+              {proposalOptionsMap[item.value]?.label}
             </span>
             <Tooltip
               className="radio-group-label__tooltip"

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router';
 
+import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Icon } from '@q-dev/q-ui-kit';
 import { useInterval } from '@q-dev/react-hooks';
-import { ErrorHandler } from 'helpers';
+import { ErrorHandler, getExternalVotingSituationInfo } from 'helpers';
 import { ProposalBaseInfo } from 'typings/proposals';
 
 import Button from 'components/Button';
@@ -30,8 +31,10 @@ function Proposal () {
   const { t } = useTranslation();
   const { composeDaoLink } = useDaoStore();
   const { allPanels, loadExpertPanels } = useExpertPanels();
-  const { getProposalBaseInfo } = useDaoProposals();
+  const { getProposalBaseInfo, getProposalSituationLink } = useDaoProposals();
   const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
+  const [externalAbi, setExternalAbi] = useState<string[] | undefined>();
+  const [isExternalProposalSituation, setIsExternalProposalSituation] = useState(false);
   const { id, panel } = useParams<ProposalParams>();
   const { pendingTransactions } = useTransaction();
 
@@ -41,10 +44,25 @@ function Proposal () {
       const pathPanelId = panel.split('panel-')[1];
       const panelName = allPanels.find((_, index) => index === Number(pathPanelId)) || '';
       const proposalBaseInfo = panelName && id ? await getProposalBaseInfo(panelName, id) : null;
+
       if (!proposalBaseInfo) {
         history.replace('/not-found');
         return;
       }
+
+      const situationsList: string[] = Object.values(DefaultVotingSituations);
+
+      const isExternalSituation = !situationsList.includes(proposalBaseInfo.relatedVotingSituation);
+      if (isExternalSituation) {
+        const link = await getProposalSituationLink(panelName, id);
+
+        if (link) {
+          const info = await getExternalVotingSituationInfo(link);
+          setExternalAbi(info?.abi);
+        }
+      }
+
+      setIsExternalProposalSituation(isExternalSituation);
       setProposal(proposalBaseInfo);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
@@ -62,11 +80,7 @@ function Proposal () {
       : composeDaoLink(RoutePaths.governance));
   };
 
-  useEffect(() => {
-    loadProposal();
-  }, []);
-
-  useInterval(loadProposal, 60_000);
+  useInterval(loadProposal, 60_000, { immediate: true });
 
   useEffect(() => {
     if (!pendingTransactions.length) {
@@ -88,7 +102,11 @@ function Proposal () {
       </Button>
 
       {proposal
-        ? <ProposalLayout proposal={proposal} />
+        ? <ProposalLayout
+          proposal={proposal}
+          externalAbi={externalAbi}
+          isExternalProposalSituation={isExternalProposalSituation}
+        />
         : <ProposalSkeleton />
       }
     </div>

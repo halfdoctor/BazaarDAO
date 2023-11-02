@@ -95,6 +95,20 @@ export async function createMultiCallProposal (form: NewProposalForm, abiName: s
   return daoInstance.createVoting(votingInstance, votingParams);
 }
 
+export async function createExternalProposal (form: NewProposalForm) {
+  const callData = form.callData[0];
+  if (!daoInstance || !callData) return;
+  const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
+
+  const votingParams: CreateVotingParameters = {
+    callData,
+    remark: form.remark,
+    situation: form.type,
+  };
+
+  return daoInstance.createVoting(votingInstance, votingParams);
+}
+
 export const getStatusState = (status: PROPOSAL_STATUS): TagState => {
   switch (status) {
     case PROPOSAL_STATUS.pending:

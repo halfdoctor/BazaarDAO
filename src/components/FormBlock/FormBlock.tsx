@@ -9,10 +9,11 @@ import { StyledFormBlock } from './styles';
 
 interface Props {
   icon?: IconName;
-  title: string;
+  title?: string;
   disabled?: boolean;
   onAction?: () => void;
   children: ReactNode | ReactNode[];
+  block?: boolean;
 }
 
 function FormBlock ({
@@ -20,10 +21,11 @@ function FormBlock ({
   title,
   disabled = false,
   onAction,
-  children
+  children,
+  block = true
 }: Props) {
   return (
-    <StyledFormBlock $disabled={disabled}>
+    <StyledFormBlock $disabled={disabled} $block={block}>
       {icon && (
         <Button
           icon
@@ -36,9 +38,11 @@ function FormBlock ({
         </Button>
       )}
 
-      <p className="form-block__title text-lg font-semibold">
-        {title}
-      </p>
+      {title && (
+        <p className="form-block__title text-lg font-semibold">
+          {title}
+        </p>
+      )}
 
       <div className="form-block__content">
         {children}

@@ -1,11 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router';
 
 import { useMultiStepForm } from '@q-dev/form-hooks';
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 import { Illustration } from '@q-dev/q-ui-kit';
+import { getExternalVotingSituationInfo } from 'helpers';
 import { NewProposalForm as NewProposalFormType } from 'typings/forms';
+import { VotingSituation } from 'typings/proposals';
 
 import LoadingSpinner from 'components/LoadingSpinner';
 import MultiStepForm from 'components/MultiStepForm';
@@ -52,13 +54,24 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
   const { createNewProposal, getPanelSituations } = useDaoProposals();
   const { submitTransaction } = useTransaction();
   const { composeDaoLink } = useDaoStore();
-  const [panelSituations, setPanelSituations] = useState<string[]>([]);
+  const [panelSituations, setPanelSituations] = useState<VotingSituation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadPanelSituations = async () => {
     setIsLoading(true);
-    const situations = await getPanelSituations(panelName);
-    setPanelSituations(situations || []);
+    const situations = await getPanelSituations(panelName) || [];
+    const situationsInfo = await Promise.all(situations.map(async item => {
+      const externalInfo = item.isExternal
+        ? await getExternalVotingSituationInfo(item.externalLink)
+        : null;
+
+      return {
+        ...item,
+        externalInfo,
+      };
+    }));
+
+    setPanelSituations(situationsInfo);
     setIsLoading(false);
   };
 
@@ -75,118 +88,145 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
     onConfirm: (form) => {
       submitTransaction({
         successMessage: t('CREATE_PROPOSAL_TX'),
-        submitFn: () => createNewProposal(form),
+        submitFn: () => {
+          const isExternal = panelSituations.find(i => i.name === form.type)?.isExternal;
+          return createNewProposal(form, isExternal);
+        },
         onSuccess: () => history.push(composeDaoLink(RoutePaths.governance))
       });
     },
   });
 
-  const steps = useMemo(() => {
-    return !isLoading && panelSituations.length
-      ? [
-        {
-          id: 'type',
-          name: t('PROPOSAL_TYPE'),
-          title: t('TYPE_OF_Q_PROPOSAL'),
-          children: <TypeStep situations={panelSituations} panelName={panelName} />
-        },
-        ...(form.values.type === DefaultVotingSituations.DAORegistry
-          ? [
-            {
-              id: 'dao-registry-basic',
-              name: t('BASIC_DETAILS'),
-              title: t('BASIC_DETAILS'),
-              children: <BasicDetailsStep />
-            },
-            {
-              id: 'dao-registry-situation',
-              name: t('DETAILS'),
-              title: t('DETAILS'),
-              children: <CallDataStep situation={form.values.type} />
-            }
-          ]
-          : []
-        ),
-        ...(form.values.type === DefaultVotingSituations.PermissionManager
-          ? [
-            {
-              id: 'permission-manager-basic',
-              name: t('BASIC_DETAILS'),
-              title: t('BASIC_DETAILS'),
-              children: <BasicDetailsStep />
-            },
-            {
-              id: 'permission-manager-situation',
-              name: t('DETAILS'),
-              title: t('DETAILS'),
-              children: <CallDataStep situation={form.values.type} />
-            }
-          ]
-          : []
-        ),
-        ...(form.values.type === DefaultVotingSituations.General
-          ? [{
-            id: 'general-situation',
+  const currentSituation = panelSituations.find(i => i.name === form.values.type);
+
+  const steps = !isLoading && panelSituations.length
+    ? [
+      {
+        id: 'type',
+        name: t('PROPOSAL_TYPE'),
+        title: t('TYPE_OF_Q_PROPOSAL'),
+        children: <TypeStep situations={panelSituations} panelName={panelName} />
+      },
+      ...(currentSituation?.isExternal && currentSituation?.externalInfo?.abi
+        ? [
+          {
+            id: 'dao-registry-basic',
+            name: t('BASIC_DETAILS'),
+            title: t('BASIC_DETAILS'),
+            children: <BasicDetailsStep />
+          },
+          {
+            id: 'dao-registry-situation',
             name: t('DETAILS'),
             title: t('DETAILS'),
-            children: <GeneralSituationStep />
-          }]
-          : []
-        ),
-        ...(form.values.type === DefaultVotingSituations.ConfigurationParameter
-          ? [{
-            id: 'configuration-parameter-situation',
-            name: t('PARAMETERS'),
-            title: t('CONFIG_PARAMETER_VOTE'),
-            children: <ParameterSituationStep panelName={panelName} situation="configuration" />
-          }]
-          : []
-        ),
-        ...(form.values.type === DefaultVotingSituations.RegularParameter
-          ? [{
-            id: 'regular-parameter-situation',
-            name: t('PARAMETERS'),
-            title: t('EXPERT_PARAMETER_VOTE'),
-            children: <ParameterSituationStep panelName={panelName} situation="regular" />
-          }]
-          : []
-        ),
-        ...(form.values.type === DefaultVotingSituations.Membership
-          ? [{
-            id: 'membership-situation',
+            children: <CallDataStep
+              situation={form.values.type}
+              abi={currentSituation.externalInfo.abi}
+              maxFormCount={1}
+            />
+          }
+        ]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.DAORegistry
+        ? [
+          {
+            id: 'dao-registry-basic',
+            name: t('BASIC_DETAILS'),
+            title: t('BASIC_DETAILS'),
+            children: <BasicDetailsStep />
+          },
+          {
+            id: 'dao-registry-situation',
             name: t('DETAILS'),
-            title: t('INTERACTION_WITH_USER'),
-            children: <MembershipSituationStep panelName={panelName} />
-          }]
-          : []
-        ),
-        ...(form.values.type === DefaultVotingSituations.Constitution
-          ? [
-            {
-              id: 'constitution-situation-1',
-              name: t('BASIC_DETAILS'),
-              title: t('BASIC_DETAILS'),
-              children: <ConstitutionHashStep />
-            },
-            {
-              id: 'constitution-situation-2',
-              name: t('PARAMETERS'),
-              title: t('CHANGE_OF_CONSTITUTION_PARAMETERS'),
-              children: <ConstitutionSituationStep panelName={panelName} />
-            },
-          ]
-          : []
-        ),
-        {
-          id: 'confirm',
-          name: t('CONFIRMATION'),
-          title: t('CONFIRMATION'),
-          tip: t('CONFIRMATION_TIP'),
-          children: <ConfirmationStep />
-        }
-      ]
-      : [];
-  }, [form.values.type, panelName, isLoading, panelSituations]);
+            title: t('DETAILS'),
+            children: <CallDataStep situation={form.values.type} />
+          }
+        ]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.PermissionManager
+        ? [
+          {
+            id: 'permission-manager-basic',
+            name: t('BASIC_DETAILS'),
+            title: t('BASIC_DETAILS'),
+            children: <BasicDetailsStep />
+          },
+          {
+            id: 'permission-manager-situation',
+            name: t('DETAILS'),
+            title: t('DETAILS'),
+            children: <CallDataStep situation={form.values.type} />
+          }
+        ]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.General
+        ? [{
+          id: 'general-situation',
+          name: t('DETAILS'),
+          title: t('DETAILS'),
+          children: <GeneralSituationStep />
+        }]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.ConfigurationParameter
+        ? [{
+          id: 'configuration-parameter-situation',
+          name: t('PARAMETERS'),
+          title: t('CONFIG_PARAMETER_VOTE'),
+          children: <ParameterSituationStep panelName={panelName} situation="configuration" />
+        }]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.RegularParameter
+        ? [{
+          id: 'regular-parameter-situation',
+          name: t('PARAMETERS'),
+          title: t('EXPERT_PARAMETER_VOTE'),
+          children: <ParameterSituationStep panelName={panelName} situation="regular" />
+        }]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.Membership
+        ? [{
+          id: 'membership-situation',
+          name: t('DETAILS'),
+          title: t('INTERACTION_WITH_USER'),
+          children: <MembershipSituationStep panelName={panelName} />
+        }]
+        : []
+      ),
+      ...(form.values.type === DefaultVotingSituations.Constitution
+        ? [
+          {
+            id: 'constitution-situation-1',
+            name: t('BASIC_DETAILS'),
+            title: t('BASIC_DETAILS'),
+            children: <ConstitutionHashStep />
+          },
+          {
+            id: 'constitution-situation-2',
+            name: t('PARAMETERS'),
+            title: t('CHANGE_OF_CONSTITUTION_PARAMETERS'),
+            children: <ConstitutionSituationStep panelName={panelName} />
+          },
+        ]
+        : []
+      ),
+      {
+        id: 'confirm',
+        name: t('CONFIRMATION'),
+        title: t('CONFIRMATION'),
+        tip: t('CONFIRMATION_TIP'),
+        children: <ConfirmationStep
+          abi={currentSituation?.externalInfo?.abi}
+          isExternalSituation={currentSituation?.isExternal}
+        />
+      }
+    ]
+    : [];
 
   if (isLoading) {
     return (

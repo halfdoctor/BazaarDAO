@@ -11,7 +11,12 @@ import useProposalSteps from 'hooks/useProposalSteps';
 
 import { useNewProposalForm } from '../NewProposalForm';
 
-function ConfirmationStep () {
+interface Props {
+  abi?: string[];
+  isExternalSituation?: boolean;
+}
+
+function ConfirmationStep ({ abi, isExternalSituation }: Props) {
   const { t } = useTranslation();
   const { values, goBack, confirm, updateStep } = useNewProposalForm();
   const { proposalOptionsMap } = useProposalSteps();
@@ -110,7 +115,8 @@ function ConfirmationStep () {
             <p className="text-lg pre-line">{values.remark}</p>
           </div>
         </FormBlock>)}
-      {(values.type === DefaultVotingSituations.DAORegistry ||
+      {(Boolean(isExternalSituation) ||
+        values.type === DefaultVotingSituations.DAORegistry ||
         values.type === DefaultVotingSituations.PermissionManager) && (
         <>
           <FormBlock
@@ -131,9 +137,12 @@ function ConfirmationStep () {
             {values.callData.map((callData, index) => (
               <DecodedCallDataViewer
                 key={index}
+                scheme={isExternalSituation ? undefined : 'top-border'}
                 callData={callData}
-                index={index}
+                index={index + 1}
                 votingSituation={values.type}
+                abi={abi}
+                withoutHeader={isExternalSituation}
               />
             ))}
           </FormBlock>

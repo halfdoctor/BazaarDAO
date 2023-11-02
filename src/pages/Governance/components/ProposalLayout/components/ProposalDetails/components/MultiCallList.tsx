@@ -53,8 +53,8 @@ function MultiCallList ({ decodedCallData, votingSituation, className }: Props) 
         <div className="details-list">
           {decodedMulticallArgs.map((item, index) => (
             <DecodedCallDataViewer
-              key={index}
-              block
+              key={index + 1}
+              scheme="block"
               callData={item}
               votingSituation={votingSituation}
               index={index}

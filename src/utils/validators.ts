@@ -1,5 +1,5 @@
 import { getValidatorValue } from '@q-dev/form-hooks';
-import { getDecodeData, ParameterType } from '@q-dev/gdk-sdk';
+import { getDecodeDataByABI, ParameterType } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
 import { isAddress, isBytesLike } from 'helpers';
 import i18n from 'i18next';
@@ -106,8 +106,18 @@ export const address: Validator<string> = val => ({
   message: i18n.t('VALIDATION_ADDRESS')
 });
 
+export const addressList: Validator<string> = val => ({
+  isValid: !val || val.trim().split(/\s+/).every(i => isAddress(i)),
+  message: i18n.t('VALIDATION_ADDRESS')
+});
+
 export const bytes: Validator<string> = val => ({
   isValid: !val || isBytesLike(val),
+  message: i18n.t('VALIDATION_BYTES')
+});
+
+export const bytesList: Validator<string> = val => ({
+  isValid: !val || val.trim().split(/\s+/).every(i => isBytesLike(i)),
   message: i18n.t('VALIDATION_BYTES')
 });
 
@@ -187,8 +197,13 @@ export const number: Validator = val => ({
   message: i18n.t('VALIDATION_NUMBER_VALUE')
 });
 
-export const integer: Validator = val => ({
-  isValid: INTEGER_REGEX.test(String(val)) && Number.isInteger(Number(val)),
+export const integer: Validator<string> = val => ({
+  isValid: INTEGER_REGEX.test(val) && Number.isInteger(Number(val)),
+  message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
+});
+
+export const integerList: Validator<string> = val => ({
+  isValid: !val || val.trim().split(/\s+/).every(i => INTEGER_REGEX.test(i) && Number.isInteger(Number(i))),
   message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
 });
 
@@ -197,12 +212,12 @@ export const name: Validator = val => ({
   message: i18n.t('VALIDATION_NAME')
 });
 
-export const callData = ({ functionNames, abiName }: {functionNames: string[]; abiName: string}): Validator =>
+export const callData = (abi: string | string[]): Validator =>
   (val) => {
     let isValid: boolean;
     try {
-      const decodedData = val ? getDecodeData(abiName, String(val)) : null;
-      isValid = Boolean(decodedData) && functionNames.some(name => name === decodedData?.functionName);
+      const decodedData = val ? getDecodeDataByABI(abi, String(val)) : null;
+      isValid = Boolean(decodedData);
     } catch (e) {
       isValid = false;
     }
