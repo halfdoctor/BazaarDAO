@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import { Q_REPRESENTATIVES_PANEL_NAME } from '@q-dev/gdk-sdk';
 import { Button, Icon, media } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
@@ -75,7 +76,11 @@ function Dashboard () {
 
         <div className="dashboard__panels">
           {expertPanels.map((panel, index) => (
-            <ExpertPanelBlock key={index} name={panel} />
+            <ExpertPanelBlock
+              key={index}
+              name={panel}
+              isSecondary={panel === Q_REPRESENTATIVES_PANEL_NAME}
+            />
           ))}
         </div>
       </StyledWrapper>

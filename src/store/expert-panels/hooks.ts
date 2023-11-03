@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
+import { DAO_RESERVED_NAME, Q_REPRESENTATIVES_PANEL_NAME } from '@q-dev/gdk-sdk';
 import { ErrorHandler } from 'helpers';
 
 import { setAllPanels, setExpertPanels } from './reducer';
@@ -14,6 +14,9 @@ export function useExpertPanels () {
   const dispatch = useDispatch();
   const expertPanels: string[] = useAppSelector(({ expertPanels }) => expertPanels.expertPanels);
   const allPanels: string[] = useAppSelector(({ expertPanels }) => expertPanels.allPanels);
+  const availablePanels: string[] = useAppSelector(({ expertPanels }) =>
+    expertPanels.allPanels.filter(i => i !== Q_REPRESENTATIVES_PANEL_NAME)
+  );
 
   async function loadExpertPanels () {
     try {
@@ -41,6 +44,7 @@ export function useExpertPanels () {
   return {
     expertPanels,
     allPanels,
+    availablePanels,
 
     loadExpertPanels: useCallback(loadExpertPanels, []),
     getPanelMembers: useCallback(getPanelMembers, []),

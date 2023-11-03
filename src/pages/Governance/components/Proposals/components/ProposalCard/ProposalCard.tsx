@@ -65,7 +65,7 @@ transition: all 150ms ease-out;
 function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDaoStore();
-  const { allPanels } = useExpertPanels();
+  const { availablePanels } = useExpertPanels();
 
   const leftQuorum = useMemo(() => {
     return BigNumber.max(
@@ -81,7 +81,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   }, [proposal]);
 
   const panelNamePosition = useMemo(() => {
-    return allPanels.findIndex((item: string) => item === proposal.relatedExpertPanel);
+    return availablePanels.findIndex((item: string) => item === proposal.relatedExpertPanel);
   }, [proposal]);
 
   return proposal
