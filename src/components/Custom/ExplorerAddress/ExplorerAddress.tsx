@@ -25,6 +25,7 @@ function ExplorerAddress ({
         target="_blank"
         rel="noreferrer"
         title="View on Explorer"
+        className="explorer-address__link"
       >
         <p className="ellipsis" style={{ marginBottom: 0 }}>
           {short ? trimString(address) : address}

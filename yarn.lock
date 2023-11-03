@@ -1036,10 +1036,10 @@
     bignumber.js "^9.0.1"
     lodash "^4.17.21"
 
-"@q-dev/gdk-sdk@^0.14.1":
-  version "0.14.1"
-  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.14.1.tgz#6b00246c246367bef1cfbd384443d9058f08d387"
-  integrity sha1-awAkbCRjZ77xz704REPZBY8I04c=
+"@q-dev/gdk-sdk@^0.14.2":
+  version "0.14.2"
+  resolved "https://gitlab.com/api/v4/projects/44117295/packages/npm/@q-dev/gdk-sdk/-/@q-dev/gdk-sdk-0.14.2.tgz#10f9593175f662291a64ecc0a87155aa9720a995"
+  integrity sha1-EPlZMXX2YikaZOzAqHFVqpcgqZU=
   dependencies:
     "@opengsn/provider" "2.2.5"
     axios "^1.3.4"

@@ -23,7 +23,7 @@ import { RoutePaths } from 'constants/routes';
 function Governance () {
   const { pathname } = useLocation();
   const { t } = useTranslation();
-  const { loadExpertPanels, allPanels } = useExpertPanels();
+  const { loadExpertPanels, availablePanels } = useExpertPanels();
 
   const { composeDaoLink } = useDaoStore();
   const [isLoading, setIsLoading] = useState(true);
@@ -39,12 +39,12 @@ function Governance () {
   }, []);
 
   const tabs = useMemo(() => {
-    return allPanels.map((name, index) => ({
+    return availablePanels.map((name, index) => ({
       id: index,
       label: name,
       link: composeDaoLink(`/governance/panel-${index}`),
     }));
-  }, [allPanels]);
+  }, [availablePanels]);
 
   const pathToNewProposalPath = tabs.reduce((acc: Record<string, string>, item) => {
     acc[item.link] = `${item.link}/new`;

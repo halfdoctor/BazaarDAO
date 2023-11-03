@@ -19,7 +19,7 @@
     "@metamask/jazzicon": "^2.0.0",
     "@popperjs/core": "^2.11.5",
     "@q-dev/form-hooks": "^1.0.0-rc.1",
-    "@q-dev/gdk-sdk": "^0.14.1",
+    "@q-dev/gdk-sdk": "^0.14.2",
     "@q-dev/q-ui-kit": "^1.0.0-rc.6",
     "@q-dev/react-hooks": "^1.0.0-rc.1",
     "@q-dev/utils": "^0.1.0",

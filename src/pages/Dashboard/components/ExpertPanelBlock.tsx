@@ -3,15 +3,19 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Spinner } from '@q-dev/q-ui-kit';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
 
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
-const StyledWrapper = styled.div`
+const StyledWrapper = styled.div<{$isSecondary?: boolean}>`
   .expert-panel-block__header {
     margin-right: -8px;
+    color: ${({ theme, $isSecondary }) => $isSecondary
+      ? theme.colors.textSecondary
+      : theme.colors.textPrimary
+    }
   }
 
   .expert-panel-block__loading-wrp {
@@ -30,13 +34,20 @@ const StyledWrapper = styled.div`
     align-items: center;
     gap: 4px;
   }
+
+  ${({ theme, $isSecondary }) => $isSecondary && css`
+    .explorer-address__link {
+      color: ${theme.colors.textSecondary};
+    }
+  `}
 `;
 
 interface Props {
   name: string;
+  isSecondary?: boolean;
 }
 
-function ExpertPanelBlock ({ name }: Props) {
+function ExpertPanelBlock ({ name, isSecondary }: Props) {
   const { t } = useTranslation();
   const { getPanelMembers } = useExpertPanels();
 
@@ -55,7 +66,7 @@ function ExpertPanelBlock ({ name }: Props) {
   }
 
   return (
-    <StyledWrapper className="block">
+    <StyledWrapper className="block" $isSecondary={isSecondary}>
       <div className="expert-panel-block__header block__header">
         <h3 className="text-h3">
           {t('EXPERT_PANEL_MEMBERS', { panel: name })}

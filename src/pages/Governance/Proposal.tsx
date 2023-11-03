@@ -30,7 +30,7 @@ function Proposal () {
   const history = useHistory();
   const { t } = useTranslation();
   const { composeDaoLink } = useDaoStore();
-  const { allPanels, loadExpertPanels } = useExpertPanels();
+  const { availablePanels, loadExpertPanels } = useExpertPanels();
   const { getProposalBaseInfo, getProposalSituationLink } = useDaoProposals();
   const [proposal, setProposal] = useState<ProposalBaseInfo | null>(null);
   const [externalAbi, setExternalAbi] = useState<string[] | undefined>();
@@ -42,7 +42,7 @@ function Proposal () {
     try {
       await loadExpertPanels();
       const pathPanelId = panel.split('panel-')[1];
-      const panelName = allPanels.find((_, index) => index === Number(pathPanelId)) || '';
+      const panelName = availablePanels.find((_, index) => index === Number(pathPanelId)) || '';
       const proposalBaseInfo = panelName && id ? await getProposalBaseInfo(panelName, id) : null;
 
       if (!proposalBaseInfo) {
