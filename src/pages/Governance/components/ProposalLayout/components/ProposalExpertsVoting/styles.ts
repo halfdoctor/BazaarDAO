@@ -1,18 +1,18 @@
 import { media } from '@q-dev/q-ui-kit';
 import styled from 'styled-components';
 
-export const StyledProposalVoting = styled.div`
-  .proposal-voting__progress {
+export const StyledProposalExpertsVoting = styled.div`
+  .proposal-experts-voting__progress {
     margin-top: 8px;
   }
 
-  .proposal-voting__votes {
+  .proposal-experts-voting__votes {
     margin-top: 24px;
     display: grid;
     gap: 16px;
   }
 
-  .proposal-voting__vote {
+  .proposal-experts-voting__vote {
     display: grid;
     grid-template-columns: auto 1fr 2fr 3fr;
     gap: 8px;
@@ -22,12 +22,12 @@ export const StyledProposalVoting = styled.div`
     }
   }
 
-  .proposal-voting__vote-bg {
+  .proposal-experts-voting__vote-bg {
     width: 8px;
     border-radius: 8px;
   }
 
-  .proposal-voting__vote-val {
+  .proposal-experts-voting__vote-val {
     text-align: right;
   }
 `;

@@ -90,7 +90,8 @@
   "STATUS_PASSED": "Passed",
   "STATUS_PENDING": "Pending",
   "STATUS_REJECTED": "Rejected",
-  "STATUS_OBSOLETE": "Obsolete",
+  "STATUS_UNDER_REVIEW": "Under review",
+  "STATUS_UNDER_EVALUATION": "Under evaluation",
   "STATUS_OPEN": "Open",
   "STATUS_DECIDED": "Decided",
   "UNKNOWN_PROPOSAL": "Unknown Proposal",
@@ -321,6 +322,7 @@
   "VOTE_TX": "Vote",
   "MINT_TX": "Mint Token",
   "VETO_TX": "Veto",
+  "APPEAL_TX": "Appeal",
   "EXECUTE_TX": "Execution",
   "DEPOSIT_INTO_VAULT_TX": "Deposit to DAO Vault",
   "WITHDRAW_FROM_VAULT_TX": "Withdraw from DAO Vault",
@@ -397,5 +399,8 @@
   "PERMISSION_MANAGER_VOTE": "Permissions Manager Vote",
   "PERMISSION_MANAGER_TIP": "Permission Manager Vote facilitates the integration of modules into the DAO",
   "GET_Q_TOKENS": "Get Q Tokens",
-  "UPDATE": "Update"
+  "UPDATE": "Update",
+  "APPEAL": "Appeal",
+  "EXPERTS_TURNOUT": "Experts Turnout",
+  "EXPERTS_VOTING": "Experts Voting"
 }

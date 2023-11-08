@@ -1,7 +1,6 @@
-
 import { useCallback } from 'react';
 
-import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
+import { DAO_RESERVED_NAME, VotingType } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
@@ -42,6 +41,24 @@ function useProposalActionsInfo () {
     }
   }
 
+  async function checkIsUserCanCreateProposal (panelName: string, situation: string) {
+    try {
+      const situationInfo = await getPanelSituationInfo(panelName, situation);
+      if (!situationInfo || !tokenInfo) return { isUserHasVotingPower: false, isUserMember: false };
+      const isUserMember = await checkIsUserMember(panelName);
+      const isUserTokenHolder = await checkIsUserTokenHolder();
+      const isUserHasVotingPower = toBigNumber(vaultBalance)
+        .isGreaterThanOrEqualTo(fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals));
+      return {
+        isUserHasVotingPower: isUserHasVotingPower && isUserTokenHolder,
+        isUserMember: Number(situationInfo.votingType.toString()) === VotingType.NonRestricted || isUserMember
+      };
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return { isUserHasVotingPower: false, isUserMember: false };
+    }
+  };
+
   async function checkIsUserCanVeto (target: string) {
     try {
       if (!daoInstance || !accountAddress) return false;
@@ -54,45 +71,31 @@ function useProposalActionsInfo () {
       return false;
     }
   }
-  async function checkIsUserCanCreateProposal (panelName: string, situation: string) {
-    try {
-      const situationInfo = await getPanelSituationInfo(panelName, situation);
-      if (!situationInfo || !tokenInfo) return { isUserHasVotingPower: false, isUserMember: false };
-      const isUserMember = await checkIsUserMember(panelName);
-      const isUserTokenHolder = await checkIsUserTokenHolder();
-      const isUserHasVotingPower = toBigNumber(vaultBalance)
-        .isGreaterThanOrEqualTo(fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals));
-      return {
-        isUserHasVotingPower: isUserHasVotingPower && isUserTokenHolder,
-        isUserMember: situationInfo.votingType.toString() === '0' || isUserMember
-      };
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-      return { isUserHasVotingPower: false, isUserMember: false };
-    }
-  };
 
-  async function checkIsUserCanVoting (panelName: string, situation: string) {
-    try {
-      const situationInfo = await getPanelSituationInfo(panelName, situation);
-      if (!situationInfo || !tokenInfo) return false;
-      const isUserMember = await checkIsUserMember(panelName);
-      const isUserTokenHolder = await checkIsUserTokenHolder();
-      const isUserHasVotingPower = toBigNumber(vaultBalance)
-        .isGreaterThanOrEqualTo((fromWeiWithDecimals(situationInfo?.votingMinAmount.toString(), tokenInfo.decimals)));
-      return isUserTokenHolder && isUserHasVotingPower && (situationInfo.votingType.toString() !== '1' || isUserMember);
-    } catch (error) {
-      ErrorHandler.processWithoutFeedback(error);
-      return false;
-    }
-  };
+  async function getVotingPermissions (panelName: string, situation: string, target: string) {
+    const [situationInfo, isUserMember, isUserTokenHolder, isCanVeto] = await Promise.all([
+      getPanelSituationInfo(panelName, situation),
+      checkIsUserMember(panelName),
+      checkIsUserTokenHolder(),
+      checkIsUserCanVeto(target)
+    ]);
+
+    return {
+      isUserMember,
+      isUserTokenHolder,
+      isCanVeto,
+      isCanVoting: !!situationInfo && isUserTokenHolder &&
+        (Number(situationInfo.votingType.toString()) !== VotingType.Restricted || isUserMember),
+      isCanExpertVoting: isUserMember && isUserTokenHolder,
+    };
+  }
 
   return {
     checkIsUserCanVeto: useCallback(checkIsUserCanVeto, []),
     checkIsUserCanCreateProposal: useCallback(checkIsUserCanCreateProposal, []),
-    checkIsUserCanVoting: useCallback(checkIsUserCanVoting, []),
     checkIsUserTokenHolder: useCallback(checkIsUserTokenHolder, []),
-    checkIsUserMember: useCallback(checkIsUserMember, [])
+    checkIsUserMember: useCallback(checkIsUserMember, []),
+    getVotingPermissions: useCallback(getVotingPermissions, [])
   };
 }
 

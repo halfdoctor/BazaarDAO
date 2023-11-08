@@ -32,21 +32,26 @@ function ProposalActions ({ proposal, title, decodedCallData }: Props) {
   const { t } = useTranslation();
   const { address: accountAddress } = useWeb3Context();
   const { submitTransaction } = useTransaction();
-  const { voteForProposal, executeProposal } = useDaoProposals();
-  const { checkIsUserCanVeto, checkIsUserCanVoting } = useProposalActionsInfo();
+  const { voteForProposal, executeProposal, appealProposal } = useDaoProposals();
+  const { getVotingPermissions } = useProposalActionsInfo();
   const { isConstitutionSignNeeded, signConstitution, loadConstitutionData } = useSignConstitution();
-  const [isUserCanVoting, setIsUserCanVoting] = useState(false);
-  const [isUserCanVeto, setIsUserCanVeto] = useState(false);
+  const [userVotingPermission, setUserVotingPermission] = useState({
+    isUserMember: false,
+    isUserTokenHolder: false,
+    isCanVeto: false,
+    isCanVoting: false,
+    isCanExpertVoting: false,
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const votingEndTime = useEndTime(unixToDate(proposal.params.votingEndTime.toString()));
 
   const loadPermissions = async () => {
-    const [isCanVoting, isCanVeto] = await Promise.all([
-      checkIsUserCanVoting(proposal.relatedExpertPanel, proposal.relatedVotingSituation),
-      checkIsUserCanVeto(proposal.target)
-    ]);
-    setIsUserCanVoting(isCanVoting);
-    setIsUserCanVeto(isCanVeto);
+    const votingPermissions = await getVotingPermissions(
+      proposal.relatedExpertPanel,
+      proposal.relatedVotingSituation,
+      proposal.target,
+    );
+    setUserVotingPermission(votingPermissions);
   };
 
   const isMembershipSituation = useMemo(() => {
@@ -88,7 +93,7 @@ function ProposalActions ({ proposal, title, decodedCallData }: Props) {
     <div style={{ display: 'flex', gap: '8px' }}>
       <ShareButton title={`#${proposal.id} ${title}`} url={window.location.href} />
 
-      {proposal.votingStatus === PROPOSAL_STATUS.pending && isUserCanVoting && (
+      {proposal.votingStatus === PROPOSAL_STATUS.pending && userVotingPermission.isCanVoting && (
         <Button
           style={{ width: '160px' }}
           disabled={proposal.isUserVoted}
@@ -98,7 +103,30 @@ function ProposalActions ({ proposal, title, decodedCallData }: Props) {
         </Button>
       )}
 
-      {proposal.votingStatus === PROPOSAL_STATUS.accepted && isUserCanVeto && (
+      {proposal.votingStatus === PROPOSAL_STATUS.underEvaluation && userVotingPermission.isCanExpertVoting && (
+        <Button
+          style={{ width: '160px' }}
+          disabled={proposal.isUserExpertVoted}
+          onClick={() => setModalOpen(true)}
+        >
+          {proposal.isUserExpertVoted ? t('YOU_VOTED') : t('VOTE')}
+        </Button>
+      )}
+
+      {proposal.votingStatus === PROPOSAL_STATUS.underReview && userVotingPermission.isUserTokenHolder && (
+        <Button
+          look="danger"
+          style={{ width: '160px' }}
+          onClick={() => submitTransaction({
+            successMessage: t('APPEAL_TX'),
+            submitFn: () => appealProposal(proposal)
+          })}
+        >
+          {t('APPEAL')}
+        </Button>
+      )}
+
+      {proposal.votingStatus === PROPOSAL_STATUS.accepted && userVotingPermission.isCanVeto && (
         <Tooltip
           trigger={
             <Button
@@ -129,8 +157,9 @@ function ProposalActions ({ proposal, title, decodedCallData }: Props) {
       <Modal
         open={modalOpen}
         title={t('VOTE')}
-        tip={
-          t('VOTE_MODAL_TIP', { time: votingEndTime.formatted })
+        tip={proposal.votingStatus === PROPOSAL_STATUS.pending
+          ? t('VOTE_MODAL_TIP', { time: votingEndTime.formatted })
+          : ''
         }
         onClose={() => setModalOpen(false)}
       >

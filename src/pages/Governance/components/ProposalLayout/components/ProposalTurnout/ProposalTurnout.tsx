@@ -37,10 +37,7 @@ function ProposalTurnout ({ proposal, }: { proposal: ProposalBaseInfo }) {
 
   const noVoteValue = useMemo(() => {
     return toBigNumber(proposal.totalVoteValue)
-      .minus(proposal.params.votingType === VotingType.Restricted
-        ? toBigNumber(proposal.membersCount).plus(proposal.vetoMembersCount)
-        : totalVotes
-      )
+      .minus(totalVotes)
       .toString();
   }, [proposal, totalVotes]);
 
