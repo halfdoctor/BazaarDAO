@@ -78,18 +78,47 @@ export function useDaoProposals () {
     }
   }
 
-  async function getUserVotingStats (proposal: DaoProposal) {
+  async function checkIsUserVoted (proposalId: number, panel: string) {
     try {
-      if (!daoInstance || !accountAddress) return { isUserVoted: false, isUserVetoed: false };
-      const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
-      const isUserVoted = await votingInstance.instance
-        .hasUserVoted(Number(proposal.id), accountAddress);
-      const isUserVetoed = await votingInstance.instance
-        .hasUserVetoed(Number(proposal.id), accountAddress);
-      return { isUserVoted, isUserVetoed };
+      if (!daoInstance || !accountAddress) return false;
+      const votingInstance = await daoInstance.getDAOVotingInstance(panel);
+      return await votingInstance.instance.hasUserVoted(proposalId, accountAddress);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
+      return false;
     }
+  }
+
+  async function checkIsUserVetoed (proposalId: number, panel: string) {
+    try {
+      if (!daoInstance || !accountAddress) return false;
+      const votingInstance = await daoInstance.getDAOVotingInstance(panel);
+      return await votingInstance.instance.hasUserVetoed(proposalId, accountAddress);
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return false;
+    }
+  }
+
+  async function checkIsExpertVoted (proposalId: number, panel: string) {
+    try {
+      if (!daoInstance || !accountAddress || panel === DAO_RESERVED_NAME) return false;
+      const votingInstance = await daoInstance.getDAOVotingInstance(panel);
+      return await votingInstance.instance.hasExpertVoted(proposalId, accountAddress);
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return false;
+    }
+  }
+
+  async function getUserVotingStats (proposal: DaoProposal) {
+    const proposalId = proposal.id.toNumber();
+    const [isUserVoted, isUserVetoed, isUserExpertVoted] = await Promise.all([
+      checkIsUserVoted(proposalId, proposal.relatedExpertPanel),
+      checkIsUserVetoed(proposalId, proposal.relatedExpertPanel),
+      checkIsExpertVoted(proposalId, proposal.relatedExpertPanel),
+    ]);
+    return { isUserVoted, isUserVetoed, isUserExpertVoted };
   }
 
   async function getProposalVetoStats (proposal: DaoProposal) {
@@ -118,6 +147,7 @@ export function useDaoProposals () {
       ErrorHandler.processWithoutFeedback(error);
     }
   }
+
   async function getAccountStatuses () {
     try {
       if (!daoInstance || !accountAddress) return [];
@@ -131,28 +161,64 @@ export function useDaoProposals () {
   }
 
   async function getProposalVotingDetails (proposal: DaoProposal) {
+    if (!daoInstance) return;
+
+    const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+    const proposalVotingStats = await votingInstance.getProposalVotingStats(Number(proposal.id.toString()));
+    const proposalStatus = await votingInstance.instance.getProposalStatus(proposal.id.toString());
+    return { ...proposalVotingStats, votingStatus: proposalStatus } as DaoProposalVotingInfo;
+  }
+
+  async function getExtendedVotingStats (proposal: DaoProposal) {
     try {
-      if (!daoInstance) return;
+      if (!daoInstance || proposal.relatedExpertPanel === DAO_RESERVED_NAME) return;
 
       const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
-      const proposalVotingStats = await votingInstance.getProposalVotingStats(Number(proposal.id.toString()));
-      const proposalStatus = await votingInstance.instance.getProposalStatus(proposal.id.toString());
-      return { ...proposalVotingStats, votingStatus: proposalStatus } as DaoProposalVotingInfo;
+      return await votingInstance.getExtendedVotingStats(proposal.id.toString());
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }
   }
 
-  async function getProposalTurnoutDetails (proposal: DaoProposal) {
+  async function getExtendedProposalStats (proposal: DaoProposal) {
     try {
-      if (!daoInstance) return;
-      const totalVoteValue = await daoInstance.getProposalTotalParticipate(
-        proposal.relatedExpertPanel,
-        Number(proposal.id.toString())
-      );
-      return totalVoteValue.toString();
+      if (!daoInstance || proposal.relatedExpertPanel === DAO_RESERVED_NAME) return;
+
+      const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+      return await votingInstance.instance.extendedProposals(proposal.id.toString());
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
+    }
+  }
+
+  async function getProposalTurnoutCount (proposal: DaoProposal) {
+    if (!daoInstance) return '0';
+    const totalVoteValue = await daoInstance.getProposalTotalParticipate(
+      proposal.relatedExpertPanel,
+      Number(proposal.id.toString())
+    );
+    return totalVoteValue.toString();
+  }
+
+  async function checkIsAppealConfigured (proposal: DaoProposal) {
+    try {
+      if (!daoInstance || proposal.relatedExpertPanel === DAO_RESERVED_NAME) return false;
+      const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+      return await votingInstance.isAppealConfigured(proposal.id);
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return false;
+    }
+  }
+
+  async function checkIsVoteByExpertConfigured (proposal: DaoProposal) {
+    try {
+      if (!daoInstance || proposal.relatedExpertPanel === DAO_RESERVED_NAME) return false;
+      const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+      return await votingInstance.isVoteByExpertConfigured(proposal.id);
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+      return false;
     }
   }
 
@@ -160,17 +226,36 @@ export function useDaoProposals () {
     try {
       const proposal = (await getProposal(panelName, proposalId)) as DaoProposal;
       if (!proposal) return;
-      const [userVotingInfo, userVetoInfo, proposalInfo, totalVoteValue, membersCount] = await Promise.all([
+
+      const [
+        userVotingInfo,
+        userVetoInfo,
+        proposalInfo,
+        totalVoteValue,
+        membersCount,
+        expertsVotingStats,
+        extendedStats,
+        isVoteByExpertConfigured,
+        isAppealConfigured,
+      ] = await Promise.all([
         getUserVotingStats(proposal),
         getProposalVetoStats(proposal),
         getProposalVotingDetails(proposal),
-        getProposalTurnoutDetails(proposal),
-        getProposalMembersCount(proposal)
+        getProposalTurnoutCount(proposal),
+        getProposalMembersCount(proposal),
+        getExtendedVotingStats(proposal),
+        getExtendedProposalStats(proposal),
+        checkIsVoteByExpertConfigured(proposal),
+        checkIsAppealConfigured(proposal)
       ]);
 
       return {
         totalVoteValue,
         membersCount,
+        expertsVotingStats,
+        extendedStats,
+        isVoteByExpertConfigured,
+        isAppealConfigured,
         ...proposal,
         ...userVotingInfo,
         ...userVetoInfo,
@@ -222,6 +307,12 @@ export function useDaoProposals () {
         : votingInstance.voteAgainst(Number(proposal.id), { from: accountAddress });
     }
 
+    if (type === 'expert-vote') {
+      return isVotedFor
+        ? votingInstance.voteByExpertFor(Number(proposal.id), { from: accountAddress })
+        : votingInstance.voteByExpertAgainst(Number(proposal.id), { from: accountAddress });
+    }
+
     return votingInstance.veto(Number(proposal.id), { from: accountAddress });
   }
 
@@ -232,6 +323,12 @@ export function useDaoProposals () {
     return promiseStatus === PROPOSAL_STATUS.passed && !proposal.executed
       ? votingInstance.executeProposal(Number(proposal.id), { from: accountAddress })
       : undefined;
+  }
+
+  async function appealProposal (proposal: DaoProposal) {
+    if (!daoInstance) return;
+    const votingInstance = await daoInstance.getDAOVotingInstance(proposal.relatedExpertPanel);
+    return votingInstance.appealByUser(proposal.id);
   }
 
   return {
@@ -247,6 +344,7 @@ export function useDaoProposals () {
     getProposalVetoStats: useCallback(getProposalVetoStats, []),
     getProposalBaseInfo: useCallback(getProposalBaseInfo, []),
     getAccountStatuses: useCallback(getAccountStatuses, []),
-    getPanelSituationInfo: useCallback(getPanelSituationInfo, [])
+    getPanelSituationInfo: useCallback(getPanelSituationInfo, []),
+    appealProposal: useCallback(appealProposal, [])
   };
 }

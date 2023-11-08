@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
 
-export type VotingActionType = 'vote' | 'veto';
+export type VotingActionType = 'vote' | 'expert-vote' | 'veto';
 
 export interface ExternalVotingSituationInfo {
   abi: string[];
@@ -22,6 +22,34 @@ export interface DaoProposalVotingInfo {
   currentMajority: BigNumber;
   currentVetoQuorum: BigNumber;
   requiredVetoQuorum: BigNumber;
+}
+
+export interface DaoProposalExtendedProposalStats {
+  appealEndTime: BigNumber;
+  appealPeriod: BigNumber;
+  requiredExpertsMajority: BigNumber;
+  requiredExpertsQuorum: BigNumber;
+  voteByExpertEndTime: BigNumber;
+  voteByExpertPeriod: BigNumber;
+  counters: {
+    expertVoteAgainst: BigNumber;
+    expertVoteFor: BigNumber;
+    isAppealed: boolean;
+  };
+}
+
+export interface DaoProposalExtendedVotingStats {
+  currentExpertsMajority: BigNumber;
+  currentExpertsQuorum: BigNumber;
+  requiredExpertsMajority: BigNumber;
+  requiredExpertsQuorum: BigNumber;
+}
+
+export interface DaoProposalExtendedStats {
+  expertsVotingStats?: DaoProposalExtendedVotingStats;
+  extendedStats?: DaoProposalExtendedProposalStats;
+  isVoteByExpertConfigured: boolean;
+  isAppealConfigured: boolean;
 }
 
 export interface DaoProposalVotingParams {
@@ -56,6 +84,7 @@ export interface DaoProposal {
 export interface UserProposalVotingInfo {
   isUserVoted: boolean;
   isUserVetoed: boolean;
+  isUserExpertVoted: boolean;
 }
 
 export interface ProposalVetoGroupInfo {
@@ -88,4 +117,4 @@ export interface VotingSituationInfo {
 }
 
 export type ProposalBaseInfo = DaoProposal & DaoProposalVotingInfo & UserProposalVotingInfo
-& ProposalVetoGroupInfo & ProposalVetoInfo & TurnoutDetails & VotingSituationInfo;
+& ProposalVetoGroupInfo & ProposalVetoInfo & TurnoutDetails & VotingSituationInfo & DaoProposalExtendedStats;

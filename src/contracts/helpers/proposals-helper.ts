@@ -112,10 +112,11 @@ export async function createExternalProposal (form: NewProposalForm) {
 export const getStatusState = (status: PROPOSAL_STATUS): TagState => {
   switch (status) {
     case PROPOSAL_STATUS.pending:
+    case PROPOSAL_STATUS.underReview:
+    case PROPOSAL_STATUS.underEvaluation:
       return 'pending';
     case PROPOSAL_STATUS.rejected:
     case PROPOSAL_STATUS.expired:
-    case PROPOSAL_STATUS.obsolete:
       return 'rejected';
     default:
       return 'approved';
@@ -130,5 +131,6 @@ export const statusMap: Record<PROPOSAL_STATUS, string> = {
   [PROPOSAL_STATUS.passed]: 'STATUS_PASSED',
   [PROPOSAL_STATUS.pending]: 'STATUS_PENDING',
   [PROPOSAL_STATUS.rejected]: 'STATUS_REJECTED',
-  [PROPOSAL_STATUS.obsolete]: 'STATUS_OBSOLETE'
+  [PROPOSAL_STATUS.underReview]: 'STATUS_UNDER_REVIEW',
+  [PROPOSAL_STATUS.underEvaluation]: 'STATUS_UNDER_EVALUATION',
 };

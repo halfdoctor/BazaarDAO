@@ -16,6 +16,7 @@ import { useDaoTokenStore } from 'store/dao-token/hooks';
 import { useDaoVault } from 'store/dao-vault/hooks';
 import { useTransaction } from 'store/transaction/hooks';
 
+import { PROPOSAL_STATUS } from 'constants/statuses';
 import { required } from 'utils/validators';
 
 interface Props {
@@ -38,7 +39,9 @@ function VoteForm ({ proposal, onSubmit }: Props) {
         successMessage: t('VOTE_TX'),
         onConfirm: () => onSubmit(),
         submitFn: () => voteForProposal({
-          type: 'vote',
+          type: proposal.votingStatus === PROPOSAL_STATUS.pending
+            ? 'vote'
+            : 'expert-vote',
           isVotedFor: form.vote === 'yes',
           proposal,
         })
@@ -52,12 +55,14 @@ function VoteForm ({ proposal, onSubmit }: Props) {
       $selectedOption={form.values.vote === 'yes' ? 'for' : 'against'}
       onSubmit={form.submit}
     >
-      <div>
-        <p className="text-md">{t('TOTAL_VOTING_WEIGHT')}</p>
-        <p className="text-xl font-semibold">
-          {formatAsset(vaultBalance, tokenInfo?.symbol)}
-        </p>
-      </div>
+      {proposal.votingStatus === PROPOSAL_STATUS.pending && (
+        <div>
+          <p className="text-md">{t('TOTAL_VOTING_WEIGHT')}</p>
+          <p className="text-xl font-semibold">
+            {formatAsset(vaultBalance, tokenInfo?.symbol)}
+          </p>
+        </div>
+      )}
       <RadioGroup
         {...form.fields.vote}
         extended

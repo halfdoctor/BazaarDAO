@@ -66,11 +66,21 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   const { t } = useTranslation();
   const { composeDaoLink } = useDaoStore();
   const { availablePanels } = useExpertPanels();
+  const isExpertsVotingShow = proposal.isVoteByExpertConfigured &&
+    proposal.votingStatus !== PROPOSAL_STATUS.pending;
+
+  const requiredQuorum = isExpertsVotingShow && proposal.expertsVotingStats
+    ? proposal.expertsVotingStats.requiredExpertsQuorum.toString()
+    : proposal.requiredQuorum.toString();
+
+  const currentQuorum = isExpertsVotingShow && proposal.expertsVotingStats
+    ? proposal.expertsVotingStats.currentExpertsQuorum.toString()
+    : proposal.currentQuorum.toString();
 
   const leftQuorum = useMemo(() => {
     return BigNumber.max(
-      toBigNumber(proposal.requiredQuorum.toString())
-        .minus(proposal.currentQuorum.toString())
+      toBigNumber(requiredQuorum)
+        .minus(currentQuorum)
         .integerValue(BigNumber.ROUND_CEIL)
         .toNumber(),
       0).toString();
@@ -115,7 +125,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
         <div className="proposal-card__voting">
           <div className="proposal-card__quorum">
             <p className="text-md">
-              {t('QUORUM', { quorum: formatPercent(singlePrecision(proposal.currentQuorum.toString())) })}
+              {t('QUORUM', { quorum: formatPercent(singlePrecision(currentQuorum)) })}
             </p>
             <p className="text-md">
               {leftQuorum
@@ -127,8 +137,8 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
 
           <Progress
             className="proposal-card__progress"
-            value={Number(singlePrecision(proposal.currentQuorum.toString()))}
-            max={Number(singlePrecision(proposal.requiredQuorum.toString()))}
+            value={Number(singlePrecision(currentQuorum))}
+            max={Number(singlePrecision(requiredQuorum))}
           />
 
           <VotingPeriods

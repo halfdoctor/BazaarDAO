@@ -6,6 +6,7 @@ import { unixToDate } from '@q-dev/utils';
 import styled from 'styled-components';
 import { ProposalBaseInfo } from 'typings/proposals';
 
+import { PROPOSAL_STATUS } from 'constants/statuses';
 import { formatDate, formatDateRelative } from 'utils/date';
 
 const VotingContainer = styled.div`
@@ -24,7 +25,14 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 function VotingPeriods ({ proposal, ...rest }: Props) {
   const { t, i18n } = useTranslation();
-  const votingEndTime = unixToDate(proposal.params.votingEndTime.toString()).getTime();
+
+  const isExpertsVotingShow = proposal.isVoteByExpertConfigured &&
+    proposal.votingStatus !== PROPOSAL_STATUS.pending;
+
+  const votingEndTime = unixToDate(isExpertsVotingShow && proposal.extendedStats
+    ? proposal.extendedStats.voteByExpertEndTime.toString()
+    : proposal.params.votingEndTime.toString()
+  ).getTime();
   const vetoEndTime = unixToDate(proposal.params.vetoEndTime.toString()).getTime();
 
   const votingText = votingEndTime > Date.now()

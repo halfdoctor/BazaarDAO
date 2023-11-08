@@ -10,6 +10,8 @@ import PageLayout from 'components/PageLayout';
 
 import ProposalActions from './components/ProposalActions';
 import ProposalDetails from './components/ProposalDetails';
+import ProposalExpertsTurnout from './components/ProposalExpertsTurnout';
+import ProposalExpertsVoting from './components/ProposalExpertsVoting';
 import ProposalTurnout from './components/ProposalTurnout';
 import ProposalVeto from './components/ProposalVeto';
 import ProposalVoting from './components/ProposalVoting';
@@ -65,6 +67,16 @@ function ProposalLayout ({ proposal, externalAbi, isExternalProposalSituation }:
         <div className="proposal-layout__voting">
           <ProposalTurnout proposal={proposal} />
           <ProposalVoting proposal={proposal} />
+          {proposal.isVoteByExpertConfigured && !!proposal.expertsVotingStats && !!proposal.extendedStats && (
+            <>
+              <ProposalExpertsTurnout
+                extendedProposalStats={proposal.extendedStats}
+                expertsVotingStats={proposal.expertsVotingStats}
+                membersCount={proposal.membersCount}
+              />
+              <ProposalExpertsVoting extendedProposalStats={proposal.extendedStats}/>
+            </>
+          )}
           <ProposalVeto proposal={proposal} />
         </div>
       </ProposalLayoutContainer>
