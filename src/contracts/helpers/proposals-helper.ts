@@ -7,6 +7,7 @@ import {
 } from '@q-dev/gdk-sdk';
 import { TagState } from '@q-dev/q-ui-kit/dist/components/Tag';
 import { NewProposalForm } from 'typings/forms';
+import { ProposalBaseInfo } from 'typings/proposals';
 
 import { daoInstance } from 'contracts/contract-instance';
 
@@ -109,8 +110,8 @@ export async function createExternalProposal (form: NewProposalForm) {
   return daoInstance.createVoting(votingInstance, votingParams);
 }
 
-export const getStatusState = (status: PROPOSAL_STATUS): TagState => {
-  switch (status) {
+export const getStatusState = (proposal: ProposalBaseInfo): TagState => {
+  switch (proposal.votingStatus) {
     case PROPOSAL_STATUS.pending:
     case PROPOSAL_STATUS.underReview:
     case PROPOSAL_STATUS.underEvaluation:
@@ -118,6 +119,10 @@ export const getStatusState = (status: PROPOSAL_STATUS): TagState => {
     case PROPOSAL_STATUS.rejected:
     case PROPOSAL_STATUS.expired:
       return 'rejected';
+    case PROPOSAL_STATUS.accepted:
+      return proposal.isAppealConfigured && proposal.extendedStats?.counters.isAppealed
+        ? 'rejected'
+        : 'approved';
     default:
       return 'approved';
   }
@@ -133,4 +138,12 @@ export const statusMap: Record<PROPOSAL_STATUS, string> = {
   [PROPOSAL_STATUS.rejected]: 'STATUS_REJECTED',
   [PROPOSAL_STATUS.underReview]: 'STATUS_UNDER_REVIEW',
   [PROPOSAL_STATUS.underEvaluation]: 'STATUS_UNDER_EVALUATION',
+};
+
+export const getStatusTranslationKey = (proposal: ProposalBaseInfo) => {
+  const isAppealedStatus = proposal.votingStatus === PROPOSAL_STATUS.accepted &&
+    proposal.isAppealConfigured && proposal.extendedStats?.counters.isAppealed;
+  if (isAppealedStatus) return 'STATUS_APPEALED';
+
+  return statusMap[proposal.votingStatus || PROPOSAL_STATUS.none];
 };

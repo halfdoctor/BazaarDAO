@@ -92,6 +92,7 @@
   "STATUS_REJECTED": "Rejected",
   "STATUS_UNDER_REVIEW": "Under review",
   "STATUS_UNDER_EVALUATION": "Under evaluation",
+  "STATUS_APPEALED": "Appealed",
   "STATUS_OPEN": "Open",
   "STATUS_DECIDED": "Decided",
   "UNKNOWN_PROPOSAL": "Unknown Proposal",
