@@ -15,7 +15,7 @@ import VotingPeriods from '../VotingPeriods';
 import { useDaoStore } from 'store/dao/hooks';
 import { useExpertPanels } from 'store/expert-panels/hooks';
 
-import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
+import { getStatusState, getStatusTranslationKey } from 'contracts/helpers/proposals-helper';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
 
@@ -87,8 +87,8 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
   }, [proposal]);
 
   const status = useMemo(() => {
-    return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
-  }, [proposal]);
+    return t(getStatusTranslationKey(proposal));
+  }, [t, proposal]);
 
   const panelNamePosition = useMemo(() => {
     return availablePanels.findIndex((item: string) => item === proposal.relatedExpertPanel);
@@ -110,7 +110,7 @@ function ProposalCard ({ proposal }: { proposal: ProposalBaseInfo }) {
           </p>
 
           {proposal.votingStatus &&
-            <Tag state={getStatusState(proposal.votingStatus)}>
+            <Tag state={getStatusState(proposal)}>
               {status}
             </Tag>}
         </div>

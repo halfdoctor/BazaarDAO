@@ -17,10 +17,9 @@ import ProposalVeto from './components/ProposalVeto';
 import ProposalVoting from './components/ProposalVoting';
 import { ProposalLayoutContainer } from './styles';
 
-import { getStatusState, statusMap } from 'contracts/helpers/proposals-helper';
+import { getStatusState, getStatusTranslationKey } from 'contracts/helpers/proposals-helper';
 
 import { ABI_NAME_BY_SITUATION_MAP } from 'constants/proposal';
-import { PROPOSAL_STATUS } from 'constants/statuses';
 
 interface Props {
   proposal: ProposalBaseInfo;
@@ -31,8 +30,8 @@ interface Props {
 function ProposalLayout ({ proposal, externalAbi, isExternalProposalSituation }: Props) {
   const { t } = useTranslation();
   const status = useMemo(() => {
-    return t(statusMap[proposal.votingStatus || PROPOSAL_STATUS.none]);
-  }, [proposal.votingStatus, t]);
+    return t(getStatusTranslationKey(proposal));
+  }, [proposal, t]);
 
   const decodedCallData = useMemo(() => {
     const abiName = ABI_NAME_BY_SITUATION_MAP[proposal.relatedVotingSituation as DefaultVotingSituations];
@@ -49,7 +48,7 @@ function ProposalLayout ({ proposal, externalAbi, isExternalProposalSituation }:
   return (
     <PageLayout
       title={`#${proposal.id} ${proposal.relatedVotingSituation}`}
-      titleExtra={<Tag state={getStatusState(proposal.votingStatus)}>{status}</Tag>}
+      titleExtra={<Tag state={getStatusState(proposal)}>{status}</Tag>}
       action={<ProposalActions
         proposal={proposal}
         title={proposal.remark}
