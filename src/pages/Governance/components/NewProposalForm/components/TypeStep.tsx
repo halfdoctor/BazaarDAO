@@ -47,6 +47,12 @@ const RadioGroupLabel = styled.div`
   }
 `;
 
+const RadioGroupWrapper = styled.div`
+  .q-ui-radio-group__option {
+    grid-template-columns: 20px 1fr;
+  }
+`;
+
 interface Props {
   situations: VotingSituation[];
   panelName: string;
@@ -60,6 +66,7 @@ interface ProposalPermissions {
   isExternal: boolean;
   description: string;
   isDisabled: boolean;
+  hasExternalAbi: boolean;
 }
 
 function TypeStep ({ situations, panelName }: Props) {
@@ -94,12 +101,14 @@ function TypeStep ({ situations, panelName }: Props) {
       }
 
       const { isUserHasVotingPower, isUserMember } = await checkIsUserCanCreateProposal(panelName, item.name);
+
       return {
         value: item.name,
         isExternal: item.isExternal,
         isUserMember,
         isUserHasVotingPower,
         isComingSoon,
+        hasExternalAbi: Boolean(item.externalInfo?.abi),
         description: item.externalInfo?.description || '',
         isDisabled: (item.isExternal && !item.externalInfo?.abi) ||
           isComingSoon || !isUserHasVotingPower || !isUserMember
@@ -130,30 +139,35 @@ function TypeStep ({ situations, panelName }: Props) {
         ? item.description
         : proposalOptionsMap[item.value]?.tip,
     disabled: item.isDisabled,
-    label: item.isComingSoon || item.isExternal
+    label: item.isComingSoon
       ? item.value
-      : (item.isUserHasVotingPower && item.isUserMember) || !accountAddress
-        ? proposalOptionsMap[item.value]?.label
+      : !accountAddress || (item.isExternal
+        ? item.hasExternalAbi && item.isUserHasVotingPower && item.isUserMember
+        : item.isUserHasVotingPower && item.isUserMember
+      )
+        ? proposalOptionsMap[item.value]?.label || item.value
         : (
           <RadioGroupLabel key={item.value}>
-            <span className="text-lg font-semibold">
-              {proposalOptionsMap[item.value]?.label}
+            <span className="text-lg font-semibold" style={{ width: '100%', display: 'block' }}>
+              {proposalOptionsMap[item.value]?.label || item.value}
             </span>
             <Tooltip
               className="radio-group-label__tooltip"
               trigger={<Icon name="info" className="text-lg color-primary" />}
             >
-              {item.isUserHasVotingPower
-                ? t('NEED_MEMBER_STATUS')
-                : <Trans
-                  i18nKey="NEED_VOTING_POWER"
-                  components={{
-                    votingPowerLink: <NavLink
-                      style={{ textDecoration: 'underline' }}
-                      to={composeDaoLink(RoutePaths.votingPower)}
-                    />
-                  }}
-                />
+              {item.isExternal && !item.hasExternalAbi
+                ? t('TOOLTIP_FAILED_LOAD_ABI')
+                : item.isUserHasVotingPower
+                  ? t('NEED_MEMBER_STATUS')
+                  : <Trans
+                    i18nKey="NEED_VOTING_POWER"
+                    components={{
+                      votingPowerLink: <NavLink
+                        style={{ textDecoration: 'underline' }}
+                        to={composeDaoLink(RoutePaths.votingPower)}
+                      />
+                    }}
+                  />
               }
             </Tooltip>
           </RadioGroupLabel>
@@ -173,12 +187,14 @@ function TypeStep ({ situations, panelName }: Props) {
       disabled={!form.isValid || isLoading || !form.values.type}
       onNext={form.submit}
     >
-      <RadioGroup
-        {...form.fields.type}
-        extended
-        name="type"
-        options={options}
-      />
+      <RadioGroupWrapper>
+        <RadioGroup
+          {...form.fields.type}
+          extended
+          name="type"
+          options={options}
+        />
+      </RadioGroupWrapper>
     </FormStep>
   );
 }

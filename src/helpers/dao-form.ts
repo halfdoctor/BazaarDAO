@@ -7,6 +7,8 @@ import {
   address,
   addressList,
   bytes,
+  bytes32,
+  bytes32List,
   bytesList,
   integer,
   integerList,
@@ -42,8 +44,10 @@ export function generateInitialFieldsByABI ({
     if (!item?.name || !item?.type) return acc;
     acc.initialValues[item.name] = isEqualFunction
       ? Array.isArray(decodedCallData?.arguments?.[item.name])
-        ? decodedCallData?.arguments?.[item.name].join('\n')
-        : decodedCallData?.arguments?.[item.name] || ''
+        ? decodedCallData?.arguments?.[item.name]?.length === 1
+          ? decodedCallData?.arguments?.[item.name]?.[0]?.toString() || ' '
+          : decodedCallData?.arguments?.[item.name]?.join(',\n')
+        : decodedCallData?.arguments?.[item.name]?.toString() || ''
       : '';
 
     acc.fieldsInfo.push({
@@ -76,6 +80,12 @@ export function generateInitialFieldsByABI ({
       case 'bytes[]':
         acc.validators[item.name] = [required, bytesList];
         break;
+      case 'bytes32':
+        acc.validators[item.name] = [required, bytes32];
+        break;
+      case 'bytes32[]':
+        acc.validators[item.name] = [required, bytes32List];
+        break;
       case 'uint256':
         acc.validators[item.name] = [required, integer];
         break;
@@ -93,4 +103,8 @@ export function generateInitialFieldsByABI ({
     initialValues: {},
     validators: {}
   } as InitialFields);
+}
+
+export function parseFieldValueList (string: string) {
+  return string.trim().split(/,\s*|;\s*|\s+/);
 }

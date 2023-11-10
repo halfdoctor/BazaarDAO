@@ -16,6 +16,10 @@ export function isBytesLike (value: string) {
   return utils.isBytesLike(value);
 }
 
+export function isBytes (value: string, bytes: number) {
+  return utils.isBytesLike(value) && value.replace('0x', '').length === bytes * 2;
+}
+
 export function singlePrecision (amount?: string | number) {
   return amount ? toBigNumber(amount).div(1e25).toString() : '0';
 }

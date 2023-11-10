@@ -63,13 +63,20 @@ function ConfirmationStep ({ abi, isExternalSituation }: Props) {
             title={t('PARAMETERS')}
             onAction={() => updateStep(values.type === DefaultVotingSituations.Constitution ? 2 : 1)}
           >
+            {values.type === DefaultVotingSituations.Constitution && (
+              <div>
+                <p className="text-md color-secondary">
+                  {t('CHANGE_CONSTITUTION_PARAMETER')}
+                </p>
+                <p className="text-lg">
+                  {values.isParamsChanged ? t('YES') : t('NO')}
+                </p>
+              </div>
+            )}
+
             <div>
-              <p className="text-md color-secondary">
-                {t('CHANGE_CONSTITUTION_PARAMETER')}
-              </p>
-              <p className="text-lg">
-                {values.isParamsChanged ? t('YES') : t('NO')}
-              </p>
+              <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
+              <p className="text-lg pre-line">{values.remark}</p>
             </div>
 
             {values.params.map((param, index) => (
