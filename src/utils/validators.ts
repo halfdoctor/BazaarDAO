@@ -1,7 +1,8 @@
 import { getValidatorValue } from '@q-dev/form-hooks';
 import { getDecodeDataByABI, ParameterType } from '@q-dev/gdk-sdk';
 import { toBigNumber } from '@q-dev/utils';
-import { isAddress, isBytesLike } from 'helpers';
+import { isAddress, isBytes, isBytesLike } from 'helpers';
+import { parseFieldValueList } from 'helpers/dao-form';
 import i18n from 'i18next';
 import { isBoolean } from 'lodash';
 import isDate from 'lodash/isDate';
@@ -106,20 +107,39 @@ export const address: Validator<string> = val => ({
   message: i18n.t('VALIDATION_ADDRESS')
 });
 
-export const addressList: Validator<string> = val => ({
-  isValid: !val || val.trim().split(/\s+/).every(i => isAddress(i)),
-  message: i18n.t('VALIDATION_ADDRESS')
-});
+export const addressList: Validator<string> = val => {
+  const invalidItemIndex = parseFieldValueList(val).findIndex(i => !isAddress(i));
+  return {
+    isValid: !val || invalidItemIndex === -1,
+    message: i18n.t('VALIDATION_ADDRESS_LIST', { index: invalidItemIndex + 1 })
+  };
+};
 
 export const bytes: Validator<string> = val => ({
   isValid: !val || isBytesLike(val),
   message: i18n.t('VALIDATION_BYTES')
 });
 
-export const bytesList: Validator<string> = val => ({
-  isValid: !val || val.trim().split(/\s+/).every(i => isBytesLike(i)),
-  message: i18n.t('VALIDATION_BYTES')
+export const bytesList: Validator<string> = val => {
+  const invalidItemIndex = parseFieldValueList(val).findIndex(i => !isBytesLike(i));
+  return {
+    isValid: !val || invalidItemIndex === -1,
+    message: i18n.t('VALIDATION_BYTES_LIST', { index: invalidItemIndex + 1 })
+  };
+};
+
+export const bytes32: Validator<string> = val => ({
+  isValid: !val || isBytes(val, 32),
+  message: i18n.t('VALIDATION_BYTES_NUM', { bytes: 32 })
 });
+
+export const bytes32List: Validator<string> = val => {
+  const invalidItemIndex = parseFieldValueList(val).findIndex(i => !isBytes(i, 32));
+  return {
+    isValid: !val || invalidItemIndex === -1,
+    message: i18n.t('VALIDATION_BYTES_NUM_LIST', { index: invalidItemIndex + 1, bytes: 32 })
+  };
+};
 
 export const nonZeroAddress: Validator<string> = val => ({
   isValid: !val || (isAddress(val) && val !== ZERO_ADDRESS),
@@ -202,10 +222,15 @@ export const integer: Validator<string> = val => ({
   message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
 });
 
-export const integerList: Validator<string> = val => ({
-  isValid: !val || val.trim().split(/\s+/).every(i => INTEGER_REGEX.test(i) && Number.isInteger(Number(i))),
-  message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE')
-});
+export const integerList: Validator<string> = val => {
+  const invalidItemIndex = parseFieldValueList(val)
+    .findIndex(i => !INTEGER_REGEX.test(i) || !Number.isInteger(Number(i)));
+
+  return {
+    isValid: !val || invalidItemIndex === -1,
+    message: i18n.t('VALIDATION_INTEGER_NUMBER_VALUE_LIST', { index: invalidItemIndex + 1 })
+  };
+};
 
 export const name: Validator = val => ({
   isValid: !val || NAME_REGEX.test(String(val)),

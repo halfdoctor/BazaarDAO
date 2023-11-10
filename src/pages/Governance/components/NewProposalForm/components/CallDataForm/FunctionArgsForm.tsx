@@ -1,8 +1,9 @@
 import { memo, MutableRefObject, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { DecodedData, getEncodedDataByABI } from '@q-dev/gdk-sdk';
-import { generateInitialFieldsByABI } from 'helpers/dao-form';
+import { generateInitialFieldsByABI, parseFieldValueList } from 'helpers/dao-form';
 import { FormValidatesMap } from 'typings/forms';
 
 import Input from 'components/Input';
@@ -27,6 +28,7 @@ function FunctionArgsForm ({
   decodedCallData,
   abi,
 }: Props) {
+  const { t } = useTranslation();
   const { initialValues, validators, fieldsInfo } = generateInitialFieldsByABI({
     abiFunction,
     decodedCallData
@@ -44,7 +46,7 @@ function FunctionArgsForm ({
   const fieldValues = useMemo(() => {
     return fieldsInfo.map(({ key, isArrayType }) =>
       isArrayType
-        ? form.values[key].trim().split(/\s+/)
+        ? parseFieldValueList(form.values[key])
         : form.values[key]
     );
   }, [form.values]);
@@ -79,6 +81,7 @@ function FunctionArgsForm ({
               {...form.fields[key]}
               key={index + key}
               label={label}
+              labelTooltip={isArrayType ? t('FILED_TOOLTIP_FOR_LIST') : ''}
               rows={5}
               placeholder={placeholder}
             />
