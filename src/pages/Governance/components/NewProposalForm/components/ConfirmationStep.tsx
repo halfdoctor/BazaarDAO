@@ -32,7 +32,7 @@ function ConfirmationStep ({ abi, isExternalSituation }: Props) {
         onAction={() => updateStep(0)}
       >
         <p className="text-lg">
-          {proposalOptionsMap[values.type]?.label}
+          {proposalOptionsMap[values.type]?.label || values.type}
         </p>
       </FormBlock>
 

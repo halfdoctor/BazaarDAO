@@ -6,6 +6,8 @@ import { formatJsonAbi } from 'contracts/helpers/interface-helper';
 import {
   address,
   addressList,
+  booleanList,
+  booleanString,
   bytes,
   bytes32,
   bytes32List,
@@ -42,6 +44,7 @@ export function generateInitialFieldsByABI ({
 
   return funcInputs.map(i => i).reduce((acc, item) => {
     if (!item?.name || !item?.type) return acc;
+
     acc.initialValues[item.name] = isEqualFunction
       ? Array.isArray(decodedCallData?.arguments?.[item.name])
         ? decodedCallData?.arguments?.[item.name]?.length === 1
@@ -91,6 +94,12 @@ export function generateInitialFieldsByABI ({
         break;
       case 'uint256[]':
         acc.validators[item.name] = [required, integerList];
+        break;
+      case 'bool':
+        acc.validators[item.name] = [required, booleanString];
+        break;
+      case 'bool[]':
+        acc.validators[item.name] = [required, booleanList];
         break;
       default:
         acc.validators[item.name] = [];

@@ -305,6 +305,8 @@
   "VALIDATION_BYTES_LIST": "The {{index}} element is invalid bytes",
   "VALIDATION_BYTES_NUM_LIST": "The {{index}} element is invalid bytes{{bytes}}",
   "VALIDATION_INTEGER_NUMBER_VALUE_LIST": "The {{index}} element is invalid integer number",
+  "VALIDATION_BOOLEAN_VALUE_LIST": "The {{index}} element is invalid boolean",
+  "VALIDATION_BOOLEAN_SELECT": "Invalid boolean",
   "VALIDATION_BYTES_NUM": "Invalid bytes{{bytes}}",
   "VALIDATION_BYTES": "Invalid bytes",
   "VALIDATION_VAULT_UD": "Invalid vault ID",
@@ -409,6 +411,7 @@
   "APPEAL": "Appeal",
   "EXPERTS_TURNOUT": "Experts Turnout",
   "EXPERTS_VOTING": "Experts Voting",
-  "FILED_TOOLTIP_FOR_LIST": "You can enter a list of values using a comma, semicolon, space, or newline as a separator.\n- To enter only 1 blank value, type 1 space.\n- To enter 2+ blank values, type multiple commas/semicolons e.g. \",\" is 2 blank values, \",,\" is 3 blank values, etc.",
+  "FIELD_TOOLTIP_FOR_LIST": "You can enter a list of values using a comma, semicolon, space, or newline as a separator.\n- To enter only 1 blank value, type 1 space.\n- To enter 2+ blank values, type multiple commas/semicolons e.g. \",\" is 2 blank values, \",,\" is 3 blank values, etc.",
+  "FIELD_TOOLTIP_FOR_BOOLEAN_LIST": "You can enter a list of values \"true\" or \"false\" using a comma, semicolon, space, or newline as a separator.",
   "TOOLTIP_FAILED_LOAD_ABI": "The module ABI cannot be accessed or the received ABI does not meet the standards. Please check the module parameters and reconfigure it if needed."
 }

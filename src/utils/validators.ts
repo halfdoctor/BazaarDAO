@@ -232,6 +232,23 @@ export const integerList: Validator<string> = val => {
   };
 };
 
+export const booleanString: Validator<string> = val => {
+  return {
+    isValid: val === 'true' || val === 'false',
+    message: i18n.t('VALIDATION_BOOLEAN_SELECT')
+  };
+};
+
+export const booleanList: Validator<string> = val => {
+  const invalidItemIndex = parseFieldValueList(val)
+    .findIndex(i => i !== 'true' && i !== 'false');
+
+  return {
+    isValid: !val || invalidItemIndex === -1,
+    message: i18n.t('VALIDATION_BOOLEAN_VALUE_LIST', { index: invalidItemIndex + 1 })
+  };
+};
+
 export const name: Validator = val => ({
   isValid: !val || NAME_REGEX.test(String(val)),
   message: i18n.t('VALIDATION_NAME')
