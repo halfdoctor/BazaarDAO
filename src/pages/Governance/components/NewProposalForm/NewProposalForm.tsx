@@ -113,13 +113,14 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
             id: 'dao-registry-basic',
             name: t('BASIC_DETAILS'),
             title: t('BASIC_DETAILS'),
-            children: <BasicDetailsStep />
+            children: <BasicDetailsStep key={form.values.type} />
           },
           {
             id: 'dao-registry-situation',
             name: t('DETAILS'),
             title: t('DETAILS'),
             children: <CallDataStep
+              key={form.values.type}
               situation={form.values.type}
               abi={currentSituation.externalInfo.abi}
               maxFormCount={1}

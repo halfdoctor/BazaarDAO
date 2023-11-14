@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useForm } from '@q-dev/form-hooks';
 import { DecodedData, getEncodedDataByABI } from '@q-dev/gdk-sdk';
+import { Select } from '@q-dev/q-ui-kit';
 import { generateInitialFieldsByABI, parseFieldValueList } from 'helpers/dao-form';
 import { FormValidatesMap } from 'typings/forms';
 
@@ -44,10 +45,14 @@ function FunctionArgsForm ({
   });
 
   const fieldValues = useMemo(() => {
-    return fieldsInfo.map(({ key, isArrayType }) =>
+    return fieldsInfo.map(({ key, isArrayType, type }) =>
       isArrayType
-        ? parseFieldValueList(form.values[key])
-        : form.values[key]
+        ? type === 'bool[]'
+          ? parseFieldValueList(form.values[key]).map(i => i === 'true')
+          : parseFieldValueList(form.values[key])
+        : type === 'bool'
+          ? form.values[key] === 'true'
+          : form.values[key]
     );
   }, [form.values]);
 
@@ -74,14 +79,34 @@ function FunctionArgsForm ({
 
   return (
     <>
-      {fieldsInfo.map(({ key, label, placeholder, type, isArrayType }, index) =>
-        type === 'bytes' || isArrayType
+      {fieldsInfo.map(({ key, label, placeholder, type, isArrayType }, index) => {
+        if (type === 'bool') {
+          return (
+            <Select
+              {...form.fields[key]}
+              key={index + key}
+              label={label}
+              placeholder={placeholder}
+              options={[
+                { value: 'true', label: 'true' },
+                { value: 'false', label: 'false' }
+              ]}
+            />
+          );
+        }
+
+        return type === 'bytes' || isArrayType
           ? (
             <Textarea
               {...form.fields[key]}
               key={index + key}
               label={label}
-              labelTooltip={isArrayType ? t('FILED_TOOLTIP_FOR_LIST') : ''}
+              labelTooltip={isArrayType
+                ? type === 'bool[]'
+                  ? t('FIELD_TOOLTIP_FOR_BOOLEAN_LIST')
+                  : t('FIELD_TOOLTIP_FOR_LIST')
+                : ''
+              }
               rows={5}
               placeholder={placeholder}
             />
@@ -93,8 +118,8 @@ function FunctionArgsForm ({
               label={label}
               placeholder={placeholder}
             />
-          )
-      )}
+          );
+      })}
     </>
   );
 }
