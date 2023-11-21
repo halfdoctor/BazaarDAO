@@ -3,15 +3,20 @@ import {
   DefaultVotingSituations,
   getEncodedData,
   getParameter,
-  ParameterType,
+  IDAOVoting,
+  ParameterType
 } from '@q-dev/gdk-sdk';
 import { TagState } from '@q-dev/q-ui-kit/dist/components/Tag';
+import { errors } from 'errors';
 import { NewProposalForm } from 'typings/forms';
 import { ProposalBaseInfo } from 'typings/proposals';
+
+import { TokenInfo } from 'store/dao-token/reducer';
 
 import { daoInstance } from 'contracts/contract-instance';
 
 import { PROPOSAL_STATUS } from 'constants/statuses';
+import { toWeiWithDecimals } from 'utils/numbers';
 
 export async function createMembershipSituationProposal (form: NewProposalForm) {
   if (!daoInstance) return;
@@ -28,14 +33,73 @@ export async function createMembershipSituationProposal (form: NewProposalForm) 
   return daoInstance.createVoting(votingInstance, votingParams);
 }
 
-export async function createGeneralSituationProposal (form: NewProposalForm) {
+export async function createGeneralSituationProposal (
+  form: NewProposalForm,
+  tokenInfo: TokenInfo | null,
+  canDAOSupportExternalLinks: boolean
+) {
   if (!daoInstance) return;
+
+  let callData = '0x';
+
+  if (form.generalSituationType === 'create-voting') {
+    if (!form.newVotingSituation || !tokenInfo) throw new errors.RuntimeError();
+
+    const { newVotingSituation } = form;
+
+    const votingMinAmount = tokenInfo.type === 'native' || tokenInfo.type === 'erc20'
+      ? toWeiWithDecimals(newVotingSituation.votingMinAmount, tokenInfo.decimals)
+      : '1';
+
+    const initialSituation: IDAOVoting.InitialSituationStruct = {
+      votingSituationName: newVotingSituation.situationName,
+      votingValues: {
+        votingPeriod: newVotingSituation.votingPeriod,
+        vetoPeriod: newVotingSituation.vetoPeriod,
+        proposalExecutionPeriod: newVotingSituation.proposalExecutionPeriod,
+        requiredQuorum: toWeiWithDecimals(newVotingSituation.requiredQuorum, 25),
+        requiredMajority: toWeiWithDecimals(newVotingSituation.requiredMajority, 25),
+        requiredVetoQuorum: toWeiWithDecimals(newVotingSituation.requiredVetoQuorum, 25),
+        votingType: newVotingSituation.votingType,
+        votingTarget: newVotingSituation.votingTarget,
+        votingMinAmount,
+      },
+    };
+
+    if (canDAOSupportExternalLinks) {
+      const data: IDAOVoting.ExtendedSituationStruct = {
+        initialSituation: initialSituation,
+        externalLink: newVotingSituation.externalLink
+      };
+      callData = getEncodedData(
+        'GeneralDAOVoting',
+        'createDAOVotingSituationWithLink',
+        data,
+      );
+    } else {
+      callData = getEncodedData(
+        'GeneralDAOVoting',
+        'createDAOVotingSituation',
+        initialSituation
+      );
+    }
+  }
+
+  if (form.generalSituationType === 'remove-voting') {
+    if (!form.situationNameForRemoval) throw new errors.RuntimeError();
+
+    callData = getEncodedData(
+      'GeneralDAOVoting',
+      'removeVotingSituation',
+      form.situationNameForRemoval,
+    );
+  }
 
   const votingInstance = await daoInstance.getDAOVotingInstance(form.panel);
   const votingParams: CreateVotingParameters = {
     remark: form.remark,
     situation: DefaultVotingSituations.General,
-    callData: '0x'
+    callData
   };
   return daoInstance.createVoting(votingInstance, votingParams);
 }

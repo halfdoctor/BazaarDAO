@@ -11,6 +11,8 @@ import {
   VotingActionType
 } from 'typings/proposals';
 
+import { getState } from 'store';
+
 import { daoInstance } from 'contracts/contract-instance';
 import {
   createConstitutionProposal,
@@ -273,7 +275,9 @@ export function useDaoProposals () {
 
     switch (form.type) {
       case DefaultVotingSituations.General:
-        return createGeneralSituationProposal(form);
+        const { tokenInfo } = getState().daoToken;
+        const { canDAOSupportExternalLinks } = getState().dao;
+        return createGeneralSituationProposal(form, tokenInfo, canDAOSupportExternalLinks);
       case DefaultVotingSituations.Membership:
         return createMembershipSituationProposal(form);
       case DefaultVotingSituations.Constitution:

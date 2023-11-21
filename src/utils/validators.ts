@@ -16,7 +16,8 @@ const BYTES_REGEX = /^0x[a-fA-F0-9]{2,64}$/;
 const VAULT_ID_REGEX = /^[0-9]{1,18}$/;
 const INTEGER_REGEX = /^[0-9]+$/;
 const NAME_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9_\-. ]*[A-Za-z0-9]+$/;
-export const URL_REGEX = /^(https?:\/\/)?(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
+export const URL_REGEX = /^(https?:\/\/)?(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,8}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
+export const HTTP_URL_REGEX = /^https?:\/\/(www\.)?[-äöüa-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,8}\b([-äöüa-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 interface ValidationResult {
   isValid: boolean;
@@ -99,6 +100,11 @@ export const max: ValidatorFn<string | number> = max => (val, form) => {
 
 export const url: Validator = val => ({
   isValid: !val || URL_REGEX.test(String(val)),
+  message: i18n.t('VALIDATION_URL')
+});
+
+export const httpUrl: Validator = val => ({
+  isValid: !val || HTTP_URL_REGEX.test(String(val)),
   message: i18n.t('VALIDATION_URL')
 });
 

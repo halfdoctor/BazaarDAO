@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
 
+import CreateVotingSituationViewer from 'components/CreateVotingSituationViewer';
 import DecodedCallDataViewer from 'components/DecodedCallDataViewer';
 import FormBlock from 'components/FormBlock';
 import { FormStep } from 'components/MultiStepForm';
@@ -10,6 +11,8 @@ import ParameterViewer from 'components/ParameterViewer';
 import useProposalSteps from 'hooks/useProposalSteps';
 
 import { useNewProposalForm } from '../NewProposalForm';
+
+import { GENERAL_SITUATION_TYPE_TRANSLATION_KEY_MAP } from 'constants/proposal';
 
 interface Props {
   abi?: string[];
@@ -99,6 +102,25 @@ function ConfirmationStep ({ abi, isExternalSituation }: Props) {
             <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
             <p className="text-lg pre-line">{values.remark}</p>
           </div>
+
+          <div>
+            <p className="text-md color-secondary">{t('TYPE')}</p>
+            <p className="text-lg pre-line">
+              {t(GENERAL_SITUATION_TYPE_TRANSLATION_KEY_MAP[values.generalSituationType])}
+            </p>
+          </div>
+
+          {values.generalSituationType === 'remove-voting' && (
+            <div>
+              <p className="text-md color-secondary">{t('VOTING_SITUATION_NAME')}</p>
+              <p className="text-lg pre-line">{values.situationNameForRemoval}</p>
+            </div>
+          )}
+
+          {values.generalSituationType === 'create-voting' && values.newVotingSituation && (
+            <CreateVotingSituationViewer situationsParams={values.newVotingSituation} />
+          )}
+
         </FormBlock>)}
 
       {values.type === DefaultVotingSituations.Membership && (
