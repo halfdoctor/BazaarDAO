@@ -1,5 +1,6 @@
 export * from './browser';
 export * from './dao';
+export * from './dao-resource';
 export * from './decode-errors';
 export * from './erc-20';
 export * from './erc-165';

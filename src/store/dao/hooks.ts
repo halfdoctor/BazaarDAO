@@ -5,10 +5,12 @@ import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 import { SupportedDaoNetwork } from 'typings/dao';
 
-import { setDaoAddress, setSupportedNetworks } from './reducer';
+import { setCanDAOSupportExternalLinks, setDaoAddress, setSupportedNetworks } from './reducer';
 
 import { getState, useAppSelector } from 'store';
 import { useDaoTokenStore } from 'store/dao-token/hooks';
+
+import { daoInstance } from 'contracts/contract-instance';
 
 export function useDaoStore () {
   const dispatch = useDispatch();
@@ -19,6 +21,9 @@ export function useDaoStore () {
   const isDaoAddressExist = useAppSelector(({ dao }) => Boolean(dao.daoAddress));
   const isDaoSupportingToken = useAppSelector(({ dao, daoToken }) =>
     Boolean(dao.daoAddress && daoToken.tokenInfo));
+  const canDAOSupportSituationExternalLinks = useAppSelector(({ dao }) =>
+    dao.canDAOSupportExternalLinks
+  );
 
   const supportedNetworks: SupportedDaoNetwork[] = useAppSelector(({ dao }) => dao.supportedNetworks);
 
@@ -41,11 +46,23 @@ export function useDaoStore () {
     dispatch(setSupportedNetworks(supportedNetworks));
   }
 
+  async function loadCanDAOSupportExternalLinks () {
+    try {
+      if (!daoInstance) return;
+
+      const isSupportExternalLink = await daoInstance.doesDaoSupportExternalLinks();
+      dispatch(setCanDAOSupportExternalLinks(isSupportExternalLink));
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+    }
+  }
+
   async function loadAllDaoInfo () {
     try {
       await loadDaoInstance();
       await loadDaoVotingToken();
       await getToken();
+      await loadCanDAOSupportExternalLinks();
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }
@@ -64,6 +81,7 @@ export function useDaoStore () {
     isDaoSupportingToken,
     isSelectPage,
     isShowDao,
+    canDAOSupportSituationExternalLinks,
 
     composeDaoLink,
     setSupportedNetworks: useCallback(setDaoSupportedNetworks, []),

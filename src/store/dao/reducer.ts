@@ -4,11 +4,13 @@ import { SupportedDaoNetwork } from 'typings/dao';
 interface DAOState {
   daoAddress: string;
   supportedNetworks: SupportedDaoNetwork[];
+  canDAOSupportExternalLinks: boolean;
 };
 
 const initialState: DAOState = {
   daoAddress: '',
   supportedNetworks: [],
+  canDAOSupportExternalLinks: false,
 };
 
 const expertsSlice = createSlice({
@@ -21,8 +23,11 @@ const expertsSlice = createSlice({
     setSupportedNetworks: (state, { payload }: PayloadAction<SupportedDaoNetwork[]>) => {
       state.supportedNetworks = payload;
     },
+    setCanDAOSupportExternalLinks: (state, { payload }: PayloadAction<boolean>) => {
+      state.canDAOSupportExternalLinks = payload;
+    },
   }
 });
 
-export const { setDaoAddress, setSupportedNetworks } = expertsSlice.actions;
+export const { setDaoAddress, setSupportedNetworks, setCanDAOSupportExternalLinks } = expertsSlice.actions;
 export default expertsSlice.reducer;

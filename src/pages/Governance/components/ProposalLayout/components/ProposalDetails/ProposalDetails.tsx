@@ -6,6 +6,7 @@ import { ProposalBaseInfo } from 'typings/proposals';
 
 import BaseDetails from './components/BaseDetails';
 import ExternalCallDataDetails from './components/ExternalCallDataDetails';
+import GeneralSituationDetails from './components/GeneralSituationDetails';
 import MembershipSituationsProposalDetails from './components/MembershipSituationsProposalDetails';
 import MultiCallList from './components/MultiCallList';
 import ParamsList from './components/ParamsList';
@@ -40,6 +41,9 @@ function ProposalDetails ({ proposal, decodedCallData, externalAbi, isExternalPr
   const hasMembershipDetails = decodedCallData !== null &&
       proposal.relatedVotingSituation === DefaultVotingSituations.Membership;
 
+  const isGeneralProposal = decodedCallData !== null &&
+    proposal.relatedVotingSituation === DefaultVotingSituations.General;
+
   return (
     <ProposalDetailsContainer className="block">
       <div>
@@ -53,9 +57,14 @@ function ProposalDetails ({ proposal, decodedCallData, externalAbi, isExternalPr
               />
             )}
             <BaseDetails proposal={proposal} />
+
           </div>
         </div>
       </div>
+
+      {isGeneralProposal && (
+        <GeneralSituationDetails decodedCallData={decodedCallData} />
+      )}
 
       {hasParamsList && (
         <ParamsList decodedCallData={decodedCallData} />

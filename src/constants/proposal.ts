@@ -1,4 +1,5 @@
-import { DefaultVotingSituations } from '@q-dev/gdk-sdk';
+import { DefaultVotingSituations, VotingType } from '@q-dev/gdk-sdk';
+import { GeneralSituationType } from 'typings/forms';
 
 export const AVAILABLE_VOTING_SITUATIONS = Object.freeze([
   DefaultVotingSituations.Constitution,
@@ -35,3 +36,15 @@ export const PERMISSION_MANAGER_AVAILABLE_FUNCTIONS = Object.freeze([
   'function confExternalModule(address dao_, string moduleName_)',
   'function removeVetoGroup(address target_)'
 ]);
+
+export const GENERAL_SITUATION_TYPE_TRANSLATION_KEY_MAP: Record<GeneralSituationType, string> = {
+  'raise-topic': 'RAISE_SOME_TOPIC',
+  'create-voting': 'CREATE_VOTING_SITUATION',
+  'remove-voting': 'REMOVE_VOTING_SITUATION'
+};
+
+export const VOTING_TYPE_TRANSLATION_KEY_MAP: Record<VotingType, string> = {
+  [VotingType.NonRestricted]: 'COMMUNITY_VOTING',
+  [VotingType.Restricted]: 'EXPERTS_VOTING',
+  [VotingType.PartiallyRestricted]: 'EXPERTS_INITIATE_AND_ANYONE_VOTE'
+};

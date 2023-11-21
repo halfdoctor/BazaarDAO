@@ -41,6 +41,8 @@ const DEFAULT_VALUES: NewProposalFormType = {
   generalSituationType: 'raise-topic',
   isParamsChanged: false,
   params: [],
+  newVotingSituation: null,
+  situationNameForRemoval: '',
   callData: [],
 };
 
@@ -164,12 +166,19 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
         : []
       ),
       ...(form.values.type === DefaultVotingSituations.General
-        ? [{
-          id: 'general-situation',
-          name: t('DETAILS'),
-          title: t('DETAILS'),
-          children: <GeneralSituationStep />
-        }]
+        ? [
+          {
+            id: 'permission-manager-basic',
+            name: t('BASIC_DETAILS'),
+            title: t('BASIC_DETAILS'),
+            children: <BasicDetailsStep />
+          }, {
+            id: 'general-situation',
+            name: t('DETAILS'),
+            title: t('DETAILS'),
+            children: <GeneralSituationStep panelSituations={panelSituations} />
+          }
+        ]
         : []
       ),
       ...(form.values.type === DefaultVotingSituations.ConfigurationParameter
