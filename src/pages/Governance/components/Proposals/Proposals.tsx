@@ -31,7 +31,7 @@ function Proposals ({ panelName }: { panelName: string }) {
       newList.map(item => getProposalBaseInfo(item.relatedExpertPanel, item.id.toString()))
     );
     setList(preparedProposalList as ProposalBaseInfo[]);
-    setIsPaginationAvailable(newList.length === PAGE_LIMIT && futureList.length === PAGE_LIMIT);
+    setIsPaginationAvailable(newList.length === PAGE_LIMIT && Boolean(futureList.length));
     setIsLoading(false);
   };
 
