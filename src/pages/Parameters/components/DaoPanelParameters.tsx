@@ -27,6 +27,7 @@ function DaoPanelParameters ({ panel }: Props) {
   async function loadParameters () {
     try {
       setLoading(true);
+      setParameters([]);
       const parameters = await getParameters(panel, isRegularParams ? 'regular' : 'configuration');
       setParameters(parameters);
     } catch (error) {
@@ -43,10 +44,8 @@ function DaoPanelParameters ({ panel }: Props) {
       parameters={parameters}
       loading={loading}
       errorMsg={error}
-      isSwitcherShown={panel !== DAO_RESERVED_NAME}
-      switcherValue={isRegularParams}
-      switcherLabel={t('SHOW_REGULAR_PARAMS')}
-      onChange={() => setIsRegularParams(!isRegularParams)}
+      isRegularParams={isRegularParams}
+      setIsRegularParams={panel !== DAO_RESERVED_NAME ? setIsRegularParams : undefined}
     />
   );
 }
