@@ -8,6 +8,7 @@ import { ProposalBaseInfo } from 'typings/proposals';
 
 import PageLayout from 'components/PageLayout';
 
+import AppealBlock from './components/AppealBlock';
 import ProposalActions from './components/ProposalActions';
 import ProposalDetails from './components/ProposalDetails';
 import ProposalExpertsTurnout from './components/ProposalExpertsTurnout';
@@ -45,6 +46,9 @@ function ProposalLayout ({ proposal, externalAbi, isExternalProposalSituation }:
     }
   }, [proposal.callData, proposal.relatedVotingSituation, externalAbi]);
 
+  const isProposalVetoDisplay = proposal.isVetoGroupExists && !!Number(proposal.vetoMembersCount) &&
+    (!proposal.isAppealConfigured || proposal.extendedStats?.counters.isAppealed);
+
   return (
     <PageLayout
       title={`#${proposal.id} ${proposal.relatedVotingSituation}`}
@@ -76,7 +80,12 @@ function ProposalLayout ({ proposal, externalAbi, isExternalProposalSituation }:
               <ProposalExpertsVoting extendedProposalStats={proposal.extendedStats}/>
             </>
           )}
-          <ProposalVeto proposal={proposal} />
+          {proposal.isAppealConfigured && !!proposal.extendedStats && (
+            <AppealBlock proposal={proposal} />
+          )}
+          {isProposalVetoDisplay && (
+            <ProposalVeto proposal={proposal} />
+          )}
         </div>
       </ProposalLayoutContainer>
     </PageLayout>
