@@ -436,8 +436,7 @@
   "NUMBER_SECONDS": "{{number}} seconds",
   "CONTRACT_INTERFACE_NOT_SUPPORTED": "Contract interface is not supported",
   "APPEAL_PERIOD": "Appeal Period",
-  "THERE_HAD_BEEN_NO_APPEAL": "There had been no appeal",
   "THERE_HAS_BEEN_NO_APPEAL": "There has been no appeal",
-  "APPEAL_HAD_BEEN_MADE": "An appeal had been made",
+  "APPEAL_HAS_BEEN_MADE": "An appeal has been made",
   "SIMPLIFIED_VIEW": "Simplified view"
 }
