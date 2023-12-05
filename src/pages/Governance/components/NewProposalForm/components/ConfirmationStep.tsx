@@ -144,8 +144,7 @@ function ConfirmationStep ({ abi, isExternalSituation }: Props) {
             <p className="text-lg pre-line">{values.remark}</p>
           </div>
         </FormBlock>)}
-      {(Boolean(isExternalSituation) ||
-        values.type === DefaultVotingSituations.DAORegistry ||
+      {(values.type === DefaultVotingSituations.DAORegistry ||
         values.type === DefaultVotingSituations.PermissionManager) && (
         <>
           <FormBlock
@@ -166,16 +165,36 @@ function ConfirmationStep ({ abi, isExternalSituation }: Props) {
             {values.callData.map((callData, index) => (
               <DecodedCallDataViewer
                 key={index}
-                scheme={isExternalSituation ? undefined : 'top-border'}
+                scheme="top-border"
                 callData={callData}
                 index={index + 1}
                 votingSituation={values.type}
                 abi={abi}
-                withoutHeader={isExternalSituation}
               />
             ))}
           </FormBlock>
         </>
+      )}
+      {Boolean(isExternalSituation) && (
+        <FormBlock
+          icon="edit"
+          title={t('DETAILS')}
+          onAction={() => updateStep(1)}
+        >
+          <div>
+            <p className="text-md color-secondary">{t('DESCRIPTION')}</p>
+            <p className="text-lg pre-line">{values.remark}</p>
+          </div>
+          {values.callData.map((callData, index) => (
+            <DecodedCallDataViewer
+              key={index}
+              withoutHeader
+              callData={callData}
+              votingSituation={values.type}
+              abi={abi}
+            />
+          ))}
+        </FormBlock>
       )}
     </FormStep>
   );

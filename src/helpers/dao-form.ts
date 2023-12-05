@@ -57,7 +57,7 @@ export function generateInitialFieldsByABI ({
       key: item.name,
       type: item.type,
       label: item.name,
-      placeholder: `${item.type} type`,
+      placeholder: item.type,
       isArrayType: item.type.includes('[]')
     });
 

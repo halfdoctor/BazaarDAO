@@ -23,6 +23,7 @@ import ConstitutionHashStep from './components/ConstitutionHashStep';
 import ConstitutionSituationStep from './components/ConstitutionSituationStep';
 import GeneralSituationStep from './components/GeneralSituationStep';
 import MembershipSituationStep from './components/MembershipSituationStep';
+import ModuleDataStep from './components/ModuleDataStep';
 import ParameterSituationStep from './components/ParameterSituationStep';
 import TypeStep from './components/TypeStep';
 
@@ -112,20 +113,12 @@ function NewProposalForm ({ panelName }: { panelName: string }) {
       ...(currentSituation?.isExternal && currentSituation?.externalInfo?.abi
         ? [
           {
-            id: 'dao-registry-basic',
-            name: t('BASIC_DETAILS'),
-            title: t('BASIC_DETAILS'),
-            children: <BasicDetailsStep key={form.values.type} />
-          },
-          {
-            id: 'dao-registry-situation',
+            id: 'dao-external-module',
             name: t('DETAILS'),
             title: t('DETAILS'),
-            children: <CallDataStep
+            children: <ModuleDataStep
               key={form.values.type}
-              situation={form.values.type}
               abi={currentSituation.externalInfo.abi}
-              maxFormCount={1}
             />
           }
         ]
