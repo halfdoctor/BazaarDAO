@@ -3,7 +3,6 @@
   "Q_CONSTITUTION": "Q Constitution",
   "CONSTITUTION": "Constitution",
   "HASH": "Hash",
-  "DOWNLOAD": "Download",
   "GOVERNANCE": "Governance",
   "AMOUNT": "Amount",
   "NFT_ID": "NFT ID",
@@ -367,9 +366,6 @@
   "MINT_TOKENS": "Mint Tokens",
   "MINTED_ALL_TOKEN": "Minted all tokens in the system",
   "DAO_DASHBOARD": "DAO Dashboard",
-  "TOKEN_URI_OPTIONAL": "Token URI (optional)",
-  "TOKEN_URI_PLACEHOLDER": "Input Token URI",
-  "TOKEN_URI_TOOLTIP": "The URI is used to link to the NFT metadata. This could for example be a picture of your avatar. If you do not provide an URI, your NFT still functions like before, but it will not represent any data or image.",
   "NEW_CONSTITUTION_HASH_TOOLTIP": "If your DAO does not have a constitution, input 'Zero hash' in the field below.",
   "BALANCE": "Balance",
   "DAO_NOT_SUPPORTED": "This DAO doesn't seem to exist. Please check if you are searched wrong address.",
@@ -393,9 +389,6 @@
   "ADD_MEMBER": "Add Member",
   "CANDIDATE": "Candidate",
   "VOTING_TARGET_PARAM_WARNING_TIP": "If you change the voting target, you will be permanently disabling this proposal type. This cannot be undone!",
-  "TOKEN_ID": "Token ID",
-  "TOKEN_ID_PLACEHOLDER": "Input integer ID",
-  "TOKEN_ID_EXISTS_ERROR": "This token ID already exists",
   "DESCRIPTION": "Description",
   "PROPOSAL_DESCRIPTION_TOOLTIP": "Please describe what you want to vote on. Be aware, that this proposal will be stored completely on the blockchain. To save on gas fees, it's recommended to provide a link to an external source with a detailed description.",
   "SUPPORTED_DAO_NETWORKS_HEADER": "Wrong DAO network",
@@ -438,5 +431,6 @@
   "APPEAL_PERIOD": "Appeal Period",
   "THERE_HAS_BEEN_NO_APPEAL": "There has been no appeal",
   "APPEAL_HAS_BEEN_MADE": "An appeal has been made",
-  "SIMPLIFIED_VIEW": "Simplified view"
+  "SIMPLIFIED_VIEW": "Simplified view",
+  "NFT_MINT_INFO_TOOLTIP": "You can use this tool to mint DAO tokens to your members. Token IDs will start at \"0\" and then increase by \"1\" with every mint. For the rare case that you already minted tokens through a separate script which did not follow this convention, please continue to use your script."
 }

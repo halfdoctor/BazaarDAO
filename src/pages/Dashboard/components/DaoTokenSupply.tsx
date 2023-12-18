@@ -9,6 +9,7 @@ import { ErrorHandler, requestAddErc20 } from 'helpers';
 import styled from 'styled-components';
 
 import ExplorerAddress from 'components/Custom/ExplorerAddress';
+import InfoTooltip from 'components/InfoTooltip';
 
 import MintForm from './components/MintForm';
 
@@ -82,6 +83,7 @@ function DaoTokenSupply () {
   const { tokenInfo } = useDaoTokenStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isNftLike = tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721';
   const isErc20Token = tokenInfo?.type === 'erc20';
   const isTokenOwner = tokenInfo?.owner === accountAddress;
 
@@ -167,7 +169,16 @@ function DaoTokenSupply () {
 
       <Modal
         open={isModalOpen}
-        title={t('MINT')}
+        title={(
+          <div style={{ display: 'flex' }}>
+            <span>
+              {t('MINT')}
+            </span>
+            {isNftLike && (
+              <InfoTooltip description={t('NFT_MINT_INFO_TOOLTIP')} />
+            )}
+          </div>
+        )}
         onClose={() => setIsModalOpen(false)}
       >
         <MintForm onSubmit={() => setIsModalOpen(false)} />

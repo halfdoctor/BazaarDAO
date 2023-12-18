@@ -24,15 +24,23 @@ import { getDAOVaultDepositAmount } from 'contracts/helpers/dao-vault-helper';
 import { amount, required } from 'utils/validators';
 
 const StyledForm = styled.form`
-  .transfer-form-main {
+  .transfer-form__main {
     margin-top: 16px;
     display: grid;
     gap: 16px;
   }
 
-  .transfer-form-action {
+  .transfer-form__actions {
+    display: flex;
+    gap: 8px;
     margin-top: 8px;
 
+    ${media.lessThan('medium')} {
+      flex-direction: column;
+    }
+  }
+
+  .transfer-form__action {
     ${media.lessThan('medium')} {
       width: 100%;
     }
@@ -67,21 +75,18 @@ function DepositForm () {
       amount: tokenInfo?.type === 'erc5484' || tokenInfo?.type === 'erc721' ? [] : [required, amount(maxAmount)],
       id: tokenInfo?.type === 'erc721' ? [required] : []
     },
-    onSubmit: ({ amount, id }) => {
-      isDepositApprovalNeeded
-        ? approveSpendToken()
-        : submitTransaction({
-          successMessage: t('DEPOSIT_INTO_VAULT_TX'),
-          submitFn: () => depositToVault({ amount, erc721Id: id }),
-          onSuccess: async () => {
-            form.reset();
-            await Promise.all([
-              loadAllBalances(),
-              getToken(),
-            ]);
-          },
-        });
-    }
+    onSubmit: ({ amount, id }) =>
+      submitTransaction({
+        successMessage: t('DEPOSIT_INTO_VAULT_TX'),
+        submitFn: () => depositToVault({ amount, erc721Id: id }),
+        onSuccess: async () => {
+          form.reset();
+          await Promise.all([
+            loadAllBalances(),
+            getToken(),
+          ]);
+        },
+      })
   });
 
   const updateMaxAmount = async () => {
@@ -109,17 +114,10 @@ function DepositForm () {
     return checkIsApprovalNeeded(form.values.amount);
   }, [form.values.amount, tokenInfo]);
 
-  const submitBtnText = useMemo(() => {
-    if (isConstitutionSignNeeded) {
-      return t('SIGN_CONSTITUTION_TO_DEPOSIT');
-    }
-
-    return isDepositApprovalNeeded
-      ? t('APPROVE')
-      : t('DEPOSIT');
-  }, [t, isDepositApprovalNeeded, isConstitutionSignNeeded]);
-
   const isDepositedNft = useMemo(() => Number(vaultBalance) > 0 && tokenInfo?.type === 'erc721', [vaultBalance, tokenInfo]);
+
+  const isDepositDisabled = isConstitutionSignNeeded || isDepositApprovalNeeded ||
+    !form.isValid || !canDeposit || isDepositedNft;
 
   return (
     <StyledForm
@@ -129,12 +127,12 @@ function DepositForm () {
       <h2 className="text-h2">{t('DEPOSIT')}</h2>
       <p className="text-md color-secondary">{t('FROM_WALLET_TO_VAULT')}</p>
 
-      <div className="transfer-form-main">
+      <div className="transfer-form__main">
         {tokenInfo?.type === 'erc721' && (
           <Erc721IdField
             {...form.fields.id}
             nftsList={walletNftsList}
-            disabled={isDepositedNft}
+            disabled={isConstitutionSignNeeded || isDepositedNft}
             hint={isDepositedNft ? t('MULTIPLE_NFT_DEPOSIT_WARNING') : t('AVAILABLE_TO_DEPOSIT', { amount: formatAsset(maxAmount, tokenInfo.symbol) })}
           />
         )}
@@ -150,15 +148,36 @@ function DepositForm () {
             }
             max={maxAmount}
             placeholder="0.0"
+            disabled={isConstitutionSignNeeded}
           />}
 
-        <Button
-          className="transfer-form-action"
-          disabled={!isConstitutionSignNeeded && (!form.isValid || !canDeposit || isDepositedNft)}
-          onClick={isConstitutionSignNeeded ? signConstitution : form.submit }
-        >
-          {submitBtnText}
-        </Button>
+        <div className="transfer-form__actions">
+          {isConstitutionSignNeeded
+            ? (<Button
+              className="transfer-form__action"
+              onClick={signConstitution}
+            >
+              {t('SIGN_CONSTITUTION_TO_DEPOSIT')}
+            </Button>)
+            : (<>
+              <Button
+                className="transfer-form__action"
+                disabled={isDepositDisabled}
+                onClick={form.submit}
+              >
+                {t('DEPOSIT')}
+              </Button>
+              {isDepositApprovalNeeded && (
+                <Button
+                  className="transfer-form__action"
+                  onClick={approveSpendToken}
+                >
+                  {t('APPROVE')}
+                </Button>
+              )}
+            </>)
+          }
+        </div>
       </div>
     </StyledForm>
   );

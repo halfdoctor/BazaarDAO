@@ -1,16 +1,18 @@
 import { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { DAO_RESERVED_NAME } from '@q-dev/gdk-sdk';
 import { useWeb3Context } from 'context/Web3ContextProvider';
 import { ErrorHandler } from 'helpers';
 import { SupportedDaoNetwork } from 'typings/dao';
 
-import { setCanDAOSupportExternalLinks, setDaoAddress, setSupportedNetworks } from './reducer';
+import { setCanDAOSupportExternalLinks, setDaoAddress, setDAOName, setSupportedNetworks } from './reducer';
 
 import { getState, useAppSelector } from 'store';
 import { useDaoTokenStore } from 'store/dao-token/hooks';
 
 import { daoInstance } from 'contracts/contract-instance';
+import { getParameters } from 'contracts/helpers/parameters-helper';
 
 export function useDaoStore () {
   const dispatch = useDispatch();
@@ -18,6 +20,7 @@ export function useDaoStore () {
   const { loadDaoVotingToken, getToken, loadDaoInstance } = useDaoTokenStore();
 
   const daoAddress = useAppSelector(({ dao }) => dao.daoAddress);
+  const daoName = useAppSelector(({ dao }) => dao.daoName);
   const isDaoAddressExist = useAppSelector(({ dao }) => Boolean(dao.daoAddress));
   const isDaoSupportingToken = useAppSelector(({ dao, daoToken }) =>
     Boolean(dao.daoAddress && daoToken.tokenInfo));
@@ -46,6 +49,16 @@ export function useDaoStore () {
     dispatch(setSupportedNetworks(supportedNetworks));
   }
 
+  async function loadDAOName () {
+    try {
+      const params = await getParameters(DAO_RESERVED_NAME);
+      const name = params.find(({ name }) => name === 'constitution.daoName')?.normalValue || '';
+      dispatch(setDAOName(name));
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error);
+    }
+  }
+
   async function loadCanDAOSupportExternalLinks () {
     try {
       if (!daoInstance) return;
@@ -61,8 +74,11 @@ export function useDaoStore () {
     try {
       await loadDaoInstance();
       await loadDaoVotingToken();
-      await getToken();
-      await loadCanDAOSupportExternalLinks();
+      await Promise.all([
+        getToken(),
+        loadCanDAOSupportExternalLinks(),
+        loadDAOName()
+      ]);
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error);
     }
@@ -75,6 +91,7 @@ export function useDaoStore () {
 
   return {
     daoAddress,
+    daoName,
     supportedNetworks,
     isDaoAddressExist,
     isDaoOnSupportedNetwork,
