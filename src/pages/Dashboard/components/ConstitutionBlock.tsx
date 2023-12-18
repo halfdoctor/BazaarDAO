@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button, Dropdown, Icon } from '@q-dev/q-ui-kit';
 import { trimString } from '@q-dev/utils';
 import styled from 'styled-components';
 
@@ -63,8 +62,6 @@ function ConstitutionBlock () {
     loadConstitutionLastUpdate
   } = useConstitution();
 
-  const [menuOpen, setMenuOpen] = useState(false);
-
   async function loadConstitutionValues () {
     await loadConstitutionHash();
     await loadConstitutionLastUpdate();
@@ -80,31 +77,6 @@ function ConstitutionBlock () {
         <h2 className="text-lg">
           {t('CONSTITUTION')}
         </h2>
-
-        <Dropdown
-          right
-          open={menuOpen}
-          trigger={(
-            <Button
-              icon
-              className="constitution-block__menu-btn"
-              look="ghost"
-              active={menuOpen}
-            >
-              <Icon name="more-vertical" />
-            </Button>
-          )}
-          onToggle={setMenuOpen}
-        >
-          <div className="constitution-block__menu">
-            <a
-              className="constitution-block__menu-link text-md"
-            >
-              <Icon name="download" />
-              <span>{t('DOWNLOAD')}</span>
-            </a>
-          </div>
-        </Dropdown>
       </div>
 
       <div className="constitution-block__hash text-xl font-semibold">

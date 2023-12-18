@@ -5,10 +5,12 @@ interface DAOState {
   daoAddress: string;
   supportedNetworks: SupportedDaoNetwork[];
   canDAOSupportExternalLinks: boolean;
+  daoName: string;
 };
 
 const initialState: DAOState = {
   daoAddress: '',
+  daoName: '',
   supportedNetworks: [],
   canDAOSupportExternalLinks: false,
 };
@@ -20,6 +22,9 @@ const expertsSlice = createSlice({
     setDaoAddress: (state, { payload }: PayloadAction<string>) => {
       state.daoAddress = payload;
     },
+    setDAOName: (state, { payload }: PayloadAction<string>) => {
+      state.daoName = payload;
+    },
     setSupportedNetworks: (state, { payload }: PayloadAction<SupportedDaoNetwork[]>) => {
       state.supportedNetworks = payload;
     },
@@ -29,5 +34,5 @@ const expertsSlice = createSlice({
   }
 });
 
-export const { setDaoAddress, setSupportedNetworks, setCanDAOSupportExternalLinks } = expertsSlice.actions;
+export const { setDaoAddress, setDAOName, setSupportedNetworks, setCanDAOSupportExternalLinks } = expertsSlice.actions;
 export default expertsSlice.reducer;

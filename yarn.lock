@@ -1048,10 +1048,10 @@
     ethers "^5.7.2"
     lodash "^4.17.21"
 
-"@q-dev/q-ui-kit@^1.0.0-rc.6":
-  version "1.0.0-rc.6"
-  resolved "https://registry.yarnpkg.com/@q-dev/q-ui-kit/-/q-ui-kit-1.0.0-rc.6.tgz#ca6a6170ecc500fa7ad7a1f330206f1e9aabd6bc"
-  integrity sha512-sgq7124ILOl/1My8/t3lIC7iCNlBf/Mraj233KupOt5lhg1Z7qh8eCpraOpRaFhSEJhBXY419uzD5CSH+H+TXg==
+"@q-dev/q-ui-kit@^1.0.0-rc.7":
+  version "1.0.0-rc.7"
+  resolved "https://registry.yarnpkg.com/@q-dev/q-ui-kit/-/q-ui-kit-1.0.0-rc.7.tgz#48f7d0725f2d8b9522a1809024237b581c1bb689"
+  integrity sha512-+P46XBl0TJhGMdm5z0TTBueFfHL/hgCsNEEWvWzU05xEnoU3zqplhQt+6KB9AyxLio73klcX5YdT73Zo+sofHw==
   dependencies:
     lodash "^4.17.21"
     react-datepicker "^3.8.0"

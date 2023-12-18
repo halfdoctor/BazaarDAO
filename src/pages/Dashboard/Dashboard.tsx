@@ -51,13 +51,17 @@ export const StyledWrapper = styled.div`
 
 function Dashboard () {
   const { t } = useTranslation();
-  const { composeDaoLink } = useDaoStore();
+  const { composeDaoLink, daoName } = useDaoStore();
   const { tokenInfo } = useDaoTokenStore();
   const { expertPanels } = useExpertPanels();
 
+  const title = daoName
+    ? daoName + ' ' + t('DASHBOARD')
+    : t('DASHBOARD');
+
   return (
     <PageLayout
-      title={t('DASHBOARD')}
+      title={title}
       action={
         <Link to={composeDaoLink(RoutePaths.parameters)}>
           <Button block>
