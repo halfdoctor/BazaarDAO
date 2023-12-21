@@ -19,7 +19,7 @@ const InvertedIcon = styled(Icon)`
   transform: rotate(180deg);
 `;
 
-const CONSTITUTION_FILE_EXTENSIONS = '.adoc';
+const CONSTITUTION_FILE_EXTENSIONS = '.adoc,.doc,.docx,.pdf';
 
 function ConstitutionHashByFileField ({ className, onChange }: Props) {
   const { t } = useTranslation();
