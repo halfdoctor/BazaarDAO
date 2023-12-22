@@ -31,7 +31,7 @@ function ConstitutionHashByFileField ({ className, onChange }: Props) {
 
   async function handleChange (event: ChangeEvent) {
     try {
-      const uploadedTextFile = await (event.target as HTMLInputElement).files?.[0]?.text();
+      const uploadedTextFile = await (event.target as HTMLInputElement).files?.[0]?.arrayBuffer();
       const hash = uploadedTextFile
         ? `0x${sha256(uploadedTextFile)}`
         : '';
