@@ -48,7 +48,7 @@ export const mintToErc5484 = async (address: string, amount: string | number, to
   if (!erc5484ContractSigner || !address) return;
 
   try {
-    return await erc5484ContractSigner.mintTo(address, amount, tokenURI, 0);
+    return await erc5484ContractSigner['mintTo(address,uint256,string,uint8)'](address, amount, tokenURI, 0);
   } catch (error) {
     handleEthError(error as EthProviderRpcError);
   }

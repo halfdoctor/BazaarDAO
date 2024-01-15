@@ -36,7 +36,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.q.org',
     constitutionUrl: 'https://constitution.q.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0x66127ec6bacFF7480a6AC2B142aC82d2B0D16DCD',
+    masterDaoRegistryAddress: '0xD2acB019Ef0479628Ca86Bf322eE5E5fCF58620b',
     faucetUrl: 'https://faucet.q.org',
   },
   testnet: {
@@ -53,7 +53,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qtestnet.org',
     gasBuffer: 2,
-    masterDaoRegistryAddress: '0xFc8F4f8b41975C21Ec615324908452E5A0cF538f',
+    masterDaoRegistryAddress: '0x62A8eF5393b3Ca8B3189C20321992F146701b420',
     faucetUrl: 'https://faucet.qtestnet.org',
   },
   devnet: {
@@ -70,7 +70,7 @@ export const networkConfigsMap: Record<NetworkName, NetworkConfig> = {
     docsUrl: 'https://docs.qtestnet.org',
     constitutionUrl: 'https://constitution.qdevnet.org',
     gasBuffer: 1.5,
-    masterDaoRegistryAddress: '0xe3b73e059943e339c2641606451dFca1B2F18Ae2',
+    masterDaoRegistryAddress: '0xCC7218eeAD86542f1F82ff6287BfD39CdbCFD6D0',
     faucetUrl: 'https://faucet.qdevnet.org',
   },
 };
